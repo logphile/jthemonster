@@ -13,15 +13,15 @@
       </div>
 
       <div class="grid grid-cols-2 gap-3">
-        <div class="col-span-1">
+        <div>
           <label class="text-xs text-subtext">Weight</label>
           <input v-model.number="weight" inputmode="decimal"
-            class="mt-1 w-full rounded-xl bg-bg border border-border/60 px-3 py-2" />
+                 class="mt-1 w-full rounded-xl bg-bg border border-border/60 px-3 py-2" />
         </div>
-        <div class="col-span-1">
+        <div>
           <label class="text-xs text-subtext">Reps</label>
           <input v-model.number="reps" inputmode="numeric"
-            class="mt-1 w-full rounded-xl bg-bg border border-border/60 px-3 py-2" />
+                 class="mt-1 w-full rounded-xl bg-bg border border-border/60 px-3 py-2" />
         </div>
       </div>
 
@@ -39,7 +39,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
 import Chip from '~/components/ui/Chip.vue'
 import PrimaryButton from '~/components/ui/PrimaryButton.vue'
 
@@ -53,5 +52,5 @@ const reps = ref(5)
 
 function save(){ emit('save', { exercise: exercise.value, weight: weight.value, reps: reps.value }); emit('update:modelValue', false) }
 function close(){ emit('update:modelValue', false) }
-function repeatLast(){ weight.value = 185; reps.value = 5 } // TODO: wire to last set
+function repeatLast(){ /* wire later */ }
 </script>

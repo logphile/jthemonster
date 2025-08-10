@@ -30,7 +30,6 @@
 </template>
 
 <script setup lang="ts">
-defineEmits<{ (e:'start'): void }>()
 const { lastLabel, volume7d } = useRecentSets()
 const prettyDate = new Date().toLocaleDateString(undefined, { weekday: 'long', month:'short', day:'numeric' })
 const weekNum = Math.ceil((new Date().getDate()) / 7)

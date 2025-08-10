@@ -20,6 +20,7 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{ items: Array<{exercise:string; weight:number; reps:number}> }>()
+import Card from '~/components/ui/Card.vue'
+defineProps<{ items: Array<{exercise:string; weight:number; reps:number; id?: string; ts?: number}> }>()
 defineEmits<{ (e:'remove', index:number): void }>()
 </script>
