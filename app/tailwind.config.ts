@@ -2,13 +2,17 @@ import type { Config } from 'tailwindcss'
 
 export default <Partial<Config>>{
   darkMode: 'class',
+  // You can remove 'content' entirely to use Nuxt defaults; keeping explicit list here
   content: [
+    './app.vue',
     './components/**/*.{vue,js,ts}',
     './layouts/**/*.vue',
     './pages/**/*.vue',
-    './composables/**/*.{js,ts}',
     './plugins/**/*.{js,ts}',
-    './app.vue',
+  ],
+  safelist: [
+    'bg-bg','text-text','bg-card','text-subtext','border-border',
+    'bg-primary','text-primary','bg-accent','bg-success'
   ],
   theme: {
     extend: {

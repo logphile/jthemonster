@@ -2,8 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Fallback: visible even if Tailwind purges custom classes */
 @layer base {
-  :root { color-scheme: dark; }
-  html, body { @apply bg-bg text-text; }
-  ::selection { @apply bg-primary/40 text-text; }
+  :root {
+    color-scheme: dark;
+    --c-bg: #0A0A0A;
+    --c-text: #E5E7EB;
+    --c-card: #141414;
+    --c-border: #1F2937;
+  }
+  html, body { background: var(--c-bg); color: var(--c-text); }
 }
