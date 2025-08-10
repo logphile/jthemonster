@@ -40,7 +40,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: upload
           app_location: 'app/.output/public'
-          api_location: 'app/.output/server'
+          api_location: 'app/.output/server/functions'
           skip_app_build: true
           skip_api_build: true
 
