@@ -32,6 +32,11 @@ jobs:
         env:
           NITRO_PRESET: azure
 
+      - name: Ensure Azure Functions host.json exists
+        run: |
+          set -e
+          echo '{"version":"2.0"}' > app/.output/server/functions/host.json
+
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
