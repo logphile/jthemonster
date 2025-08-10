@@ -2,28 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Fallback: visible even if Tailwind purges custom classes */
-@layer base {
-  :root {
-    color-scheme: dark;
-    --c-bg: #0A0A0A;
-    --c-text: #E5E7EB;
-    --c-card: #141414;
-    --c-border: #1F2937;
-  }
-  html, body { background: var(--c-bg); color: var(--c-text); }
+/* Background pan; keeps to a gradient */
+@keyframes bg-pan {
+  0% { background-position: 0% 50% }
+  100% { background-position: 100% 50% }
 }
-
-@layer utilities {
-  @keyframes bg-pan {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-  .animate-bg-pan { background-size: 200% 200%; animation: bg-pan 14s ease-in-out infinite; }
-
-  @keyframes fade-out-scale {
-    to { opacity: 0; transform: scale(.98); }
-  }
-  .animate-exit { animation: fade-out-scale .35s ease forwards; }
+.animate-bg-pan {
+  background: linear-gradient(90deg, #111, #1a1a1a, #111);
+  background-size: 200% 200%;
+  animation: bg-pan 20s linear infinite;
 }

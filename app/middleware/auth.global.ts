@@ -1,22 +1,24 @@
-// Runs on every route change (SSR is off in this app)
-import { useSupabaseClientSingleton } from '../composables/useSupabaseClient'
+// app/middleware/auth.global.ts
+export default defineNuxtRouteMiddleware((to) => {
+  // Never run this on server
+  if (process.server) return
 
-export default defineNuxtRouteMiddleware(async (to) => {
-  // Never block auth pages themselves
-  if (to.path === '/login' || to.path === '/welcome') return
+  // Allow these routes always
+  const passthrough = new Set(['/welcome', '/login', '/auth/callback'])
+  if (passthrough.has(to.path)) return
 
-  const supabase = useSupabaseClientSingleton()
-  const { data } = await supabase.auth.getSession()
-  const session = data.session
-
-  // Not logged in? go to /login
-  if (!session) return navigateTo('/login')
-
-  // Show welcome once per session token
-  const sig = (session.access_token || '').slice(-24) || 'anon'
-  const key = `jt_welcome_${sig}`
-
-  if (process.client && !localStorage.getItem(key)) {
-    return navigateTo('/welcome')
+  // One-per-login welcome gate (CLIENT ONLY)
+  const KEY = 'jt_welcome_v1'
+  try {
+    const seen = localStorage.getItem(KEY)
+    console.debug('[auth.global] seen?', !!seen, 'route:', to.path)
+    if (!seen) {
+      // Go show the welcome screen
+      return navigateTo('/welcome')
+    }
+  } catch (e) {
+    console.warn('[auth.global] localStorage error', e)
+    // If storage borks, fail open so we don't black-screen
+    return
   }
 })
