@@ -10,6 +10,10 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@vite-pwa/nuxt'
   ],
+  nitro: {
+    // Build server output compatible with Azure Static Web Apps (Azure Functions)
+    preset: 'azure'
+  },
   runtimeConfig: {
     public: {
       NUXT_PUBLIC_SUPABASE_URL: process.env.NUXT_PUBLIC_SUPABASE_URL || '',
