@@ -1,0 +1,20 @@
+{
+  "routes": [
+    {
+      "route": "/index.html",
+      "redirect": "/"
+    }
+  ],
+  "platform": {
+    "apiRuntime": "node:18"
+  },
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": [
+      "/assets/*",
+      "/icons/*",
+      "/favicon.ico",
+      "/manifest.webmanifest"
+    ]
+  }
+}

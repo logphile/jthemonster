@@ -26,28 +26,18 @@ jobs:
         working-directory: app
         run: npm ci
 
-      - name: Build
+      - name: Generate static site
         working-directory: app
-        run: npm run build
-        env:
-          NITRO_PRESET: azure
-
-      - name: Ensure Azure Functions host.json exists
-        run: |
-          set -e
-          echo '{"version":"2.0"}' > app/.output/server/functions/host.json
+        run: npm run generate
 
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
-          # Use ONE secret for both jobs; update the name below to match your repo secret
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: upload
-          app_location: 'app/.output/public'
-          api_location: 'app/.output/server/functions'
+          app_location: 'app'
+          output_location: '.output/public'
           skip_app_build: true
-          skip_api_build: true
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

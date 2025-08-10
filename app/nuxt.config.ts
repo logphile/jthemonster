@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  // Ensure Nuxt treats the current directory as the source directory
-  srcDir: '.',
+  // Static SPA
+  ssr: false,
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   css: ['~/assets/css/tailwind.css'],
@@ -10,10 +10,7 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@vite-pwa/nuxt'
   ],
-  nitro: {
-    // Build server output compatible with Azure Static Web Apps (Azure Functions)
-    preset: 'azure'
-  },
+  // No Nitro Azure preset for static hosting
   runtimeConfig: {
     public: {
       NUXT_PUBLIC_SUPABASE_URL: process.env.NUXT_PUBLIC_SUPABASE_URL || '',
