@@ -35,12 +35,10 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           action: upload
-          app_location: 'app'                     # source root (still needed)
-          app_artifact_location: 'app/.output/public'   # << the generated static files
+          app_location: 'app'                          # source root (still needed)
+          app_artifact_location: 'app/.output/public'  # where `nuxt generate` wrote files
+          config_file_location: 'app'                  # folder that contains staticwebapp.config.json
           skip_app_build: true
-          # no api_location for static hosting
-          # optional, but nice to include:
-          config_file_location: 'app/staticwebapp.config.json'
       
 
   close_pull_request_job:
