@@ -31,9 +31,10 @@
 
 <script setup lang="ts">
 defineEmits<{ (e:'start'): void }>()
+const { lastLabel, volume7d } = useRecentSets()
 const prettyDate = new Date().toLocaleDateString(undefined, { weekday: 'long', month:'short', day:'numeric' })
 const weekNum = Math.ceil((new Date().getDate()) / 7)
-const hasSession = false // TODO: wire to store
-const lastSetLabel = 'Bench 185 × 5'
-const weekVolume = 7420
+const hasSession = false
+const lastSetLabel = computed(() => lastLabel())
+const weekVolume = computed(() => volume7d())
 </script>

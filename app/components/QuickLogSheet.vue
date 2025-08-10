@@ -7,6 +7,11 @@
         <button @click="close" class="text-subtext hover:text-text">Close</button>
       </header>
 
+      <div class="mb-3">
+        <label class="text-xs text-subtext">Exercise</label>
+        <input v-model="exercise" class="mt-1 w-full rounded-xl bg-bg border border-border/60 px-3 py-2" placeholder="e.g., Bench Press" />
+      </div>
+
       <div class="grid grid-cols-2 gap-3">
         <div class="col-span-1">
           <label class="text-xs text-subtext">Weight</label>
@@ -39,13 +44,14 @@ import Chip from '~/components/ui/Chip.vue'
 import PrimaryButton from '~/components/ui/PrimaryButton.vue'
 
 const props = defineProps<{ modelValue: boolean }>()
-const emit = defineEmits<{ (e:'update:modelValue', v:boolean):void, (e:'save', payload:{weight:number; reps:number}):void }>()
+const emit = defineEmits<{ (e:'update:modelValue', v:boolean):void, (e:'save', payload:{exercise:string; weight:number; reps:number}):void }>()
 
 const open = computed(()=>props.modelValue)
+const exercise = ref('Bench Press')
 const weight = ref(135)
 const reps = ref(5)
 
-function save(){ emit('save', { weight: weight.value, reps: reps.value }); emit('update:modelValue', false) }
+function save(){ emit('save', { exercise: exercise.value, weight: weight.value, reps: reps.value }); emit('update:modelValue', false) }
 function close(){ emit('update:modelValue', false) }
 function repeatLast(){ weight.value = 185; reps.value = 5 } // TODO: wire to last set
 </script>
