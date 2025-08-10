@@ -26,8 +26,8 @@ export default defineNuxtConfig({
       name: 'J The Monster',
       short_name: 'JMonster',
       description: 'Mobile-first lift tracker for one athlete + one coach',
-      theme_color: '#0b0f14',
-      background_color: '#0b0f14',
+      theme_color: '#0A0A0A',
+      background_color: '#0A0A0A',
       display: 'standalone',
       start_url: '/',
       icons: [
@@ -43,5 +43,16 @@ export default defineNuxtConfig({
   tailwindcss: {
     cssPath: '~/assets/css/tailwind.css',
     viewer: false
+  }
+  ,
+  app: {
+    head: {
+      link: [
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Sora:wght@600;700&display=swap' }
+      ],
+      bodyAttrs: { class: 'bg-bg text-text' }
+    }
   }
 })
