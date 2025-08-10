@@ -1,9 +1,9 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   // Static SPA
-  ssr: false,
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
+  ssr: false,
   css: ['~/assets/css/tailwind.css'],
   modules: [
     '@pinia/nuxt',
