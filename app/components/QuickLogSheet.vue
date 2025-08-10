@@ -9,12 +9,18 @@
 
       <div class="mb-3">
         <label class="text-xs text-subtext">Exercise</label>
-        <input v-model="exercise" class="mt-1 w-full rounded-xl bg-bg border border-border/60 px-3 py-2" placeholder="e.g., Bench Press" />
+        <input ref="exInput" v-model="exercise" autofocus class="mt-1 w-full rounded-xl bg-bg border border-border/60 px-3 py-2" placeholder="e.g., Bench Press" />
+        <div class="mt-2 flex flex-wrap gap-2">
+          <Chip @click="exercise='Bench Press'">Bench</Chip>
+          <Chip @click="exercise='Squat'">Squat</Chip>
+          <Chip @click="exercise='Deadlift'">Deadlift</Chip>
+          <Chip @click="exercise='Overhead Press'">OHP</Chip>
+        </div>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="text-xs text-subtext">Weight</label>
+          <label class="text-xs text-subtext">Weight ({{ units.unitLabel }})</label>
           <input v-model.number="weight" inputmode="decimal"
                  class="mt-1 w-full rounded-xl bg-bg border border-border/60 px-3 py-2" />
         </div>
@@ -41,6 +47,7 @@
 <script setup lang="ts">
 import Chip from '~/components/ui/Chip.vue'
 import PrimaryButton from '~/components/ui/PrimaryButton.vue'
+const units = useUnits()
 
 const props = defineProps<{ modelValue: boolean }>()
 const emit = defineEmits<{ (e:'update:modelValue', v:boolean):void, (e:'save', payload:{exercise:string; weight:number; reps:number}):void }>()
@@ -49,6 +56,8 @@ const open = computed(()=>props.modelValue)
 const exercise = ref('Bench Press')
 const weight = ref(135)
 const reps = ref(5)
+const exInput = ref<HTMLInputElement | null>(null)
+watch(open, v => { if (v) nextTick(() => exInput.value?.focus()) })
 
 function save(){ emit('save', { exercise: exercise.value, weight: weight.value, reps: reps.value }); emit('update:modelValue', false) }
 function close(){ emit('update:modelValue', false) }

@@ -6,6 +6,7 @@
 
     <Fab @click="showSheet=true">Log Set</Fab>
     <QuickLogSheet v-model="showSheet" @save="onSave" />
+    <Toast ref="toast" />
   </div>
   
 </template>
@@ -13,10 +14,11 @@
 <script setup lang="ts">
 const sets = useRecentSets()
 const showSheet = ref(false)
+const toast = ref<any>(null)
 
 function onSave(p:{ exercise:string; weight:number; reps:number }) {
   sets.add(p.exercise, p.weight, p.reps)
-  if (navigator.vibrate) navigator.vibrate(10)
-  console.log('[index] saved', p, 'total:', sets.items.value.length)
+  navigator.vibrate?.(10)
+  toast.value?.show('Set logged')
 }
 </script>

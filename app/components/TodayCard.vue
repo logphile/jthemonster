@@ -16,7 +16,7 @@
         </div>
         <div class="rounded-xl border border-border/60 p-3">
           <p class="text-subtext text-xs">Volume (7d)</p>
-          <p class="mt-1 text-base">{{ weekVolume }} kg</p>
+          <p class="mt-1 text-base">{{ weekVolume }} {{ units.unitLabel }}</p>
         </div>
       </div>
 
@@ -31,9 +31,10 @@
 
 <script setup lang="ts">
 const { lastLabel, volume7d } = useRecentSets()
+const units = useUnits()
 const prettyDate = new Date().toLocaleDateString(undefined, { weekday: 'long', month:'short', day:'numeric' })
 const weekNum = Math.ceil((new Date().getDate()) / 7)
 const hasSession = false
 const lastSetLabel = computed(() => lastLabel())
-const weekVolume = computed(() => volume7d())
+const weekVolume = computed(() => units.toDisplay(volume7d()))
 </script>
