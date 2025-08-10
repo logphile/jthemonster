@@ -13,6 +13,9 @@ export default defineNuxtConfig({
   // No Nitro Azure preset for static hosting
   runtimeConfig: {
     public: {
+      // Site URL used for magic-link redirects (prod/dev)
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+      // Supabase (kept as NUXT_*-prefixed to match existing code)
       NUXT_PUBLIC_SUPABASE_URL: process.env.NUXT_PUBLIC_SUPABASE_URL || '',
       NUXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY || ''
     }

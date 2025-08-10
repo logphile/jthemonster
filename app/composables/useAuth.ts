@@ -1,7 +1,7 @@
 import type { User } from '@supabase/supabase-js'
 import { useSupabaseClientSingleton } from './useSupabaseClient'
 import { computed } from 'vue'
-import { useState } from 'nuxt/app'
+import { useState, useRuntimeConfig } from 'nuxt/app'
 
 export function useAuth() {
   const supabase = useSupabaseClientSingleton()
@@ -55,9 +55,14 @@ export function useAuth() {
   }
 
   async function login(email: string) {
+    const runtime = useRuntimeConfig()
+    const origin = (typeof window !== 'undefined' && window.location?.origin)
+      ? window.location.origin
+      : (runtime.public.siteUrl || 'http://localhost:3000')
+
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: window.location.origin },
+      options: { emailRedirectTo: origin },
     })
     if (error) throw error
   }
