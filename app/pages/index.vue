@@ -1,24 +1,29 @@
 <template>
-  <div class="space-y-4 pb-24">
-    <TodayCard @start="showSheet=true" />
-    <ClientOnly><MiniVolumeChart /></ClientOnly>
-    <SetList :items="sets.items.value" @remove="sets.removeByIndex" />
+  <section class="relative min-h-screen flex items-center justify-center bg-black">
+    <div class="absolute inset-0">
+      <img
+        :src="hero"
+        alt="Young Berserk"
+        loading="eager"
+        class="w-full h-full object-cover animate-zoom"
+      />
+      <!-- Particles above image, below overlay -->
+      <EmberParticles />
+      <!-- Overlay -->
+      <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10"></div>
+    </div>
 
-    <Fab @click="showSheet=true">Log Set</Fab>
-    <QuickLogSheet v-model="showSheet" @save="onSave" />
-    <Toast ref="toast" />
-  </div>
-  
+    <!-- Content -->
+    <div class="relative z-10 text-center text-white">
+      <h1 class="text-4xl md:text-6xl font-bold mb-4">LET’S GOOOO!</h1>
+      <p class="max-w-lg mx-auto text-lg text-white/80">
+        Push harder. Stay focused. Own your progress.
+      </p>
+    </div>
+  </section>
 </template>
 
 <script setup lang="ts">
-const sets = useRecentSets()
-const showSheet = ref(false)
-const toast = ref<any>(null)
-
-function onSave(p:{ exercise:string; weight:number; reps:number }) {
-  sets.add(p.exercise, p.weight, p.reps)
-  navigator.vibrate?.(10)
-  toast.value?.show('Set logged')
-}
+// Homepage hero. Place /public/img/home-hero.jpg (~1920px, <500KB) for best results.
+const hero = '/img/home-hero.jpg'
 </script>

@@ -37,7 +37,10 @@ export default defineNuxtConfig({
     },
     workbox: {
       navigateFallback: '/',
-      globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}']
+      globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}'],
+      // Avoid precaching oversized assets and fix build failure
+      maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+      globIgnores: ['**/jthemonster.png']
     }
   },
   tailwindcss: {
