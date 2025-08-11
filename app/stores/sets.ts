@@ -1,41 +1,52 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { db, type SetRow, nowIso, newId } from '../db/indexed'
+import { db } from '../db/indexed'
+const nowIso = () => new Date().toISOString()
+const newId = () => crypto.randomUUID()
 import { useSync } from '../composables/useSync'
 import { useAuth } from '../composables/useAuth'
 import { useSupabaseClientSingleton } from '../composables/useSupabaseClient'
 
 export const useSets = defineStore('sets', () => {
-  const list = ref<SetRow[]>([])
+  const list = ref<any[]>([])
   const { queue, push } = useSync()
   const { session, role, athleteUserId, canWrite } = useAuth()
   const supabase = useSupabaseClientSingleton()
 
   async function load(sessionId?: string) {
-    list.value = sessionId
-      ? await db.sets.where('session_id').equals(sessionId).toArray()
-      : await db.sets.orderBy('updated_at').reverse().toArray()
+    try {
+      if (sessionId) {
+        // Our Dexie schema uses camelCase
+        // @ts-ignore
+        list.value = await db.sets.where('sessionId').equals(sessionId).toArray()
+      } else {
+        // Fallback: sort by date desc
+        list.value = (await db.sets.orderBy('date').reverse().toArray()) as any[]
+      }
+    } catch {
+      list.value = []
+    }
   }
 
   const canEdit = computed(() => canWrite.value)
 
-  async function add(row: Omit<SetRow,'id'|'created_at'|'updated_at'|'user_id'>) {
+  async function add(row: any) {
     if (!canEdit.value) return
     if (!athleteUserId.value) return
-    const payload: SetRow = { ...row, user_id: athleteUserId.value, id: newId(), created_at: nowIso(), updated_at: nowIso() }
+    const payload: any = { ...row, user_id: athleteUserId.value, id: newId(), created_at: nowIso(), updated_at: nowIso() }
     await db.sets.put(payload)
     if (canEdit.value) await queue({ table: 'sets', op: 'insert', payload })
-    await push(); await load(row.session_id)
+    await push(); await load()
   }
 
-  async function update(id: string, patch: Partial<SetRow>) {
+  async function update(id: string, patch: any) {
     if (!canEdit.value) return
     const row = await db.sets.get(id)
     if (!row) return
     const updated = { ...row, ...patch, updated_at: nowIso() }
     await db.sets.put(updated)
     if (canEdit.value) await queue({ table: 'sets', op: 'update', payload: updated })
-    await push(); await load(row.session_id)
+    await push(); await load()
   }
 
   async function remove(id: string) {
@@ -43,12 +54,12 @@ export const useSets = defineStore('sets', () => {
     const row = await db.sets.get(id)
     await db.sets.delete(id)
     if (canEdit.value) await queue({ table: 'sets', op: 'delete', payload: { id } })
-    await push(); if (row) await load(row.session_id)
+    await push(); await load()
   }
 
   async function getProgressSeries(exerciseId: string) {
     // Prefer local (offline-safe)
-    const sets = await db.sets.where('exercise_id').equals(exerciseId).toArray()
+    const sets = await db.sets.where('exerciseId').equals(exerciseId).toArray()
 
     // Aggregate per date (ignore warmups)
     const byDate: Record<string, { top: number; est: number; vol: number }> = {}

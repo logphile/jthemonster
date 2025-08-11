@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { db, type Exercise, nowIso, newId } from '../db/indexed'
+import { db } from '../db/indexed'
+const nowIso = () => new Date().toISOString()
+const newId = () => crypto.randomUUID()
 import { useSync } from '../composables/useSync'
 import { useAuth } from '../composables/useAuth'
 
 export const useExercises = defineStore('exercises', () => {
-  const list = ref<Exercise[]>([])
+  const list = ref<any[]>([])
   const { queue, push } = useSync()
   const { athleteUserId, canWrite } = useAuth()
 
@@ -18,14 +20,14 @@ export const useExercises = defineStore('exercises', () => {
   async function add(name: string, category?: string) {
     if (!canEdit.value) return
     if (!athleteUserId.value) return
-    const row: Exercise = { id: newId(), user_id: athleteUserId.value, name, category, created_at: nowIso(), updated_at: nowIso() }
+    const row: any = { id: newId(), user_id: athleteUserId.value, name, category, created_at: nowIso(), updated_at: nowIso() }
     await db.exercises.put(row)
     if (canEdit.value) await queue({ table: 'exercises', op: 'insert', payload: row })
     await push()
     await load()
   }
 
-  async function update(id: string, patch: Partial<Exercise>) {
+  async function update(id: string, patch: any) {
     if (!canEdit.value) return
     const row = await db.exercises.get(id)
     if (!row) return
