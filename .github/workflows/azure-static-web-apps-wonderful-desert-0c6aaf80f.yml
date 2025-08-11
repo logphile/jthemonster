@@ -1,64 +1,38 @@
-name: Azure Static Web Apps CI/CD
+name: Azure Static Web Apps CI/CD (jthe.monster)
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    types: [ opened, synchronize, reopened, closed ]
-    branches: [ main ]
+    types: [opened, synchronize, reopened, closed]
+    branches: [main]
 
 jobs:
-  build_and_deploy_job:
+  build_and_deploy:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
-    name: Build and Deploy Job
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js 20.19.0
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.19.0'
-          cache: 'npm'
-          cache-dependency-path: app/package-lock.json
-
-      - name: Install dependencies
-        working-directory: app
-        run: npm ci
-
-      - name: Generate static site
-        working-directory: app
-        env:
-          NUXT_PUBLIC_SITE_URL: ${{ secrets.NUXT_PUBLIC_SITE_URL }}
-          NUXT_PUBLIC_SUPABASE_URL: ${{ secrets.NUXT_PUBLIC_SUPABASE_URL }}
-          NUXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NUXT_PUBLIC_SUPABASE_ANON_KEY }}
-        run: npm run generate
-
-      - name: Verify static output exists
-        run: test -f app/.output/public/index.html || (echo "Missing generated index.html" && exit 1)
-
-      - name: Sanity check env was applied (length only)
-        run: |
-          echo "SUPABASE_URL length: ${#NUXT_PUBLIC_SUPABASE_URL}"
-          echo "SUPABASE_ANON_KEY length: ${#NUXT_PUBLIC_SUPABASE_ANON_KEY}"
-          echo "SITE_URL length: ${#NUXT_PUBLIC_SITE_URL}"
-
-      - name: Deploy to Azure Static Web Apps
+      # The Azure action will handle install + build. We just tell it to run `nuxt generate`
+      - name: Build & Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           action: upload
-          app_location: 'app/.output/public'        # ✅ point directly to generated site
-          config_file_location: 'app'               # folder containing staticwebapp.config.json
-          skip_app_build: true                      # we already ran `nuxt generate`
+          app_location: 'app'                 # Nuxt project folder
+          output_location: '.output/public'   # Nuxt SSG output
+          app_build_command: 'npm run generate'
+          api_location: ''                    # no Azure Functions API
+          skip_api_build: true
+          config_file_location: 'app'         # looks for staticwebapp.config.json here
 
-  close_pull_request_job:
+  close_pull_request:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
-    name: Close Pull Request Job
     steps:
-      - name: Close Pull Request
+      - name: Close PR environment
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           action: close
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}

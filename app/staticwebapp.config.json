@@ -2,6 +2,8 @@
   "navigationFallback": {
     "rewrite": "/index.html",
     "exclude": [
+      "/_nuxt/*",
+      "/home-hero.webp",
       "/assets/*",
       "/icons/*",
       "/favicon.ico",
