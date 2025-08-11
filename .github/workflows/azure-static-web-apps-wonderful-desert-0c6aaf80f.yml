@@ -17,6 +17,9 @@ jobs:
       # The Azure action will handle install + build. We just tell it to run `nuxt generate`
       - name: Build & Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
+        env:
+          NUXT_PUBLIC_SUPABASE_URL: ${{ secrets.NUXT_PUBLIC_SUPABASE_URL }}
+          NUXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NUXT_PUBLIC_SUPABASE_ANON_KEY }}
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           action: upload

@@ -15,7 +15,11 @@ export default defineNuxtConfig({
     public: {
       // Site URL used for magic-link redirects (prod/dev)
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
-      // Supabase (kept as NUXT_*-prefixed to match existing code)
+      // Supabase
+      // New canonical keys used by composables/docs
+      supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL || '',
+      supabaseAnonKey: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY || '',
+      // Back-compat for existing references
       NUXT_PUBLIC_SUPABASE_URL: process.env.NUXT_PUBLIC_SUPABASE_URL || '',
       NUXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY || ''
     }
