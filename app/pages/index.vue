@@ -25,5 +25,5 @@
 
 <script setup lang="ts">
 // Homepage hero. Place /public/img/home-hero.jpg (~1920px, <500KB) for best results.
-const hero = '/img/home-hero.jpg'
+const hero = '/home-hero.jpg'
 </script>
