@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-dvh">
-    <header class="sticky top-0 z-20 border-b border-border/60 bg-bg/80 backdrop-blur">
+    <header v-if="route.path !== '/'" class="sticky top-0 z-20 border-b border-border/60 bg-bg/80 backdrop-blur">
       <div class="mx-auto max-w-screen-md px-4 py-3 flex items-center justify-between">
         <h1 class="font-display text-xl tracking-wide">
           <span class="text-primary">J</span> The Monster
@@ -16,7 +16,8 @@
     </main>
   </div>
   
-</template>
+ </template>
 
 <script setup lang="ts">
+const route = useRoute()
 </script>
