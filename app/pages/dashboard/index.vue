@@ -99,7 +99,13 @@ onMounted(() => {
     if (!s) return
     // Optimistic recent list update
     add(String(s.exerciseId), Number(s.weightLb || s.weight || 0), Number(s.reps || 0))
-    // Refresh calendar/progress
+    // Optimistically bump today's calendar count for instant highlight
+    try {
+      const d = String(s.date || new Date().toISOString().slice(0,10))
+      const prev = dayStats.value[d] || { sets: 0 }
+      dayStats.value = { ...dayStats.value, [d]: { ...prev, sets: (prev.sets || 0) + 1 } }
+    } catch {}
+    // Refresh calendar/progress (authoritative)
     refreshMonth()
     refreshPoints()
   }

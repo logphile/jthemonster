@@ -4,13 +4,13 @@ import { useQuickLog } from '~/composables/useQuickLog'
 import ExerciseSelector from '~/components/log/ExerciseSelector.vue'
 import { computed } from 'vue'
 import { reactive, nextTick, onBeforeUnmount } from 'vue'
-import { useWorkoutStore, type Unit } from '~/stores/workout'
+import { useWorkoutStore } from '~/stores/workout'
 
 const { isOpen, payload, close } = useQuickLog()
 const store = useWorkoutStore()
 const { $toast } = useNuxtApp()
 
-const form = reactive({ reps: '', weight: '', rpe: '', unit: 'lb' as Unit })
+const form = reactive({ reps: '', weight: '', rpe: '' })
 const saving = ref(false)
 const savedFlash = ref(false)
 
@@ -22,7 +22,7 @@ async function save(next: boolean) {
     reps: Number(form.reps || 0),
     weight: Number(form.weight || 0),
     rpe: form.rpe ? Number(form.rpe) : undefined,
-    unit: form.unit,
+    unit: 'lb',
   })
   saving.value = false
   savedFlash.value = true
@@ -98,7 +98,7 @@ onBeforeUnmount(() => close())
             </div>
 
             <div>
-              <label class="block text-xs opacity-70 mb-1">Weight ({{ form.unit }})</label>
+              <label class="block text-xs opacity-70 mb-1">Weight (lb)</label>
               <input
                 type="number" step="0.5"
                 v-model="form.weight"
@@ -124,25 +124,27 @@ onBeforeUnmount(() => close())
             </div>
           </div>
 
-          <!-- Unit selector + actions -->
-          <div v-if="!needsExercise" class="flex items-center justify-between mt-2 mb-1">
-            <select v-model="form.unit" class="bg-zinc-800 border border-zinc-700 rounded-lg h-9 px-2 text-sm">
-              <option value="lb">lb</option>
-              <option value="kg">kg</option>
-            </select>
-            <div class="flex gap-2">
-              <button class="px-4 h-9 rounded-lg bg-zinc-800 border border-zinc-700" @click="close" :disabled="saving">Cancel</button>
-              <button class="px-4 h-9 rounded-lg bg-rose-600 text-white disabled:opacity-60" :disabled="saving" @click="save(true)">
-                <span v-if="savedFlash">Saved ✓</span>
-                <span v-else-if="saving">Saving…</span>
-                <span v-else>Save & Add</span>
-              </button>
-              <button class="px-4 h-9 rounded-lg bg-rose-600 text-white disabled:opacity-60" :disabled="saving" @click="save(false)">
-                <span v-if="savedFlash">Saved ✓</span>
-                <span v-else-if="saving">Saving…</span>
-                <span v-else>Save & Close</span>
-              </button>
-            </div>
+          <!-- Actions -->
+          <div v-if="!needsExercise" class="flex gap-2 mt-4">
+            <button class="flex-1 h-10 rounded-xl bg-zinc-800 border border-zinc-700" @click="close" :disabled="saving">Cancel</button>
+            <button
+              class="flex-1 h-10 rounded-xl bg-gradient-to-br from-rosefire-600 to-rosefire-700 text-white whitespace-nowrap disabled:opacity-60"
+              :disabled="saving"
+              @click="save(true)"
+            >
+              <span v-if="savedFlash">Saved ✓</span>
+              <span v-else-if="saving">Saving…</span>
+              <span v-else>Save & Add</span>
+            </button>
+            <button
+              class="flex-1 h-10 rounded-xl bg-gradient-to-br from-rosefire-600 to-rosefire-700 text-white whitespace-nowrap disabled:opacity-60"
+              :disabled="saving"
+              @click="save(false)"
+            >
+              <span v-if="savedFlash">Saved ✓</span>
+              <span v-else-if="saving">Saving…</span>
+              <span v-else>Save & Close</span>
+            </button>
           </div>
 
         </div>
