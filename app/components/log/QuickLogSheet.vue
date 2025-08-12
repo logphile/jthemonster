@@ -141,9 +141,7 @@ onBeforeUnmount(() => close())
               :disabled="saving"
               @click="save(false)"
             >
-              <span v-if="savedFlash">Saved ✓</span>
-              <span v-else-if="saving">Saving…</span>
-              <span v-else>Save & Close</span>
+              Save & Close
             </button>
           </div>
 

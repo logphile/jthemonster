@@ -1,7 +1,6 @@
 <script setup lang="ts">
 // Lazy import heavy bits
 const TodayCard = defineAsyncComponent(() => import('~/components/TodayCard.vue'))
-const QuickLogSheet = defineAsyncComponent(() => import('~/components/QuickLogSheet.vue'))
 const SetList = defineAsyncComponent(() => import('~/components/SetList.vue'))
 const MiniVolumeChart = defineAsyncComponent(() => import('~/components/MiniVolumeChart.vue'))
 const MonthGrid = defineAsyncComponent(() => import('~/components/calendar/MonthGrid.vue'))
@@ -15,22 +14,22 @@ const ExerciseSelector = defineAsyncComponent(() => import('~/components/log/Exe
 
 // Data and actions
 const { items, add, removeByIndex } = useRecentSets()
-const { dayStatsForMonth, progressPoints, allExercises, addSet, getOrCreateSession } = useRepo()
+const { dayStatsForMonth, progressPoints, allExercises, getOrCreateSession } = useRepo()
 import type { Session } from '~/db/indexed'
 const { user, refreshUser } = useAuth()
+const displayName = computed(() =>
+  user.value?.user_metadata?.full_name ||
+  user.value?.user_metadata?.name ||
+  user.value?.email?.split('@')[0] ||
+  'Athlete'
+)
+import { useQuickLog } from '~/composables/useQuickLog'
 const session = ref<Session | null>(null)
 const sessionId = computed(() => session.value?.id ?? null)
-const sheetOpen = ref(false)
 const loading = ref(true)
+const { isOpen: isQLOpen, open: openQL } = useQuickLog()
 
-async function onSave(payload: { exercise: string; weight: number; reps: number }){
-  // existing local quick-log for demo lists
-  add(payload.exercise, payload.weight, payload.reps)
-  // also persist to Dexie so calendar/progress update
-  await addSet({ exerciseId: payload.exercise, weightLb: payload.weight, reps: payload.reps, split: split.value })
-  await refreshMonth()
-  await refreshPoints()
-}
+// Local onSave removed — global Quick Log handles persistence and emits jt:set-saved
 
 onMounted(async () => {
   // user might be null in guest mode — that's fine
@@ -70,11 +69,9 @@ const split = ref('chestTris')
 const selectedExercises = ref<string[]>([])
 function onWeightSaved(){ /* TODO toast */ }
 
-// Quick log handler for selector
+// Quick log handler for selector — open global Quick Log with prefill
 function startQuickLog(category: string, exerciseId: string){
-  // TODO: wire to your quick log prefill if available
-  // For now, just open the sheet
-  sheetOpen.value = true
+  openQL({ category, exerciseId })
 }
 
 function onExerciseSelect(payload: { category: string; exerciseId: string }){
@@ -117,6 +114,9 @@ onMounted(() => {
 <template>
   <main class="min-h-dvh pb-28">
     <div class="mx-auto max-w-md p-4 space-y-4">
+      <section class="rounded-2xl p-3 bg-white/5 backdrop-blur mb-3">
+        <p class="text-sm opacity-80">Welcome, {{ displayName }}! Let’s get it 💪</p>
+      </section>
       <TodayCard :session-id="sessionId" />
 
       <!-- Calendar -->
@@ -133,10 +133,16 @@ onMounted(() => {
         Loading…
       </section>
 
-      <section class="rounded-2xl p-3 bg-white/5 backdrop-blur">
-        <h2 class="text-sm font-semibold opacity-80 mb-2">Quick Log</h2>
-        <QuickLogSheet v-if="sessionId" v-model="sheetOpen" :session-id="sessionId" @save="onSave" />
-        <div v-else class="animate-pulse text-sm opacity-60">Loading session…</div>
+      <section class="rounded-2xl p-3 bg-white/5 backdrop-blur" v-show="!isQLOpen">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-semibold opacity-80">Quick Log</h2>
+          <button
+            class="rounded-lg px-3 py-1 bg-red-600 text-white"
+            @click="openQL({ category: 'chestTris', exerciseId: '' })"
+          >
+            Open
+          </button>
+        </div>
       </section>
 
       <section class="rounded-2xl p-3 bg-white/5 backdrop-blur">
