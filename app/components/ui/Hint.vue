@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
-  text: string
+  text?: string
   widthClass?: string  // e.g., 'w-72'
   placement?: 'top' | 'bottom'
 }>()
@@ -36,7 +36,7 @@ onMounted(() => {
       ]"
       @click.outside="close"
     >
-      <div :class="['rounded-xl border border-zinc-700 bg-zinc-900/95 shadow-2xl p-3 text-[12px] leading-snug', props.widthClass || 'w-72']">
+      <div :class="['rounded-xl border border-zinc-700 bg-zinc-900 text-zinc-100 shadow-2xl p-3 text-[12px] leading-snug', props.widthClass || 'w-72']">
         <slot>{{ props.text }}</slot>
       </div>
     </div>

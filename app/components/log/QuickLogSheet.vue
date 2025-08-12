@@ -61,11 +61,9 @@ function saveSet() {
             <div>
               <label class="block text-xs opacity-70 mb-1 flex items-center">
                 RPE
-                <Hint
-                  placement="top"
-                  widthClass="w-72"
-                  text="RPE = Rating of Perceived Exertion. Quick guide:\n6 → easy (~4+ reps left)\n7 → ~3 reps left\n8 → ~2 reps left\n9 → ~1 rep left\n10 → max effort (0 left).\nRule of thumb: RPE = 10 − RIR (Reps In Reserve)."
-                />
+                <Hint placement="top" widthClass="w-64">
+                  RPE = Rating of Perceived Exertion. Basically, how hard was that set on a scale of 1–10.
+                </Hint>
               </label>
 
               <input
