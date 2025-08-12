@@ -1,4 +1,5 @@
 import { db } from '~/db/indexed'
+import { subDays } from 'date-fns'
 import { useSupabaseClientSingleton } from './useSupabaseClient'
 import { useAuth } from './useAuth'
 
@@ -78,77 +79,58 @@ export function useSync() {
 // Lightweight importer: Supabase -> Dexie (last N days)
 // Usage: const res = await importFromSupabase(60)
 export async function importFromSupabase(days = 60) {
-  // Use app's singleton client for consistency
+  // Use app's singleton Supabase client
   const supabase = useSupabaseClientSingleton()
 
-  // Ensure authenticated user
-  const { data: ures } = await supabase.auth.getUser()
-  const user = (ures as any)?.user
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { imported: false as const, reason: 'no-user' as const, sessions: 0, sets: 0, bodyweights: 0 }
 
-  const start = new Date()
-  start.setDate(start.getDate() - (days - 1))
-  const startISO = start.toISOString().slice(0, 10)
-  const endISO = new Date().toISOString().slice(0, 10)
+  const end = new Date()
+  const startISO = subDays(end, days - 1).toISOString().slice(0, 10)
+  const endISO   = end.toISOString().slice(0, 10)
 
-  // Sessions (date-bounded)
+  // sessions
   const { data: sessions, error: sErr } = await supabase
-    .from('sessions')
-    .select('id,date,split')
-    .gte('date', startISO)
-    .lte('date', endISO)
-    .order('date')
-
+    .from('sessions').select('id,date,split')
+    .gte('date', startISO).lte('date', endISO).order('date')
   if (sErr) throw sErr
 
-  const safeSessions = (sessions ?? []).map((s: any) => ({
-    id: String(s.id),
-    date: String(s.date),
-    split: s.split ?? undefined,
-  }))
+  await db.sessions.bulkPut((sessions ?? []).map((s: any) => ({
+    id: s.id, date: s.date, split: s.split ?? null
+  })))
+  const dateBySession: Record<string, string> = Object.fromEntries((sessions ?? []).map((s: any) => [s.id, s.date]))
 
-  await db.sessions.bulkPut(safeSessions)
-  const dateBySession: Record<string, string> = Object.fromEntries(
-    safeSessions.map((s: any) => [s.id, s.date])
-  )
-
-  // Sets for those sessions
+  // sets
   let setsCount = 0
-  const sids = safeSessions.map((s: any) => s.id)
+  const sids = (sessions ?? []).map((s: any) => s.id)
   if (sids.length) {
     const { data: sets, error: eErr } = await supabase
       .from('sets')
-      .select('id,session_id,exercise_id,reps,weight,rpe')
+      .select('id, session_id, exercise_id, reps, weight, rpe')
       .in('session_id', sids)
     if (eErr) throw eErr
 
-    const safeSets = (sets ?? []).map((r: any) => ({
-      id: String(r.id),
-      sessionId: String(r.session_id),
-      date: dateBySession[String(r.session_id)] ?? endISO,
-      exerciseId: r.exercise_id ? String(r.exercise_id) : 'unknown',
-      reps: Number(r.reps ?? 0),
+    await db.sets.bulkPut((sets ?? []).map((r: any) => ({
+      id: r.id,
+      sessionId: r.session_id,
+      date: dateBySession[r.session_id] ?? endISO,
+      exerciseId: r.exercise_id,
+      reps: r.reps ?? 0,
       weightLb: Number(r.weight ?? 0),
-      rpe: r.rpe ?? undefined,
-    }))
-    if (safeSets.length) await db.sets.bulkPut(safeSets)
-    setsCount = safeSets.length
+      rpe: r.rpe ?? null
+    })))
+    setsCount = (sets?.length ?? 0)
   }
 
-  // Bodyweights
+  // bodyweights
   const { data: bws, error: bErr } = await supabase
-    .from('bodyweights')
-    .select('date,weight')
-    .gte('date', startISO)
-    .lte('date', endISO)
+    .from('bodyweights').select('date,weight')
+    .gte('date', startISO).lte('date', endISO)
   if (bErr) throw bErr
 
-  const safeBws = (bws ?? []).map((b: any) => ({
-    id: String(b.date),
-    date: String(b.date),
-    weightLb: Number(b.weight ?? 0),
-  }))
-  if (safeBws.length) await db.bodyweights.bulkPut(safeBws)
+  await db.bodyweights.bulkPut((bws ?? []).map((b: any) => ({
+    id: b.date, date: b.date, weightLb: Number(b.weight)
+  })))
 
-  return { imported: true as const, sessions: safeSessions.length, sets: setsCount, bodyweights: safeBws.length }
+  return { imported: true as const, sessions: sessions?.length ?? 0, sets: setsCount, bodyweights: (bws?.length ?? 0) }
 }
