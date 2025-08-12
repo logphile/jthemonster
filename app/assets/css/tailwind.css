@@ -20,3 +20,8 @@
 .animate-zoom {
   animation: slow-zoom 20s ease-in-out infinite alternate;
 }
+
+/* Mobile polish */
+:where(html, body, #__nuxt) {
+  -webkit-tap-highlight-color: transparent;
+}

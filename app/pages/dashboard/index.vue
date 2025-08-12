@@ -11,6 +11,7 @@ const ExerciseSelect = defineAsyncComponent(() => import('~/components/plan/Exer
 const WeightLogButton = defineAsyncComponent(() => import('~/components/plan/WeightLogButton.vue'))
 const ExerciseToggleChips = defineAsyncComponent(() => import('~/components/progress/ExerciseToggleChips.vue'))
 const ProgressChart = defineAsyncComponent(() => import('~/components/progress/ProgressChart.vue'))
+const ExerciseSelector = defineAsyncComponent(() => import('~/components/log/ExerciseSelector.vue'))
 
 // Data and actions
 const { items, add, removeByIndex } = useRecentSets()
@@ -69,6 +70,17 @@ const split = ref('chestTris')
 const selectedExercises = ref<string[]>([])
 function onWeightSaved(){ /* TODO toast */ }
 
+// Quick log handler for selector
+function startQuickLog(category: string, exerciseId: string){
+  // TODO: wire to your quick log prefill if available
+  // For now, just open the sheet
+  sheetOpen.value = true
+}
+
+function onExerciseSelect(payload: { category: string; exerciseId: string }){
+  startQuickLog(payload.category, payload.exerciseId)
+}
+
 // Progress state: load top set weights per day from Dexie
 const exerciseId = ref<string>('all')
 const chartPoints = ref<Array<{ x: string; y: number; sessionId: string }>>([])
@@ -114,14 +126,10 @@ onMounted(async () => { exerciseOptions.value = await allExercises() })
         </ClientOnly>
       </section>
 
-      <!-- Plan -->
+      <!-- Log Exercise -->
       <section class="rounded-2xl p-3 bg-white/5 backdrop-blur">
-        <h2 class="text-sm font-semibold opacity-80 mb-2">Plan</h2>
-        <div class="space-y-3">
-          <SplitSelect v-model="split" />
-          <ExerciseSelect :split="split" v-model="selectedExercises" />
-          <WeightLogButton @saved="onWeightSaved" />
-        </div>
+        <h2 class="text-sm font-semibold opacity-80 mb-2">Log Exercise</h2>
+        <ExerciseSelector @select="onExerciseSelect" />
       </section>
 
       <!-- Progress -->
