@@ -1,12 +1,21 @@
 <script setup lang="ts">
 import Hint from '~/components/ui/Hint.vue'
 import { useQuickLog } from '~/composables/useQuickLog'
+import ExerciseSelector from '~/components/log/ExerciseSelector.vue'
+import { computed } from 'vue'
 
 const { isOpen, payload, close } = useQuickLog()
 
 function saveSet() {
   // TODO: Wire into your actual logging flow
   close()
+}
+
+const needsExercise = computed(() => !payload.value?.exerciseId)
+function setExercise(id: string, name: string) {
+  if (!payload.value) return
+  payload.value.exerciseId = id
+  payload.value.exerciseName = name
 }
 </script>
 
@@ -34,12 +43,18 @@ function saveSet() {
             </button>
           </div>
 
-          <p class="text-xs opacity-70 mb-3">
+          <p class="text-xs opacity-70 mb-3" v-if="!needsExercise">
             {{ payload?.category }} • {{ payload?.exerciseName ?? payload?.exerciseId }}
           </p>
 
-          <!-- Inputs with RPE hint -->
-          <div class="grid grid-cols-3 gap-2 mb-3">
+          <!-- If no exercise yet, show the selector INSIDE the sheet -->
+          <div v-if="needsExercise" class="mt-2">
+            <ExerciseSelector @select="({ category, exerciseId, exerciseName }) => setExercise(exerciseId, exerciseName || '')" />
+            <p class="text-xs opacity-60 mt-2">Choose an exercise to continue.</p>
+          </div>
+
+          <!-- Otherwise show the input form -->
+          <div v-else class="grid grid-cols-3 gap-2 mb-3">
             <div>
               <label class="block text-xs opacity-70 mb-1">Reps</label>
               <input
