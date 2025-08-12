@@ -11,8 +11,20 @@ jobs:
   build_and_deploy:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
+    env:
+      NUXT_PUBLIC_SUPABASE_URL: ${{ secrets.NUXT_PUBLIC_SUPABASE_URL }}
+      NUXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NUXT_PUBLIC_SUPABASE_ANON_KEY }}
     steps:
       - uses: actions/checkout@v4
+
+      # Optional safety: fail fast if required secrets are missing (masked)
+      - name: Check env present (masked)
+        run: |
+          test -n "$NUXT_PUBLIC_SUPABASE_URL" || (echo "Missing URL" && exit 1)
+          test -n "$NUXT_PUBLIC_SUPABASE_ANON_KEY" || (echo "Missing ANON KEY" && exit 1)
+        env:
+          NUXT_PUBLIC_SUPABASE_URL: ${{ secrets.NUXT_PUBLIC_SUPABASE_URL }}
+          NUXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NUXT_PUBLIC_SUPABASE_ANON_KEY }}
 
       # The Azure action will handle install + build. We just tell it to run `nuxt generate`
       - name: Build & Deploy to Azure Static Web Apps

@@ -1,6 +1,6 @@
 <template>
   <Card>
-    <div class="p-4">
+    <div v-if="sessionId" class="p-4">
       <header class="mb-2 flex items-center justify-between">
         <h3 class="font-display text-lg">Recent Sets</h3>
         <span class="text-xs text-subtext">{{ items.length }} total</span>
@@ -16,11 +16,12 @@
         </li>
       </ul>
     </div>
+    <div v-else class="p-4 text-sm text-subtext opacity-70">Loading session…</div>
   </Card>
 </template>
 
 <script setup lang="ts">
 import Card from '~/components/ui/Card.vue'
-defineProps<{ items: Array<{exercise:string; weight:number; reps:number; id?: string; ts?: number}> }>()
+defineProps<{ sessionId?: string; items: Array<{exercise:string; weight:number; reps:number; id?: string; ts?: number}> }>()
 defineEmits<{ (e:'remove', index:number): void }>()
 </script>

@@ -49,7 +49,7 @@ import Chip from '~/components/ui/Chip.vue'
 import PrimaryButton from '~/components/ui/PrimaryButton.vue'
 const units = useUnits()
 
-const props = defineProps<{ modelValue: boolean }>()
+const props = defineProps<{ modelValue: boolean; sessionId?: string }>()
 const emit = defineEmits<{ (e:'update:modelValue', v:boolean):void, (e:'save', payload:{exercise:string; weight:number; reps:number}):void }>()
 
 const open = computed(()=>props.modelValue)
@@ -59,7 +59,12 @@ const reps = ref(5)
 const exInput = ref<HTMLInputElement | null>(null)
 watch(open, v => { if (v) nextTick(() => exInput.value?.focus()) })
 
-function save(){ emit('save', { exercise: exercise.value, weight: weight.value, reps: reps.value }); emit('update:modelValue', false) }
+function save(){
+  // If a session is required upstream, guard here just in case
+  if (!props.sessionId) { emit('update:modelValue', false); return }
+  emit('save', { exercise: exercise.value, weight: weight.value, reps: reps.value })
+  emit('update:modelValue', false)
+}
 function close(){ emit('update:modelValue', false) }
 function repeatLast(){ /* wire later */ }
 </script>

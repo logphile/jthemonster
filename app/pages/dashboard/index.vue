@@ -14,7 +14,9 @@ const ProgressChart = defineAsyncComponent(() => import('~/components/progress/P
 
 // Data and actions
 const { items, add, removeByIndex } = useRecentSets()
-const { dayStatsForMonth, progressPoints, allExercises, addSet } = useRepo()
+const { dayStatsForMonth, progressPoints, allExercises, addSet, getOrCreateSession } = useRepo()
+import type { Session } from '~/db/indexed'
+const session = ref<Session | null>(null)
 const sheetOpen = ref(false)
 
 async function onSave(payload: { exercise: string; weight: number; reps: number }){
@@ -26,7 +28,9 @@ async function onSave(payload: { exercise: string; weight: number; reps: number 
   await refreshPoints()
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // Ensure today's session exists before rendering dependent widgets
+  session.value = await getOrCreateSession()
   // startSyncLoop?.()
 })
 
@@ -75,13 +79,15 @@ onMounted(async () => { exerciseOptions.value = await allExercises() })
 
       <section class="rounded-2xl p-3 bg-white/5 backdrop-blur">
         <h2 class="text-sm font-semibold opacity-80 mb-2">Quick Log</h2>
-        <QuickLogSheet v-model="sheetOpen" @save="onSave" />
+        <QuickLogSheet v-if="session" v-model="sheetOpen" :session-id="session!.id" @save="onSave" />
+        <div v-else class="animate-pulse text-sm opacity-60">Loading session…</div>
       </section>
 
       <section class="rounded-2xl p-3 bg-white/5 backdrop-blur">
         <h2 class="text-sm font-semibold opacity-80 mb-2">Recent Sets</h2>
         <ClientOnly>
-          <SetList :items="items" @remove="removeByIndex" />
+          <SetList v-if="session" :session-id="session!.id" :items="items" @remove="removeByIndex" />
+          <div v-else class="animate-pulse text-sm opacity-60">Loading session…</div>
         </ClientOnly>
       </section>
 
