@@ -1,53 +1,48 @@
-name: Azure Static Web Apps CI/CD (jthe.monster)
+name: SWA Deploy (jthe.monster)
 
 on:
   push:
     branches: [main]
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
-    branches: [main]
 
 jobs:
   build_and_deploy:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
-    env:
-      NUXT_PUBLIC_SUPABASE_URL: ${{ secrets.NUXT_PUBLIC_SUPABASE_URL }}
-      NUXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NUXT_PUBLIC_SUPABASE_ANON_KEY }}
     steps:
       - uses: actions/checkout@v4
 
-      # Optional safety: fail fast if required secrets are missing (masked)
-      - name: Check env present (masked)
-        run: |
-          test -n "$NUXT_PUBLIC_SUPABASE_URL" || (echo "Missing URL" && exit 1)
-          test -n "$NUXT_PUBLIC_SUPABASE_ANON_KEY" || (echo "Missing ANON KEY" && exit 1)
-        env:
-          NUXT_PUBLIC_SUPABASE_URL: ${{ secrets.NUXT_PUBLIC_SUPABASE_URL }}
-          NUXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NUXT_PUBLIC_SUPABASE_ANON_KEY }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.18.1
 
-      # The Azure action will handle install + build. We just tell it to run `nuxt generate`
-      - name: Build & Deploy to Azure Static Web Apps
-        uses: Azure/static-web-apps-deploy@v1
+      - name: Install
+        working-directory: app
+        run: npm ci
+
+      - name: Build (Nuxt SSG)
+        working-directory: app
         env:
           NUXT_PUBLIC_SUPABASE_URL: ${{ secrets.NUXT_PUBLIC_SUPABASE_URL }}
           NUXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NUXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: npm run generate
+
+      # ensure SWA config is inside the output we upload
+      - name: Ensure SWA config in output
+        run: |
+          if [ -f app/staticwebapp.config.json ]; then
+            cp app/staticwebapp.config.json app/.output/public/staticwebapp.config.json
+          fi
+
+      # sanity check: meta file and chunks exist
+      - name: Sanity check Nuxt build output
+        run: |
+          ls -la app/.output/public/_nuxt/builds/meta || exit 1
+          test -n "$(ls -1 app/.output/public/_nuxt/*.js | head -n1)" || (echo "No chunk files!" && exit 1)
+
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           action: upload
-          app_location: 'app'                 # Nuxt project folder
-          output_location: '.output/public'   # Nuxt SSG output
-          app_build_command: 'npm run generate'
-          api_location: ''                    # no Azure Functions API
-          skip_api_build: true
-          config_file_location: 'app'         # looks for staticwebapp.config.json here
-
-  close_pull_request:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Close PR environment
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          action: close
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          app_location: 'app/.output/public'  # upload this folder as-is
+          output_location: ''                 # MUST be empty when skipping build
+          skip_app_build: true
