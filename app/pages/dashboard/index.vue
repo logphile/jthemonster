@@ -20,6 +20,7 @@ const { user, refreshUser } = useAuth()
 const session = ref<Session | null>(null)
 const sessionId = computed(() => session.value?.id ?? null)
 const sheetOpen = ref(false)
+const loading = ref(true)
 
 async function onSave(payload: { exercise: string; weight: number; reps: number }){
   // existing local quick-log for demo lists
@@ -32,9 +33,13 @@ async function onSave(payload: { exercise: string; weight: number; reps: number 
 
 onMounted(async () => {
   // user might be null in guest mode — that's fine
-  if (user.value === null) await refreshUser().catch(() => null)
-  // Ensure today's session exists before rendering dependent widgets
-  session.value = await getOrCreateSession().catch(() => null)
+  try {
+    if (user.value === null) await refreshUser().catch(() => null)
+    // Ensure today's session exists before rendering dependent widgets
+    session.value = await getOrCreateSession().catch(() => null)
+  } finally {
+    loading.value = false
+  }
   // startSyncLoop?.()
 })
 
@@ -69,7 +74,7 @@ onMounted(async () => { exerciseOptions.value = await allExercises() })
 <template>
   <main class="min-h-dvh pb-28">
     <div class="mx-auto max-w-md p-4 space-y-4">
-      <TodayCard />
+      <TodayCard :session-id="sessionId" />
 
       <!-- Calendar -->
       <section class="rounded-2xl p-3 bg-white/5 backdrop-blur">
@@ -79,6 +84,10 @@ onMounted(async () => { exerciseOptions.value = await allExercises() })
         <ClientOnly>
           <MonthGrid :month="month" :day-stats="dayStats" @select="openDay" />
         </ClientOnly>
+      </section>
+
+      <section v-if="loading" class="rounded-2xl p-3 bg-white/5 backdrop-blur text-sm opacity-70">
+        Loading…
       </section>
 
       <section class="rounded-2xl p-3 bg-white/5 backdrop-blur">

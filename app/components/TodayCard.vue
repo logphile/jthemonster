@@ -24,16 +24,18 @@
         <PrimaryButton @click="$emit('start')">
           {{ hasSession ? 'Resume Session' : 'Start Session' }}
         </PrimaryButton>
+        <p v-if="!hasSession" class="mt-2 text-xs text-subtext">Preparing session…</p>
       </div>
     </div>
   </Card>
 </template>
 
 <script setup lang="ts">
+const props = defineProps<{ sessionId: string | null }>()
 const { lastLabel, volume7d } = useRecentSets()
 const prettyDate = new Date().toLocaleDateString(undefined, { weekday: 'long', month:'short', day:'numeric' })
 const weekNum = Math.ceil((new Date().getDate()) / 7)
-const hasSession = false
+const hasSession = computed(() => !!props.sessionId)
 const lastSetLabel = computed(() => lastLabel())
 // volume7d() already returns lb, display as-is
 const weekVolume = computed(() => volume7d())
