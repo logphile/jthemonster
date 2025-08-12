@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { SPLITS } from '~/data/exercises'
-// SPLITS is a Record<id, name>. Use the first key as default.
-const defaultSplit = Object.keys(SPLITS)[0] as string
-const model = defineModel<string>({ default: defaultSplit })
+// SPLITS is a Record<id, name>. Use the first key as default (no local refs for defineModel hoist).
+const model = defineModel<string>({ default: Object.keys(SPLITS)[0] as string })
 </script>
 <template>
   <div class="flex flex-wrap gap-2">
