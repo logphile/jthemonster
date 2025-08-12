@@ -1,60 +1,67 @@
-<template>
-  <div class="space-y-4">
-    <Card>
-      <div class="p-4">
-        <h2 class="font-display text-xl mb-2">Settings</h2>
-        <div class="flex items-center gap-3">
-          <span class="text-subtext text-sm">Units</span>
-          <button @click="toggle" class="rounded-full border border-border/60 px-3 py-1">
-            {{ units.unit.value.toUpperCase() }}
-          </button>
-        </div>
-      </div>
-    </Card>
-
-    <!-- Data section: manual sync -->
-    <Card>
-      <div class="p-4 space-y-2">
-        <h3 class="text-lg font-semibold">Data</h3>
-        <p class="text-sm text-subtext">Pull recent cloud data into this device.</p>
-        <div class="flex items-center gap-3">
-          <PrimaryButton @click="doSync" :disabled="syncing">
-            {{ syncing ? 'Syncing…' : 'Sync Now' }}
-          </PrimaryButton>
-          <span v-if="lastResult" class="text-xs text-subtext">{{ lastResult }}</span>
-          <span v-if="errorMsg" class="text-xs text-danger">{{ errorMsg }}</span>
-        </div>
-      </div>
-    </Card>
-  </div>
-  
-</template>
-
 <script setup lang="ts">
-import PrimaryButton from '~/components/ui/PrimaryButton.vue'
 import { importFromSupabase } from '~/composables/useSync'
-const units = useUnits()
-function toggle(){ units.unit.value = units.unit.value === 'kg' ? 'lb' : 'kg' }
 
 const syncing = ref(false)
-const lastResult = ref('')
-const errorMsg = ref('')
+const last = ref<{ imported:boolean; sessions:number; sets:number; bodyweights:number; reason?:string }|null>(null)
+const err = ref<string|null>(null)
 
-async function doSync(){
+onMounted(() => console.log('[settings] mounted'))
+
+async function onSyncNow() {
   syncing.value = true
-  lastResult.value = ''
-  errorMsg.value = ''
+  last.value = null
+  err.value = null
   try {
     const res = await importFromSupabase(60)
-    if ((res as any).imported) {
-      lastResult.value = `Imported ${res.sessions} sessions, ${res.sets} sets, ${res.bodyweights} bodyweights`
-    } else {
-      lastResult.value = `Skipped (${(res as any).reason || 'unknown'})`
+    console.log('[settings] sync result:', res)
+    last.value = res
+    if (!res.imported && res.reason === 'no-user') {
+      err.value = 'You are not signed in. Please log in and try again.'
     }
-  } catch (e: any) {
-    errorMsg.value = e?.message || String(e)
+  } catch (e:any) {
+    console.error('[settings] sync error', e)
+    err.value = e?.message || String(e)
   } finally {
     syncing.value = false
   }
 }
 </script>
+
+<template>
+  <main class="min-h-dvh px-4 py-6 space-y-6">
+    <!-- Mini header with back link -->
+    <div class="flex items-center gap-3">
+      <NuxtLink to="/dashboard" class="text-sm px-3 py-1 rounded-full bg-zinc-800/70 border border-zinc-700 hover:bg-zinc-700">
+        ← Back
+      </NuxtLink>
+      <h1 class="text-xl font-semibold">Settings</h1>
+    </div>
+
+    <section class="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-4">
+      <h2 class="text-base font-medium mb-2">Data & Sync</h2>
+      <p class="text-sm opacity-70 mb-4">
+        Pull the last 60 days from Supabase into local storage for a fast UI.
+      </p>
+      <button
+        class="px-4 py-2 rounded-full bg-rose-600 text-white disabled:opacity-60"
+        :disabled="syncing"
+        @click="onSyncNow"
+      >
+        {{ syncing ? 'Syncing…' : 'Sync Now' }}
+      </button>
+
+      <p v-if="last" class="mt-3 text-sm opacity-90">
+        <template v-if="last.imported">
+          Imported: {{ last.sessions }} sessions, {{ last.sets }} sets, {{ last.bodyweights }} weigh-ins.
+        </template>
+        <template v-else>
+          Sync skipped: {{ last.reason }}
+        </template>
+      </p>
+
+      <p v-if="err" class="mt-2 text-sm text-amber-400">
+        {{ err }}
+      </p>
+    </section>
+  </main>
+</template>
