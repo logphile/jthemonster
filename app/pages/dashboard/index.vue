@@ -34,6 +34,16 @@ async function onSave(payload: { exercise: string; weight: number; reps: number 
 onMounted(async () => {
   // user might be null in guest mode — that's fine
   try {
+    // Optional: pull recent cloud data into local Dexie before creating today's session
+    try {
+      const mod = await import('~/composables/useSync')
+      const fn = (mod as any)?.importFromSupabase as undefined | ((days: number) => Promise<void>)
+      if (typeof fn === 'function') {
+        await fn(60).catch(() => null)
+      }
+    } catch (e) {
+      // ignore if useSync or method not available
+    }
     if (user.value === null) await refreshUser().catch(() => null)
     // Ensure today's session exists before rendering dependent widgets
     session.value = await getOrCreateSession().catch(() => null)
