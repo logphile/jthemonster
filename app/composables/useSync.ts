@@ -78,12 +78,13 @@ export function useSync() {
 // Lightweight importer: Supabase -> Dexie (last N days)
 // Usage: const res = await importFromSupabase(60)
 export async function importFromSupabase(days = 60) {
+  // Use app's singleton client for consistency
   const supabase = useSupabaseClientSingleton()
 
   // Ensure authenticated user
   const { data: ures } = await supabase.auth.getUser()
   const user = (ures as any)?.user
-  if (!user) return { imported: false as const, reason: 'no-user' as const }
+  if (!user) return { imported: false as const, reason: 'no-user' as const, sessions: 0, sets: 0, bodyweights: 0 }
 
   const start = new Date()
   start.setDate(start.getDate() - (days - 1))
@@ -113,7 +114,7 @@ export async function importFromSupabase(days = 60) {
 
   // Sets for those sessions
   let setsCount = 0
-  const sids = safeSessions.map(s => s.id)
+  const sids = safeSessions.map((s: any) => s.id)
   if (sids.length) {
     const { data: sets, error: eErr } = await supabase
       .from('sets')
@@ -149,10 +150,5 @@ export async function importFromSupabase(days = 60) {
   }))
   if (safeBws.length) await db.bodyweights.bulkPut(safeBws)
 
-  return {
-    imported: true as const,
-    sessions: safeSessions.length,
-    sets: setsCount,
-    bodyweights: safeBws.length,
-  }
+  return { imported: true as const, sessions: safeSessions.length, sets: setsCount, bodyweights: safeBws.length }
 }
