@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Hint from '~/components/ui/Hint.vue'
 import { useQuickLog } from '~/composables/useQuickLog'
 
 const { isOpen, payload, close } = useQuickLog()
@@ -37,11 +38,42 @@ function saveSet() {
             {{ payload?.category }} • {{ payload?.exerciseName ?? payload?.exerciseId }}
           </p>
 
-          <!-- Replace with your real form/inputs -->
+          <!-- Inputs with RPE hint -->
           <div class="grid grid-cols-3 gap-2 mb-3">
-            <input type="number" min="1" placeholder="Reps" class="px-3 py-2 rounded-lg bg-black/40 border border-zinc-800" />
-            <input type="number" step="0.5" placeholder="Weight (lb)" class="px-3 py-2 rounded-lg bg-black/40 border border-zinc-800" />
-            <input type="number" step="0.5" placeholder="RPE" class="px-3 py-2 rounded-lg bg-black/40 border border-zinc-800" />
+            <div>
+              <label class="block text-xs opacity-70 mb-1">Reps</label>
+              <input
+                type="number" min="1"
+                class="w-full px-3 py-2 rounded-lg bg-black/40 border border-zinc-800"
+                placeholder="Reps"
+              >
+            </div>
+
+            <div>
+              <label class="block text-xs opacity-70 mb-1">Weight (lb)</label>
+              <input
+                type="number" step="0.5"
+                class="w-full px-3 py-2 rounded-lg bg-black/40 border border-zinc-800"
+                placeholder="Weight"
+              >
+            </div>
+
+            <div>
+              <label class="block text-xs opacity-70 mb-1 flex items-center">
+                RPE
+                <Hint
+                  placement="top"
+                  widthClass="w-72"
+                  text="RPE = Rating of Perceived Exertion. Quick guide:\n6 → easy (~4+ reps left)\n7 → ~3 reps left\n8 → ~2 reps left\n9 → ~1 rep left\n10 → max effort (0 left).\nRule of thumb: RPE = 10 − RIR (Reps In Reserve)."
+                />
+              </label>
+
+              <input
+                type="number" step="0.5" min="6" max="10"
+                class="w-full px-3 py-2 rounded-lg bg-black/40 border border-zinc-800"
+                placeholder="e.g. 8"
+              >
+            </div>
           </div>
 
           <button class="w-full py-2 rounded-xl bg-rose-600 text-white" @click="saveSet">
