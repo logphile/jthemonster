@@ -15,9 +15,8 @@ function onClick() {
     <button
       v-show="!isOpen"
       @click="onClick"
-      class="fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+16px)]
-             z-[900] rounded-full px-5 py-3 text-sm font-semibold
-             bg-rose-600 text-white shadow-xl shadow-rose-600/20
+      class="fixed bottom-6 right-5 z-[50] rounded-full px-5 py-3 text-sm font-semibold
+             bg-gradient-to-br from-rosefire-600 to-rosefire-700 text-white shadow-xl shadow-rose-600/20
              active:scale-[0.98] transition"
     >
       Log Set

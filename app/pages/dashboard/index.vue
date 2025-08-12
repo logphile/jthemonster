@@ -91,6 +91,21 @@ watch(() => items.value.length, () => { refreshPoints() })
 // Exercise chips options
 const exerciseOptions = ref<Array<{ id:string; name:string }>>([])
 onMounted(async () => { exerciseOptions.value = await allExercises() })
+
+// Listen for global quick-log saves (from teleported sheet)
+onMounted(() => {
+  const handler = (e: any) => {
+    const s = e?.detail
+    if (!s) return
+    // Optimistic recent list update
+    add(String(s.exerciseId), Number(s.weightLb || s.weight || 0), Number(s.reps || 0))
+    // Refresh calendar/progress
+    refreshMonth()
+    refreshPoints()
+  }
+  window.addEventListener('jt:set-saved', handler as any)
+  onBeforeUnmount(() => window.removeEventListener('jt:set-saved', handler as any))
+})
 </script>
 
 <template>
@@ -145,14 +160,6 @@ onMounted(async () => { exerciseOptions.value = await allExercises() })
         <MiniVolumeChart />
       </ClientOnly>
     </div>
-
-    <!-- FAB -->
-    <button
-      class="fixed bottom-5 right-5 rounded-full px-5 py-3 shadow-lg text-sm font-semibold bg-red-600 hover:bg-red-500 active:scale-95 transition"
-      @click="sheetOpen = true"
-    >
-      Log Set
-    </button>
   </main>
   
   <ClientOnly>

@@ -47,6 +47,7 @@ export const useWorkoutStore = defineStore('workout', () => {
     await db.sets.put(item as any)
     await queue({ table: 'sets', op: 'insert', payload: item })
     await push()
+    return item
   }
 
   async function logBodyweight(value: number, unit: Unit = 'lb') {
@@ -86,5 +87,19 @@ export const useWorkoutStore = defineStore('workout', () => {
     return arr.slice(0, limit)
   }
 
-  return { logSet, logBodyweight, lastUsedForExercise, recentSets }
+  async function datesWithSets(monthISO: string) { // 'YYYY-MM'
+    const uid = athleteUserId.value
+    const start = monthISO + '-01'
+    const endDate = new Date(start)
+    endDate.setMonth(endDate.getMonth() + 1)
+    const end = endDate.toISOString().slice(0, 10)
+    const xs = await db.sets.where('date').between(start, end, true, false).toArray()
+    const s = new Set<string>()
+    xs.forEach((r: any) => {
+      if (r.date >= start && r.date < end) s.add(r.date)
+    })
+    return s
+  }
+
+  return { logSet, logBodyweight, lastUsedForExercise, recentSets, datesWithSets }
 })

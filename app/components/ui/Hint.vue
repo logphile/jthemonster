@@ -30,7 +30,7 @@ onMounted(() => {
     <!-- Tooltip bubble -->
     <div
       v-if="open"
-      class="absolute z-[1100]"
+      class="absolute z-[70]"
       :class="[
         props.placement === 'top' ? 'bottom-[130%] right-0' : 'top-[130%] right-0'
       ]"
