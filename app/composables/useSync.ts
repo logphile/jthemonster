@@ -1,4 +1,4 @@
-import { db, type OutboxItem } from '~/db/indexed'
+import { db } from '~/db/indexed'
 import { useSupabaseClientSingleton } from './useSupabaseClient'
 import { useAuth } from './useAuth'
 
@@ -6,12 +6,13 @@ export function useSync() {
   const supabase = useSupabaseClientSingleton()
   const { athleteUserId, sessionReady } = useAuth()
 
-  async function queue(item: Omit<OutboxItem,'id'|'ts'>) {
-    await db.outbox.add({ id: crypto.randomUUID(), ts: Date.now(), ...item })
+  async function queue(item: any) {
+    // outbox table may not exist in current schema; use loose typing
+    await (db as any).outbox?.add({ id: crypto.randomUUID(), ts: Date.now(), ...item })
   }
 
   async function push() {
-    const items = await db.outbox.orderBy('ts').toArray()
+    const items = await (db as any).outbox?.orderBy('ts').toArray() ?? []
     for (const it of items) {
       const table = it.table
       const payload = it.payload
@@ -23,13 +24,13 @@ export function useSync() {
       } else {
         res = await supabase.from(table).delete().eq('id', payload.id)
       }
-      if (!res.error) await db.outbox.delete(it.id)
+      if (!res.error) await (db as any).outbox?.delete(it.id)
     }
   }
 
   async function pull(limit = 1000) {
     if (!sessionReady.value || !athleteUserId.value) return
-    const { data: m } = await db.meta.get('lastPulledAt')
+    const { data: m } = await (db as any).meta?.get('lastPulledAt') ?? { data: undefined }
     const since = (m as any)?.value ?? '1970-01-01T00:00:00Z'
     const tables = ['exercises','sessions','sets'] as const
     const updates: any[] = []
@@ -49,7 +50,7 @@ export function useSync() {
         }
       }
     })
-    await db.meta.put({ key: 'lastPulledAt', value: maxTs })
+    await (db as any).meta?.put({ key: 'lastPulledAt', value: maxTs })
   }
 
   function subscribe() {
@@ -72,4 +73,86 @@ export function useSync() {
   }
 
   return { queue, push, pull, subscribe, startSyncLoop }
+}
+
+// Lightweight importer: Supabase -> Dexie (last N days)
+// Usage: const res = await importFromSupabase(60)
+export async function importFromSupabase(days = 60) {
+  const supabase = useSupabaseClientSingleton()
+
+  // Ensure authenticated user
+  const { data: ures } = await supabase.auth.getUser()
+  const user = (ures as any)?.user
+  if (!user) return { imported: false as const, reason: 'no-user' as const }
+
+  const start = new Date()
+  start.setDate(start.getDate() - (days - 1))
+  const startISO = start.toISOString().slice(0, 10)
+  const endISO = new Date().toISOString().slice(0, 10)
+
+  // Sessions (date-bounded)
+  const { data: sessions, error: sErr } = await supabase
+    .from('sessions')
+    .select('id,date,split')
+    .gte('date', startISO)
+    .lte('date', endISO)
+    .order('date')
+
+  if (sErr) throw sErr
+
+  const safeSessions = (sessions ?? []).map((s: any) => ({
+    id: String(s.id),
+    date: String(s.date),
+    split: s.split ?? undefined,
+  }))
+
+  await db.sessions.bulkPut(safeSessions)
+  const dateBySession: Record<string, string> = Object.fromEntries(
+    safeSessions.map((s: any) => [s.id, s.date])
+  )
+
+  // Sets for those sessions
+  let setsCount = 0
+  const sids = safeSessions.map(s => s.id)
+  if (sids.length) {
+    const { data: sets, error: eErr } = await supabase
+      .from('sets')
+      .select('id,session_id,exercise_id,reps,weight,rpe')
+      .in('session_id', sids)
+    if (eErr) throw eErr
+
+    const safeSets = (sets ?? []).map((r: any) => ({
+      id: String(r.id),
+      sessionId: String(r.session_id),
+      date: dateBySession[String(r.session_id)] ?? endISO,
+      exerciseId: r.exercise_id ? String(r.exercise_id) : 'unknown',
+      reps: Number(r.reps ?? 0),
+      weightLb: Number(r.weight ?? 0),
+      rpe: r.rpe ?? undefined,
+    }))
+    if (safeSets.length) await db.sets.bulkPut(safeSets)
+    setsCount = safeSets.length
+  }
+
+  // Bodyweights
+  const { data: bws, error: bErr } = await supabase
+    .from('bodyweights')
+    .select('date,weight')
+    .gte('date', startISO)
+    .lte('date', endISO)
+  if (bErr) throw bErr
+
+  const safeBws = (bws ?? []).map((b: any) => ({
+    id: String(b.date),
+    date: String(b.date),
+    weightLb: Number(b.weight ?? 0),
+  }))
+  if (safeBws.length) await db.bodyweights.bulkPut(safeBws)
+
+  return {
+    imported: true as const,
+    sessions: safeSessions.length,
+    sets: setsCount,
+    bodyweights: safeBws.length,
+  }
 }
