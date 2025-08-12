@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { SPLITS } from '~/data/exercises'
-const model = defineModel<string>({ default: SPLITS[0].id })
+// SPLITS is a Record<id, name>. Use the first key as default.
+const defaultSplit = Object.keys(SPLITS)[0] as string
+const model = defineModel<string>({ default: defaultSplit })
 </script>
 <template>
   <div class="flex flex-wrap gap-2">
     <button
-      v-for="s in SPLITS" :key="s.id"
+      v-for="(name, id) in SPLITS" :key="id"
       class="px-3 py-1 rounded-full text-sm border border-white/10"
-      :class="model===s.id ? 'bg-red-600 text-white' : 'bg-white/5'"
-      @click="model = s.id"
-    >{{ s.name }}</button>
+      :class="model===id ? 'bg-red-600 text-white' : 'bg-white/5'"
+      @click="model = id as string"
+    >{{ name }}</button>
   </div>
 </template>
