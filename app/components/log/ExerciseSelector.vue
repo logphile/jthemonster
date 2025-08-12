@@ -1,6 +1,9 @@
 <script setup lang="ts">
 type CategoryKey = 'chestTris' | 'backBis' | 'legs' | 'shouldersAbs'
 
+import { useQuickLog } from '~/composables/useQuickLog'
+const { open } = useQuickLog()
+
 const categories: Record<CategoryKey, string> = {
   chestTris: 'Chest / Triceps',
   backBis: 'Back / Biceps',
@@ -39,11 +42,14 @@ const byCategory: Record<CategoryKey, Array<{ id: string; name: string }>> = {
 const selectedCat = ref<CategoryKey>('chestTris')
 
 const emit = defineEmits<{
-  (e: 'select', payload: { category: CategoryKey; exerciseId: string }): void
+  (e: 'select', payload: { category: CategoryKey; exerciseId: string; exerciseName?: string }): void
 }>()
 
-function onPick(exId: string) {
-  emit('select', { category: selectedCat.value, exerciseId: exId })
+function onPick(exId: string, name: string) {
+  // Emit for external listeners (optional)
+  emit('select', { category: selectedCat.value, exerciseId: exId, exerciseName: name })
+  // Open the global quick log sheet
+  open({ category: selectedCat.value, exerciseId: exId, exerciseName: name })
 }
 </script>
 
@@ -79,7 +85,7 @@ function onPick(exId: string) {
         :key="ex.id"
         class="w-full text-left px-3 py-2 rounded-xl bg-black/30 border border-zinc-800
                hover:bg-black/40 active:scale-[0.99] transition transform min-h-[44px]"
-        @click="onPick(ex.id)"
+        @click="onPick(ex.id, ex.name)"
       >
         <span class="text-[15px]">{{ ex.name }}</span>
         <span class="ml-2 text-xs opacity-50">tap to add set</span>

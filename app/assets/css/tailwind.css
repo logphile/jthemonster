@@ -25,3 +25,6 @@
 :where(html, body, #__nuxt) {
   -webkit-tap-highlight-color: transparent;
 }
+
+/* Prevent background scroll while quick log sheet is open */
+.ql-no-scroll, .ql-no-scroll body { overflow: hidden; }
