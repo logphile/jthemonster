@@ -4,6 +4,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   ssr: false,
+  sourcemap: { client: true },
   css: ['~/assets/css/tailwind.css'],
   modules: [
     '@pinia/nuxt',
@@ -21,7 +22,10 @@ export default defineNuxtConfig({
       supabaseAnonKey: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY || '',
       // Back-compat for existing references
       NUXT_PUBLIC_SUPABASE_URL: process.env.NUXT_PUBLIC_SUPABASE_URL || '',
-      NUXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY || ''
+      NUXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY || '',
+      // Dev seeding guard
+      enableSeed: process.env.NUXT_PUBLIC_ENABLE_SEED === '1',
+      seedEmail: process.env.NUXT_PUBLIC_SEED_EMAIL || ''
     }
   },
   pwa: {
@@ -63,3 +67,4 @@ export default defineNuxtConfig({
     }
   }
 })
+

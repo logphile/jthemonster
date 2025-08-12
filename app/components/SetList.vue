@@ -22,6 +22,6 @@
 
 <script setup lang="ts">
 import Card from '~/components/ui/Card.vue'
-defineProps<{ sessionId?: string; items: Array<{exercise:string; weight:number; reps:number; id?: string; ts?: number}> }>()
+defineProps<{ sessionId: string | null; items: Array<{exercise:string; weight:number; reps:number; id?: string; ts?: number}> }>()
 defineEmits<{ (e:'remove', index:number): void }>()
 </script>

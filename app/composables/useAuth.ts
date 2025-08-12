@@ -8,6 +8,8 @@ export function useAuth() {
   // session + readiness state
   const session = useState<{ user: User } | null>('auth:session', () => null)
   const sessionReady = useState<boolean>('auth:sessionReady', () => false)
+  // centralized nullable user
+  const user = useState<User | null>('user', () => null)
 
   // role/permission linkage
   const role = useState<'athlete' | 'coach' | null>('auth:role', () => null)
@@ -19,6 +21,7 @@ export function useAuth() {
     const { data } = await supabase.auth.getSession()
     session.value = (data.session as any) ?? null
     sessionReady.value = true
+    user.value = (session.value?.user as User | undefined) ?? null
 
     // reset auth-derived fields
     role.value = null
@@ -54,6 +57,13 @@ export function useAuth() {
     }
   }
 
+  // direct user refresh (centralized user lookup)
+  async function refreshUser() {
+    const { data } = await supabase.auth.getUser()
+    user.value = data?.user ?? null
+    return user.value
+  }
+
   async function login(email: string) {
     const runtime = useRuntimeConfig()
     const origin = (typeof window !== 'undefined' && window.location?.origin)
@@ -71,6 +81,7 @@ export function useAuth() {
     await supabase.auth.signOut()
     session.value = null
     sessionReady.value = true
+    user.value = null
     role.value = null
     athleteUserId.value = null
     coachPermission.value = null
@@ -83,5 +94,5 @@ export function useAuth() {
     if (!sessionReady.value) refreshSession()
   }
 
-  return { session, sessionReady, role, athleteUserId, coachPermission, canWrite, login, logout, refreshSession }
+  return { user, refreshUser, session, sessionReady, role, athleteUserId, coachPermission, canWrite, login, logout, refreshSession }
 }

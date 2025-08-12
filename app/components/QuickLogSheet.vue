@@ -49,7 +49,7 @@ import Chip from '~/components/ui/Chip.vue'
 import PrimaryButton from '~/components/ui/PrimaryButton.vue'
 const units = useUnits()
 
-const props = defineProps<{ modelValue: boolean; sessionId?: string }>()
+const props = defineProps<{ modelValue: boolean; sessionId: string | null }>()
 const emit = defineEmits<{ (e:'update:modelValue', v:boolean):void, (e:'save', payload:{exercise:string; weight:number; reps:number}):void }>()
 
 const open = computed(()=>props.modelValue)

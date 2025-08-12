@@ -84,7 +84,8 @@ export const useSets = defineStore('sets', () => {
     // If online & authed, try server view for accuracy
     try {
       if (session.value) {
-        const targetUser = role.value === 'coach' ? athleteUserId.value : session.value.user.id
+        const targetUser = role.value === 'coach' ? athleteUserId.value : (session.value?.user?.id ?? null)
+        if (!targetUser) return localSeries
         const { data, error } = await supabase
           .from('exercise_daily')
           .select('date, top_set_weight, est_1rm, total_volume, user_id, exercise_id')

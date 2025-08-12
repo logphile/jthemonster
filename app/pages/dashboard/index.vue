@@ -16,7 +16,9 @@ const ProgressChart = defineAsyncComponent(() => import('~/components/progress/P
 const { items, add, removeByIndex } = useRecentSets()
 const { dayStatsForMonth, progressPoints, allExercises, addSet, getOrCreateSession } = useRepo()
 import type { Session } from '~/db/indexed'
+const { user, refreshUser } = useAuth()
 const session = ref<Session | null>(null)
+const sessionId = computed(() => session.value?.id ?? null)
 const sheetOpen = ref(false)
 
 async function onSave(payload: { exercise: string; weight: number; reps: number }){
@@ -29,8 +31,10 @@ async function onSave(payload: { exercise: string; weight: number; reps: number 
 }
 
 onMounted(async () => {
+  // user might be null in guest mode — that's fine
+  if (user.value === null) await refreshUser().catch(() => null)
   // Ensure today's session exists before rendering dependent widgets
-  session.value = await getOrCreateSession()
+  session.value = await getOrCreateSession().catch(() => null)
   // startSyncLoop?.()
 })
 
@@ -79,14 +83,14 @@ onMounted(async () => { exerciseOptions.value = await allExercises() })
 
       <section class="rounded-2xl p-3 bg-white/5 backdrop-blur">
         <h2 class="text-sm font-semibold opacity-80 mb-2">Quick Log</h2>
-        <QuickLogSheet v-if="session" v-model="sheetOpen" :session-id="session!.id" @save="onSave" />
+        <QuickLogSheet v-if="sessionId" v-model="sheetOpen" :session-id="sessionId" @save="onSave" />
         <div v-else class="animate-pulse text-sm opacity-60">Loading session…</div>
       </section>
 
       <section class="rounded-2xl p-3 bg-white/5 backdrop-blur">
         <h2 class="text-sm font-semibold opacity-80 mb-2">Recent Sets</h2>
         <ClientOnly>
-          <SetList v-if="session" :session-id="session!.id" :items="items" @remove="removeByIndex" />
+          <SetList v-if="sessionId" :session-id="sessionId" :items="items" @remove="removeByIndex" />
           <div v-else class="animate-pulse text-sm opacity-60">Loading session…</div>
         </ClientOnly>
       </section>
