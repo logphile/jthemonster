@@ -28,3 +28,7 @@
 
 /* Prevent background scroll while quick log sheet is open */
 .ql-no-scroll, .ql-no-scroll body { overflow: hidden; }
+
+/* ***** Tooltip & overlay bases ***** */
+.tooltip-solid { @apply bg-coal-800 text-gray-100 shadow-card rounded-xl px-3 py-2; }
+.sheet-overlay { @apply fixed inset-0 bg-black/60 z-[55]; }

@@ -16,6 +16,7 @@ export interface SetRecord {
   reps: number
   weightLb: number
   rpe?: number
+  unit?: 'lb' | 'kg'    // optional, additive
 }
 
 export interface ExerciseRecord {
@@ -29,6 +30,7 @@ export interface Bodyweight {
   id: string            // `${date}`
   date: string          // 'YYYY-MM-DD'
   weightLb: number
+  unit?: 'lb' | 'kg'    // optional, additive
 }
 
 class MonsterDB extends Dexie {
