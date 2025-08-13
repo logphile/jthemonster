@@ -12,7 +12,18 @@ export const useExercises = defineStore('exercises', () => {
   const { athleteUserId, canWrite } = useAuth()
 
   async function load() {
-    list.value = await db.exercises.orderBy('updated_at').reverse().toArray()
+    try {
+      // Prefer indexed order by name; seed may not include updated_at
+      list.value = await db.exercises.orderBy('name').toArray()
+      if (!list.value.length) {
+        // Fallback if seed hasn’t run yet
+        list.value = await db.exercises.toArray()
+      }
+    } catch (e) {
+      console.error('[exercises.load]', e)
+      // Last-ditch so the UI doesn’t stay empty
+      list.value = await db.exercises.toArray()
+    }
   }
 
   const canEdit = computed(() => canWrite.value)
