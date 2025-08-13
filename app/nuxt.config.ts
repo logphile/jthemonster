@@ -10,6 +10,7 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxtjs/tailwindcss',
     // '@vite-pwa/nuxt' // Temporarily disabled to avoid stale shells during debug
+    '@nuxtjs/supabase'
   ],
   // No Nitro Azure preset for static hosting
   runtimeConfig: {

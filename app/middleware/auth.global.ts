@@ -1,31 +1,17 @@
 // app/middleware/auth.global.ts
-import { useSupabaseClientSingleton } from '~/composables/useSupabaseClient'
-import { useAuth } from '~/composables/useAuth'
-
-export default defineNuxtRouteMiddleware(async (to) => {
+export default defineNuxtRouteMiddleware((to) => {
   if (!process.client) return
+  const user = useSupabaseUser()
 
-  // Make sure the Supabase client initializes so auth plugin can hydrate
-  const supa = useSupabaseClientSingleton()
-  try { await supa.auth.getSession() } catch {}
-
-  const { user, sessionReady } = useAuth()
-
-  // Wait a microtask for auth plugin to mark sessionReady
-  if (!sessionReady.value) {
-    await new Promise((r) => setTimeout(r, 0))
-  }
-
-  // Only these routes are public
+  // Public-only routes
   const PUBLIC = new Set<string>(['/settings', '/login'])
 
-  // Force login for everything else
+  // Block everything except PUBLIC until signed in
   if (!user.value && !PUBLIC.has(to.path)) {
     return navigateTo('/settings')
   }
 
-  // If logged in and they hit '/', '/login', or '/settings' intentionally,
-  // take them to the dashboard.
+  // If signed in, keep them out of public entry routes
   if (user.value && (to.path === '/' || to.path === '/login')) {
     return navigateTo('/dashboard')
   }

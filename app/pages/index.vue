@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { user, sessionReady } = useAuth()
+const user = useSupabaseUser()
 const go = () => navigateTo(user.value ? '/dashboard' : '/settings')
 </script>
 
