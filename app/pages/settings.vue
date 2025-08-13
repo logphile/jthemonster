@@ -68,15 +68,23 @@ async function onSendMagicLink() {
     <section v-if="!user" class="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-4">
       <h2 class="text-base font-medium mb-2">Sign in</h2>
       <p class="text-sm opacity-70 mb-4">Enter your email and we’ll send you a magic link.</p>
-      <div class="flex items-center gap-2">
-        <input v-model="email" type="email" inputmode="email" placeholder="you@example.com"
-               class="flex-1 px-3 py-2 rounded-xl bg-zinc-800/70 border border-zinc-700 outline-none" />
-        <button class="px-4 py-2 rounded-full bg-rose-600 text-white disabled:opacity-60"
-                :disabled="sending || !email"
-                @click="onSendMagicLink">
+      <form class="mt-3 grid gap-2 sm:grid-cols-[1fr_auto]" @submit.prevent="onSendMagicLink">
+        <input
+          v-model="email"
+          type="email"
+          inputmode="email"
+          placeholder="you@example.com"
+          class="h-11 rounded-xl bg-zinc-900/70 px-3 w-full outline-none"
+          required
+        />
+        <button
+          type="submit"
+          class="h-11 rounded-xl px-4 bg-gradient-to-br from-firepink-600 to-firepink-700 text-white whitespace-nowrap disabled:opacity-60"
+          :disabled="sending || !email"
+        >
           {{ sending ? 'Sending…' : 'Send magic link' }}
         </button>
-      </div>
+      </form>
       <p v-if="sentMsg" class="mt-3 text-sm text-green-400">{{ sentMsg }}</p>
       <p v-if="err" class="mt-2 text-sm text-amber-400">{{ err }}</p>
     </section>

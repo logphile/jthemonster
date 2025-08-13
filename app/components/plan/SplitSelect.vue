@@ -8,7 +8,7 @@ const model = defineModel<string>({ default: Object.keys(SPLITS)[0] as string })
     <button
       v-for="(name, id) in SPLITS" :key="id"
       class="px-3 py-1 rounded-full text-sm border border-white/10"
-      :class="model===id ? 'bg-red-600 text-white' : 'bg-white/5'"
+      :class="model===id ? 'pill-active text-white' : 'bg-white/5'"
       @click="model = id as string"
     >{{ name }}</button>
   </div>

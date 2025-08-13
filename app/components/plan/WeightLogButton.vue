@@ -16,7 +16,7 @@ async function save(){
 </script>
 <template>
   <div>
-    <button class="px-3 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-sm font-semibold" @click="open=true">Log Weight</button>
+    <button class="px-3 py-2 rounded-xl text-white bg-gradient-to-br from-firepink-600 to-firepink-700 text-sm font-semibold" @click="open=true">Log Weight</button>
     <div v-if="open" class="fixed inset-0 z-40 grid place-items-end sm:place-items-center">
       <div class="absolute inset-0 bg-black/60" @click="open=false"></div>
       <div class="relative z-10 w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl bg-card border border-border/60 p-4 backdrop-blur">
@@ -25,7 +25,7 @@ async function save(){
         <input v-model="val" inputmode="decimal" placeholder="e.g. 172" class="w-full rounded-xl bg-bg border border-border/60 px-3 py-2" />
         <div class="mt-3 flex justify-end gap-2">
           <button class="px-3 py-2 rounded-xl bg-white/10" @click="open=false">Cancel</button>
-          <button class="px-3 py-2 rounded-xl bg-red-600 hover:bg-red-500" @click="save">Save</button>
+          <button class="px-3 py-2 rounded-xl text-white bg-gradient-to-br from-firepink-600 to-firepink-700" @click="save">Save</button>
         </div>
       </div>
     </div>

@@ -15,8 +15,8 @@ const intensity = (n:number)=> n===0? 'opacity-0' : n<6? 'opacity-40' : n<12? 'o
     >
       <span class="absolute top-1 left-1 opacity-70">{{ d.getDate() }}</span>
       <span
-        class="absolute inset-0 m-2 rounded-lg bg-red-600 transition"
-        :class="intensity(props.dayStats[key(d)]?.sets || 0)"
+        class="absolute inset-0 m-2 rounded-lg transition"
+        :class="(props.dayStats[key(d)]?.sets ?? 0) > 0 ? 'bg-firepink-600/25 ring-1 ring-firepink-600' : ''"
       />
     </div>
   </div>

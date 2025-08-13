@@ -21,7 +21,7 @@ const emit = defineEmits<{ (e:'close'):void; (e:'addSet'):void; (e:'editSession'
         </div>
       </section>
       <div class="mt-4 flex gap-2">
-        <button class="rounded-xl px-4 py-2 bg-red-600 hover:bg-red-500 text-sm font-semibold" @click="emit('addSet')">Add set</button>
+        <button class="rounded-xl px-4 py-2 text-sm font-semibold text-white bg-gradient-to-br from-firepink-600 to-firepink-700" @click="emit('addSet')">Add set</button>
         <button class="rounded-xl px-4 py-2 bg-white/10 text-sm" @click="emit('editSession')">Edit session</button>
       </div>
     </div>

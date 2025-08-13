@@ -128,7 +128,7 @@ onBeforeUnmount(() => close())
           <div v-if="!needsExercise" class="flex gap-2 mt-4">
             <button class="flex-1 h-10 rounded-xl bg-zinc-800 border border-zinc-700" @click="close" :disabled="saving">Cancel</button>
             <button
-              class="flex-1 h-10 rounded-xl bg-gradient-to-br from-rosefire-600 to-rosefire-700 text-white whitespace-nowrap disabled:opacity-60"
+              class="flex-1 h-10 rounded-xl bg-gradient-to-br from-firepink-600 to-firepink-700 text-white whitespace-nowrap disabled:opacity-60"
               :disabled="saving"
               @click="save(true)"
             >
@@ -137,7 +137,7 @@ onBeforeUnmount(() => close())
               <span v-else>Save & Add</span>
             </button>
             <button
-              class="flex-1 h-10 rounded-xl bg-gradient-to-br from-rosefire-600 to-rosefire-700 text-white whitespace-nowrap disabled:opacity-60"
+              class="flex-1 h-10 rounded-xl bg-gradient-to-br from-firepink-600 to-firepink-700 text-white whitespace-nowrap disabled:opacity-60"
               :disabled="saving"
               @click="save(false)"
             >

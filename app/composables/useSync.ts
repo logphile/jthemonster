@@ -106,7 +106,7 @@ export async function importFromSupabase(days = 60) {
   if (sids.length) {
     const { data: sets, error: eErr } = await supabase
       .from('sets')
-      .select('id, session_id, exercise_id, reps, weight, rpe')
+      .select('id, session_id, exercise_id, reps, weight_lb, weight, rpe')
       .in('session_id', sids)
     if (eErr) throw eErr
 
@@ -116,7 +116,7 @@ export async function importFromSupabase(days = 60) {
       date: dateBySession[r.session_id] ?? endISO,
       exerciseId: r.exercise_id,
       reps: r.reps ?? 0,
-      weightLb: Number(r.weight ?? 0),
+      weightLb: Number((r.weight_lb ?? r.weight) ?? 0),
       rpe: r.rpe ?? null
     })))
     setsCount = (sets?.length ?? 0)
@@ -132,5 +132,10 @@ export async function importFromSupabase(days = 60) {
     id: b.date, date: b.date, weightLb: Number(b.weight)
   })))
 
-  return { imported: true as const, sessions: sessions?.length ?? 0, sets: setsCount, bodyweights: (bws?.length ?? 0) }
+  const result = { imported: true as const, sessions: sessions?.length ?? 0, sets: setsCount, bodyweights: (bws?.length ?? 0) }
+  // Notify UI to refresh charts/calendars immediately after import
+  if (process.client) {
+    try { window.dispatchEvent(new CustomEvent('jt:sync-finished', { detail: result })) } catch {}
+  }
+  return result
 }

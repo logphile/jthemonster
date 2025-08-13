@@ -28,7 +28,8 @@ export default <Partial<Config>>{
         danger: '#EF4444',
         border: '#1F2937',
         coal: { 900:'#0b0d10', 800:'#101317', 700:'#151a1f', 600:'#1b2229' },
-        rosefire: { 500:'#ef3b57', 600:'#e11d48', 700:'#be123c' }
+        rosefire: { 500:'#ef3b57', 600:'#e11d48', 700:'#be123c' },
+        firepink: { 500:'#ff4b7d', 600:'#ff2f6b', 700:'#e01f5a' }
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
@@ -37,7 +38,7 @@ export default <Partial<Config>>{
       boxShadow: {
         soft: '0 10px 25px -12px rgba(244,63,94,0.25)', // primary glow
         card: '0 8px 24px rgba(0,0,0,.35)',
-        glow: '0 0 0 2px rgba(239,59,87,.35)'
+        glow: '0 0 0 2px rgba(255,75,125,.35)'
       },
       borderRadius: {
         '2xl': '1rem',

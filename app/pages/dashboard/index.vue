@@ -16,13 +16,16 @@ const ExerciseSelector = defineAsyncComponent(() => import('~/components/log/Exe
 const { items, add, removeByIndex } = useRecentSets()
 const { dayStatsForMonth, progressPoints, allExercises, getOrCreateSession } = useRepo()
 import type { Session } from '~/db/indexed'
-const { user, refreshUser } = useAuth()
-const displayName = computed(() =>
-  user.value?.user_metadata?.full_name ||
-  user.value?.user_metadata?.name ||
-  user.value?.email?.split('@')[0] ||
-  'Athlete'
-)
+const { session: authSession, refreshSession } = useAuth()
+const displayName = computed(() => {
+  const u = (authSession.value as any)?.user
+  return (
+    u?.user_metadata?.full_name ||
+    u?.user_metadata?.name ||
+    u?.email?.split('@')[0] ||
+    'Athlete'
+  )
+})
 import { useQuickLog } from '~/composables/useQuickLog'
 const session = ref<Session | null>(null)
 const sessionId = computed(() => session.value?.id ?? null)
@@ -44,7 +47,7 @@ onMounted(async () => {
     } catch (e) {
       // ignore if useSync or method not available
     }
-    if (user.value === null) await refreshUser().catch(() => null)
+    if (!authSession.value) await refreshSession().catch(() => null)
     // Ensure today's session exists before rendering dependent widgets
     session.value = await getOrCreateSession().catch(() => null)
   } finally {
@@ -109,6 +112,13 @@ onMounted(() => {
   window.addEventListener('jt:set-saved', handler as any)
   onBeforeUnmount(() => window.removeEventListener('jt:set-saved', handler as any))
 })
+
+// Refresh data after a manual sync completes
+onMounted(() => {
+  const onSync = () => { refreshMonth(); refreshPoints() }
+  window.addEventListener('jt:sync-finished', onSync)
+  onBeforeUnmount(() => window.removeEventListener('jt:sync-finished', onSync))
+})
 </script>
 
 <template>
@@ -137,7 +147,7 @@ onMounted(() => {
         <div class="flex items-center justify-between">
           <h2 class="text-sm font-semibold opacity-80">Quick Log</h2>
           <button
-            class="rounded-lg px-3 py-1 bg-red-600 text-white"
+            class="btn-primary"
             @click="openQL({ category: 'chestTris', exerciseId: '' })"
           >
             Open

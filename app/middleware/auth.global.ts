@@ -1,13 +1,18 @@
 // app/middleware/auth.global.ts
 export default defineNuxtRouteMiddleware(async (to) => {
+  // Only run on client; app is SPA
   if (process.server) return
-  const { user, refreshUser } = useAuth()
-  if (!user.value) {
-    try { await refreshUser() } catch {}
+  const { session, sessionReady, refreshSession } = useAuth()
+
+  // Ensure session computed before guarding
+  if (!sessionReady.value) {
+    try { await refreshSession() } catch {}
   }
 
-  // Allow these routes always (no redirects here; guard pages handle themselves)
-  const passthrough = new Set(['/', '/dashboard', '/login', '/auth/callback'])
-  if (passthrough.has(to.path)) return
+  // Allowed public routes
+  const allow = new Set<string>(['/', '/login', '/settings', '/auth/callback'])
+  if (!session.value && !allow.has(to.path)) {
+    return navigateTo('/settings')
+  }
   return
 })

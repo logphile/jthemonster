@@ -24,7 +24,7 @@ function toggle(id:string){
     <button
       v-for="ex in list" :key="ex.id"
       class="px-3 py-1 rounded-full text-sm border border-white/10"
-      :class="model.includes(ex.id) ? 'bg-red-600 text-white' : 'bg-white/5'"
+      :class="model.includes(ex.id) ? 'pill-active text-white' : 'bg-white/5'"
       @click="toggle(ex.id)"
     >{{ ex.name }}</button>
   </div>

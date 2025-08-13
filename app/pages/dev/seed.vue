@@ -107,6 +107,33 @@ const wipe60d = async () => {
   })
   state.msg = 'Wiped last 60 days of local data.'
 }
+
+// Seed sets directly into Supabase for the last N days
+const seedSets = async (days = 30) => {
+  const user = await requireAuth()
+  state.msg = 'Seeding sets to Supabase…'
+  const today = new Date()
+  // Ensure these exercises exist in your Supabase exercises table
+  const exIds = [1, 2, 3, 4]
+  const rows: any[] = []
+  for (let i = 0; i < days; i++) {
+    const d = new Date(today); d.setDate(today.getDate() - i)
+    const date = d.toISOString().slice(0, 10)
+    for (const ex of exIds) {
+      rows.push({
+        user_id: user.id,
+        date,
+        exercise_id: ex,
+        reps: 8,
+        weight_lb: 135 + (i % 5) * 5,
+        rpe: 7.5
+      })
+    }
+  }
+  const { error } = await supabase.from('sets').insert(rows)
+  if (error) throw error
+  state.msg = `Seeded ${rows.length} sets to Supabase. Go to Settings → Sync Now.`
+}
 </script>
 
 <template>
@@ -117,12 +144,14 @@ const wipe60d = async () => {
       Data is <b>local (Dexie)</b> and uses pounds.
     </p>
 
-    <div class="flex gap-3">
-      <button class="rounded-lg px-4 py-2 bg-red-600 text-white disabled:opacity-50"
-              :disabled="state.running" @click="runSeed">
-        {{ state.running ? 'Seeding…' : 'Seed last 60 days' }}
+    <div class="flex gap-3 flex-wrap">
+      <button class="rounded-lg px-4 py-2 text-white bg-gradient-to-br from-firepink-600 to-firepink-700 disabled:opacity-50" :disabled="state.running" @click="runSeed">
+        {{ state.running ? 'Seeding…' : 'Seed last 60 days (local)' }}
       </button>
-      <button class="rounded-lg px-4 py-2 bg-white/10" @click="wipe60d">Wipe last 60 days</button>
+      <button class="rounded-lg px-4 py-2 bg-white/10" @click="wipe60d">Wipe last 60 days (local)</button>
+      <button class="rounded-lg px-4 py-2 text-white bg-gradient-to-br from-firepink-600 to-firepink-700" @click="seedSets(30)">
+        Seed sets (30d) → Supabase
+      </button>
     </div>
 
     <p class="text-sm opacity-70">{{ state.msg }}</p>
