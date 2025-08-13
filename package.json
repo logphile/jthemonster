@@ -1,5 +1,4 @@
 {
-  "devDependencies": {
-    "@nuxtjs/supabase": "^1.6.0"
-  }
+  "name": "jthemonster-root",
+  "private": true
 }
