@@ -15,18 +15,44 @@ export function useSync() {
   async function push() {
     const items = await ((db as any).outbox?.orderBy('ts').toArray() ?? [])
     for (const it of items) {
-      const table = it.table
-      const payload = it.payload
-      let res
-      if (it.op === 'insert') {
-        res = await supabase.from(table).insert(payload)
-      } else if (it.op === 'update') {
-        res = await supabase.from(table).upsert(payload)
-      } else {
-        res = await supabase.from(table).delete().eq('id', payload.id)
+      try {
+        const table = it.table as string
+        let payload = it.payload as any
+        let res
+        // Normalize payloads to server column names and ensure RLS fields
+        if (table === 'sets' && (it.op === 'insert' || it.op === 'update')) {
+          // map camelCase -> snake_case; include user_id when available
+          const mapped: any = {
+            id: payload.id,
+            user_id: payload.user_id, // should already be set by stores
+            session_id: payload.sessionId ?? payload.session_id ?? null,
+            exercise_id: payload.exerciseId ?? payload.exercise_id,
+            reps: Number(payload.reps ?? 0),
+            rpe: payload.rpe ?? null,
+            weight_lb: Number(payload.weightLb ?? payload.weight_lb ?? payload.weight ?? 0),
+            date: payload.date, // if column exists in schema
+            created_at: payload.created_at ?? new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          }
+          payload = mapped
+        }
+
+        if (it.op === 'insert') {
+          res = await supabase.from(table).insert(payload)
+        } else if (it.op === 'update') {
+          res = await supabase.from(table).upsert(payload)
+        } else {
+          res = await supabase.from(table).delete().eq('id', payload.id)
+        }
+        if (res.error) {
+          console.error('[sync.push] error', { table, op: it.op, err: res.error, payload })
+        } else {
+          // Dexie auto-increment key is _id in our schema
+          await (db as any).outbox?.delete(it._id)
+        }
+      } catch (e) {
+        console.error('[sync.push] exception', e)
       }
-      // Dexie auto-increment key is _id in our schema
-      if (!res.error) await (db as any).outbox?.delete(it._id)
     }
   }
 

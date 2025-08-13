@@ -75,9 +75,9 @@ async function clearLocalCache() {
   <main class="min-h-dvh px-4 py-6 space-y-6">
     <!-- Mini header with back link -->
     <div class="flex items-center gap-3">
-      <NuxtLink to="/dashboard" class="text-sm px-3 py-1 rounded-full bg-zinc-800/70 border border-zinc-700 hover:bg-zinc-700">
+      <button @click="$router.push('/dashboard')" class="text-sm px-3 py-1 rounded-full bg-zinc-800/70 border border-zinc-700 hover:bg-zinc-700">
         ← Back
-      </NuxtLink>
+      </button>
       <h1 class="text-xl font-semibold">Settings</h1>
     </div>
 

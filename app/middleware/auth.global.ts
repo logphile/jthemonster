@@ -1,18 +1,14 @@
+import { useSupabaseClientSingleton } from '~/composables/useSupabaseClient'
 // app/middleware/auth.global.ts
-export default defineNuxtRouteMiddleware(async (to) => {
-  // Only run on client; app is SPA
-  if (process.server) return
-  const { session, sessionReady, refreshSession } = useAuth()
-
-  // Ensure session computed before guarding
-  if (!sessionReady.value) {
-    try { await refreshSession() } catch {}
+export default defineNuxtRouteMiddleware(async () => {
+  // Client-only safety; never throw or navigate to avoid blank screens
+  if (!process.client) return
+  try {
+    const supa = (globalThis as any).useSupabaseClient?.() ?? useSupabaseClientSingleton?.()
+    if (supa?.auth?.getUser) {
+      await supa.auth.getUser()
+    }
+  } catch (e) {
+    console.error('auth middleware', e)
   }
-
-  // Allowed public routes
-  const allow = new Set<string>(['/', '/login', '/settings', '/auth/callback'])
-  if (!session.value && !allow.has(to.path)) {
-    return navigateTo('/settings')
-  }
-  return
 })
