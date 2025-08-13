@@ -38,14 +38,37 @@ class MonsterDB extends Dexie {
   sets!: Table<SetRecord, string>
   exercises!: Table<ExerciseRecord, string>
   bodyweights!: Table<Bodyweight, string>
+  // additive stores for sync/metadata
+  outbox!: Table<any, string>
+  meta!: Table<any, string>
 }
 
 export const db = new MonsterDB('jthemonster')
 
-// BUMP this integer if you already have a version:
-db.version(2).stores({
-  sessions: 'id, date, split',
-  sets: 'id, sessionId, date, exerciseId, weightLb, reps',
-  exercises: 'id, split, bodypart, name',
-  bodyweights: 'id, date, weightLb',
-})
+// Schema versioning — bump carefully when adding indexes/stores
+db.version(3)
+  .stores({
+    sessions: 'id, date, split',
+    sets: 'id, sessionId, date, exerciseId, weightLb, reps',
+    exercises: 'id, split, bodypart, name',
+    bodyweights: 'id, date, weightLb',
+    // new additive stores
+    outbox: '++_id, ts, table, op',
+    meta: 'key',
+  })
+  .upgrade((_tx) => {
+    // No-op upgrade to ensure smooth migration from older versions
+    // Place any backfills/transforms here if needed in the future
+    return
+  })
+
+// Helper to proactively open DB and surface errors to caller
+export async function openDB() {
+  try {
+    await db.open()
+    return db
+  } catch (e) {
+    console.error('[db] Dexie open failed', e)
+    throw e
+  }
+}

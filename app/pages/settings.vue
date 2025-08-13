@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { importFromSupabase } from '~/composables/useSync'
 import { useSupabaseClientSingleton } from '~/composables/useSupabaseClient'
+import Dexie from 'dexie'
 
 const syncing = ref(false)
 const last = ref<{ imported:boolean; sessions:number; sets:number; bodyweights:number; reason?:string }|null>(null)
@@ -12,6 +13,7 @@ const supabase = ((globalThis as any).useSupabaseClient?.() ?? useSupabaseClient
 const email = ref('')
 const sending = ref(false)
 const sentMsg = ref('')
+const clearing = ref(false)
 
 onMounted(() => console.log('[settings] mounted'))
 
@@ -50,6 +52,21 @@ async function onSendMagicLink() {
     err.value = e?.message || String(e)
   } finally {
     sending.value = false
+  }
+}
+
+async function clearLocalCache() {
+  if (!process.client) return
+  if (!confirm('Clear local cache? This keeps your account; only local IndexedDB & recent cache are reset.')) return
+  clearing.value = true
+  try {
+    await Dexie.delete('jthemonster')
+    try { localStorage.removeItem('jthemonster:recentSets') } catch {}
+    try { localStorage.removeItem('jt_sets_v1') } catch {}
+    // Add more local keys here if needed
+    location.reload()
+  } finally {
+    clearing.value = false
   }
 }
 </script>
@@ -115,6 +132,12 @@ async function onSendMagicLink() {
       <p v-if="err" class="mt-2 text-sm text-amber-400">
         {{ err }}
       </p>
+
+      <div class="mt-6">
+        <button class="px-4 py-2 rounded-full border border-zinc-700 text-sm disabled:opacity-60" :disabled="clearing" @click="clearLocalCache">
+          {{ clearing ? 'Clearing…' : 'Clear Local Cache' }}
+        </button>
+      </div>
     </section>
   </main>
 </template>

@@ -9,11 +9,11 @@ export function useSync() {
 
   async function queue(item: any) {
     // outbox table may not exist in current schema; use loose typing
-    await (db as any).outbox?.add({ id: crypto.randomUUID(), ts: Date.now(), ...item })
+    await (db as any).outbox?.add({ ts: Date.now(), ...item })
   }
 
   async function push() {
-    const items = await (db as any).outbox?.orderBy('ts').toArray() ?? []
+    const items = await ((db as any).outbox?.orderBy('ts').toArray() ?? [])
     for (const it of items) {
       const table = it.table
       const payload = it.payload
@@ -25,13 +25,14 @@ export function useSync() {
       } else {
         res = await supabase.from(table).delete().eq('id', payload.id)
       }
-      if (!res.error) await (db as any).outbox?.delete(it.id)
+      // Dexie auto-increment key is _id in our schema
+      if (!res.error) await (db as any).outbox?.delete(it._id)
     }
   }
 
   async function pull(limit = 1000) {
     if (!sessionReady.value || !athleteUserId.value) return
-    const { data: m } = await (db as any).meta?.get('lastPulledAt') ?? { data: undefined }
+    const m = await (db as any).meta?.get('lastPulledAt')
     const since = (m as any)?.value ?? '1970-01-01T00:00:00Z'
     const tables = ['exercises','sessions','sets'] as const
     const updates: any[] = []
@@ -46,8 +47,24 @@ export function useSync() {
     await db.transaction('rw', db.exercises, db.sessions, db.sets, async () => {
       for (const u of updates) {
         for (const row of u.rows) {
-          maxTs = maxTs > row.updated_at ? maxTs : row.updated_at
-          await (db as any)[u.t].put(row)
+          const updatedAt = row?.updated_at ?? since
+          maxTs = maxTs > updatedAt ? maxTs : updatedAt
+          // Guard common nulls
+          if (u.t === 'sets') {
+            await (db as any)[u.t].put({
+              id: row.id,
+              sessionId: row.session_id,
+              date: row.date ?? new Date().toISOString().slice(0,10),
+              exerciseId: row.exercise_id,
+              reps: Number(row.reps ?? 0),
+              weightLb: Number((row.weight_lb ?? row.weight) ?? 0),
+              rpe: row.rpe ?? null,
+            })
+          } else if (u.t === 'sessions') {
+            await (db as any)[u.t].put({ id: row.id, date: row.date, split: row.split ?? null })
+          } else if (u.t === 'exercises') {
+            await (db as any)[u.t].put(row)
+          }
         }
       }
     })

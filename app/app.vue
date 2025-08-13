@@ -7,7 +7,6 @@
           <div class="p-6 text-red-300">Oops! {{ error?.message || 'Something went wrong.' }}</div>
         </template>
       </NuxtErrorBoundary>
-      <GlobalLogSetFab />
       <GlobalQLSheet />
     </ClientOnly>
   </NuxtLayout>
@@ -15,8 +14,16 @@
 
 <script setup lang="ts">
 const GlobalQLSheet = defineAsyncComponent(() => import('~/components/log/QuickLogSheet.vue'))
-const GlobalLogSetFab = defineAsyncComponent(() => import('~/components/log/LogSetFab.vue'))
-onMounted(() => console.log('[app.vue] mounted'))
+onMounted(async () => {
+  console.log('[app.vue] mounted')
+  try {
+    const mod = await import('~/composables/useDb')
+    const fn = (mod as any)?.useDbSafe as undefined | (() => Promise<any>)
+    if (fn) await fn()
+  } catch (e) {
+    // ignore, error boundary plugin will surface if needed
+  }
+})
 </script>
 
 <style>
