@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { openQuickLog } from '~/utils/bus'
 const props = defineProps<{ date: string; sessions: Array<any>; sets: Array<{exercise:string; weight:number; reps:number; ts:number}> }>()
 const emit = defineEmits<{ (e:'close'):void; (e:'addSet'):void; (e:'editSession'):void }>()
+function onAddSet(){ openQuickLog({ date: props.date }) }
 </script>
 
 <template>
@@ -21,7 +23,7 @@ const emit = defineEmits<{ (e:'close'):void; (e:'addSet'):void; (e:'editSession'
         </div>
       </section>
       <div class="mt-4 flex gap-2">
-        <button class="rounded-xl px-4 py-2 text-sm font-semibold text-white bg-gradient-to-br from-firepink-600 to-firepink-700" @click="emit('addSet')">Add set</button>
+        <button class="rounded-xl px-4 py-2 text-sm font-semibold text-white bg-gradient-to-br from-firepink-600 to-firepink-700" @click="onAddSet">Add set</button>
         <button class="rounded-xl px-4 py-2 bg-white/10 text-sm" @click="emit('editSession')">Edit session</button>
       </div>
     </div>

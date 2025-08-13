@@ -22,11 +22,11 @@ export const useWorkoutStore = defineStore('workout', () => {
   const { athleteUserId, canWrite } = useAuth()
   const { queue, push } = useSync()
 
-  async function logSet(payload: { exerciseId: string | number; reps: number; weight: number; rpe?: number; unit: Unit }) {
+  async function logSet(payload: { exerciseId: string | number; reps: number; weight: number; rpe?: number; unit: Unit; date?: string }) {
     if (!canWrite.value) return
     const uid = athleteUserId.value
     if (!uid) return
-    const date = todayKey()
+    const date = (payload.date && /\d{4}-\d{2}-\d{2}/.test(payload.date)) ? payload.date : todayKey()
     const unit = payload.unit
     const weightLb = toLb(Number(payload.weight || 0), unit)
 

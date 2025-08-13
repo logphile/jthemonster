@@ -2,6 +2,8 @@ export type QuickLogPayload = {
   category: string
   exerciseId: string
   exerciseName?: string
+  date?: string
+  sessionId?: string
 }
 
 const isOpen = ref(false)

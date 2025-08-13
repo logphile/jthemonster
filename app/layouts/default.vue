@@ -16,6 +16,7 @@
     </main>
     <ClientOnly>
       <LogSetFab v-if="showFab" />
+      <GlobalQLSheet />
     </ClientOnly>
   </div>
   
@@ -25,4 +26,13 @@
 const route = useRoute()
 const showFab = computed(() => route.path === '/dashboard')
 const LogSetFab = defineAsyncComponent(() => import('~/components/log/LogSetFab.vue'))
+const GlobalQLSheet = defineAsyncComponent(() => import('~/components/log/QuickLogSheet.vue'))
+import { bus } from '~/utils/bus'
+import { useQuickLog } from '~/composables/useQuickLog'
+onMounted(() => {
+  const { open } = useQuickLog()
+  bus.on('quicklog:open', (p: any) => {
+    try { open(p as any) } catch (e) { console.error('[layout] quicklog open failed', e) }
+  })
+})
 </script>

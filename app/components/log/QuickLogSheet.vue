@@ -23,6 +23,7 @@ async function save(next: boolean) {
     weight: Number(form.weight || 0),
     rpe: form.rpe ? Number(form.rpe) : undefined,
     unit: 'lb',
+    date: payload.value.date,
   })
   saving.value = false
   savedFlash.value = true
@@ -73,6 +74,10 @@ onBeforeUnmount(() => close())
               Close
             </button>
           </div>
+
+          <p v-if="payload?.date" class="text-xs opacity-70 mb-2">
+            {{ new Date(payload.date as string).toDateString() }}
+          </p>
 
           <p class="text-xs opacity-70 mb-3" v-if="!needsExercise">
             {{ payload?.category }} • {{ payload?.exerciseName ?? payload?.exerciseId }}
