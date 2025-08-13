@@ -1,0 +1,24 @@
+{
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": [
+      "/assets/*",
+      "/_nuxt/*",
+      "/api/*",
+      "/favicon.ico",
+      "/robots.txt",
+      "/sitemap.xml"
+    ]
+  },
+  "responseOverrides": {
+    "404": {
+      "rewrite": "/index.html"
+    }
+  },
+  "globalHeaders": {
+    "Cache-Control": "no-store, max-age=0, must-revalidate"
+  },
+  "mimeTypes": {
+    ".wasm": "application/wasm"
+  }
+}

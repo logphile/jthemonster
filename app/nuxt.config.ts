@@ -9,7 +9,7 @@ export default defineNuxtConfig({
   modules: [
     '@pinia/nuxt',
     '@nuxtjs/tailwindcss',
-    '@vite-pwa/nuxt'
+    // '@vite-pwa/nuxt' // Temporarily disabled to avoid stale shells during debug
   ],
   // No Nitro Azure preset for static hosting
   runtimeConfig: {
@@ -28,29 +28,7 @@ export default defineNuxtConfig({
       seedEmail: process.env.NUXT_PUBLIC_SEED_EMAIL || ''
     }
   },
-  pwa: {
-    registerType: 'autoUpdate',
-    manifest: {
-      name: 'J The Monster',
-      short_name: 'JMonster',
-      description: 'Mobile-first lift tracker for one athlete + one coach',
-      theme_color: '#0A0A0A',
-      background_color: '#0A0A0A',
-      display: 'standalone',
-      start_url: '/',
-      icons: [
-        { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
-        { src: '/icon-512.png', sizes: '512x512', type: 'image/png' }
-      ]
-    },
-    workbox: {
-      navigateFallback: '/',
-      globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}'],
-      // Avoid precaching oversized assets and fix build failure
-      maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-      globIgnores: ['**/jthemonster.png']
-    }
-  },
+  // PWA temporarily disabled while stabilizing auth/routing
   tailwindcss: {
     cssPath: '~/assets/css/tailwind.css',
     viewer: false
