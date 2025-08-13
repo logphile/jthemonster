@@ -1,5 +1,6 @@
 <script setup lang="ts">
-const go = () => navigateTo('/dashboard')
+const { user, sessionReady } = useAuth()
+const go = () => navigateTo(user.value ? '/dashboard' : '/settings')
 </script>
 
 <template>

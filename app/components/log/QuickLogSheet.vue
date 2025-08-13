@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import Hint from '~/components/ui/Hint.vue'
 import { useQuickLog } from '~/composables/useQuickLog'
-import ExerciseSelector from '~/components/log/ExerciseSelector.vue'
-import { computed } from 'vue'
+import ExercisePicker from '~/components/ExercisePicker.vue'
+import { computed, watch } from 'vue'
 import { reactive, nextTick, onBeforeUnmount } from 'vue'
 import { useWorkoutStore } from '~/stores/workout'
 
@@ -48,6 +48,12 @@ function setExercise(id: string, name: string) {
   payload.value.exerciseName = name
 }
 
+// Keep payload name optionally in sync when picker changes the id
+watch(() => payload.value?.exerciseId, (id) => {
+  if (!payload.value) return
+  // Name can be resolved by repo if needed; leave as-is for now
+})
+
 onBeforeUnmount(() => close())
 </script>
 
@@ -83,10 +89,10 @@ onBeforeUnmount(() => close())
             {{ payload?.category }} • {{ payload?.exerciseName ?? payload?.exerciseId }}
           </p>
 
-          <!-- If no exercise yet, show the selector INSIDE the sheet -->
-          <div v-if="needsExercise" class="mt-2">
-            <ExerciseSelector @select="({ category, exerciseId, exerciseName }) => setExercise(exerciseId, exerciseName || '')" />
-            <p class="text-xs opacity-60 mt-2">Choose an exercise to continue.</p>
+          <!-- If no exercise yet, show the compact picker INSIDE the sheet -->
+          <div v-if="needsExercise" class="mt-2 space-y-2">
+            <ExercisePicker v-model="payload!.exerciseId" />
+            <p class="text-xs opacity-60">Pick an exercise to continue</p>
           </div>
 
           <!-- Otherwise show the input form -->

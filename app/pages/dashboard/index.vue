@@ -12,9 +12,8 @@ const ExerciseToggleChips = defineAsyncComponent(() => import('~/components/prog
 const ProgressChart = defineAsyncComponent(() => import('~/components/progress/ProgressChart.vue'))
 const ExerciseSelector = defineAsyncComponent(() => import('~/components/log/ExerciseSelector.vue'))
 
-// Data and actions
-const { items, add, removeByIndex } = useRecentSets()
-const { dayStatsForMonth, progressPoints, allExercises, getOrCreateSession } = useRepo()
+// Data and actions (Dexie-backed)
+const { dayStatsForMonth, progressPoints, allExercises, getOrCreateSession, setsForSession } = useRepo()
 import type { Session } from '~/db/indexed'
 const { session: authSession, refreshSession } = useAuth()
 const displayName = computed(() => {
@@ -50,6 +49,8 @@ onMounted(async () => {
     if (!authSession.value) await refreshSession().catch(() => null)
     // Ensure today's session exists before rendering dependent widgets
     session.value = await getOrCreateSession().catch(() => null)
+    await refreshRecent()
+    await refreshMonth()
   } finally {
     loading.value = false
   }
@@ -61,8 +62,6 @@ const month = ref(new Date())
 const dayStats = ref<Record<string, { sets:number; sessionId?: string }>>({})
 async function refreshMonth(){ dayStats.value = await dayStatsForMonth(month.value) }
 watch(month, refreshMonth, { immediate: true })
-// also refresh when local items length changes (quick log)
-watch(() => items.value.length, () => { refreshMonth() })
 const daySheetOpen = ref(false)
 const daySheetDate = ref<string>('')
 function openDay(p:{date:string}){ daySheetDate.value = p.date; daySheetOpen.value = true }
@@ -81,41 +80,45 @@ function onExerciseSelect(payload: { category: string; exerciseId: string }){
   startQuickLog(payload.category, payload.exerciseId)
 }
 
-// Progress state: load top set weights per day from Dexie
+// Progress state: load top set weights per day for a given exercise (or all)
 const exerciseId = ref<string>('all')
 const chartPoints = ref<Array<{ x: string; y: number; sessionId: string }>>([])
 async function refreshPoints(){ chartPoints.value = await progressPoints(exerciseId.value) }
 watch(exerciseId, refreshPoints, { immediate: true })
-watch(() => items.value.length, () => { refreshPoints() })
+// refreshPoints is also called on jt events below
 
 // Exercise chips options
 const exerciseOptions = ref<Array<{ id:string; name:string }>>([])
 onMounted(async () => { exerciseOptions.value = await allExercises() })
 
-// Listen for global quick-log saves (from teleported sheet)
+// Recent sets for current session (mapped to SetList shape)
+const recent = ref<Array<{ exercise:string; weight:number; reps:number }>>([])
+async function refreshRecent() {
+  if (!session.value?.id) return
+  const rows = await setsForSession(session.value.id)
+  const ex = await allExercises()
+  const nameById = Object.fromEntries(ex.map(x => [x.id, x.name]))
+  recent.value = rows
+    .sort((a,b) => (b.date + (b.id||''))
+      .localeCompare(a.date + (a.id||'')))
+    .slice(0, 50)
+    .map(r => ({
+      exercise: nameById[r.exerciseId] ?? r.exerciseId,
+      weight: r.weightLb ?? 0,
+      reps: r.reps ?? 0,
+    }))
+}
+
+// Update UI when sets are saved or sync finishes
 onMounted(() => {
-  const handler = (e: any) => {
-    const s = e?.detail
-    if (!s) return
-    // Optimistic recent list update
-    add(String(s.exerciseId), Number(s.weightLb || s.weight || 0), Number(s.reps || 0))
-    // Optimistically bump today's calendar count for instant highlight
-    try {
-      const d = String(s.date || new Date().toISOString().slice(0,10))
-      const prev = dayStats.value[d] || { sets: 0 }
-      dayStats.value = { ...dayStats.value, [d]: { ...prev, sets: (prev.sets || 0) + 1 } }
-    } catch {}
-    // Refresh calendar/progress (authoritative)
-    refreshMonth()
-    refreshPoints()
-  }
-  window.addEventListener('jt:set-saved', handler as any)
-  onBeforeUnmount(() => window.removeEventListener('jt:set-saved', handler as any))
+  const onSaved = async () => { await refreshRecent(); await refreshMonth(); await refreshPoints() }
+  window.addEventListener('jt:set-saved', onSaved as any)
+  onBeforeUnmount(() => window.removeEventListener('jt:set-saved', onSaved as any))
 })
 
 // Refresh data after a manual sync completes
 onMounted(() => {
-  const onSync = () => { refreshMonth(); refreshPoints() }
+  const onSync = () => { refreshRecent(); refreshMonth(); refreshPoints() }
   window.addEventListener('jt:sync-finished', onSync)
   onBeforeUnmount(() => window.removeEventListener('jt:sync-finished', onSync))
 })
@@ -158,7 +161,7 @@ onMounted(() => {
       <section class="rounded-2xl p-3 bg-white/5 backdrop-blur">
         <h2 class="text-sm font-semibold opacity-80 mb-2">Recent Sets</h2>
         <ClientOnly>
-          <SetList v-if="sessionId" :session-id="sessionId" :items="items" @remove="removeByIndex" />
+          <SetList v-if="sessionId" :session-id="sessionId" :items="recent" />
           <div v-else class="animate-pulse text-sm opacity-60">Loading session…</div>
         </ClientOnly>
       </section>
@@ -185,7 +188,7 @@ onMounted(() => {
   </main>
   
   <ClientOnly>
-    <DayDetailSheet v-if="daySheetOpen" :date="daySheetDate" :sessions="[]" :sets="items.filter(s => new Date(s.ts).toISOString().slice(0,10)===daySheetDate)" @close="daySheetOpen=false" />
+    <DayDetailSheet v-if="daySheetOpen" :date="daySheetDate" :sessions="[]" :sets="[]" @close="daySheetOpen=false" />
   </ClientOnly>
   
 </template>
