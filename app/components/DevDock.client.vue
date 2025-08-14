@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { useSafeQuery } from '~/composables/useSafeQuery'
 const show = ref(false)
 const cfg = useRuntimeConfig().public
 const route = useRoute()
 const user = useSupabaseUser()
-
-// Safe computed access to route query to prevent _s reactivity errors
-const routeQuery = computed(() => route.query || {})
+const safeUserDisplay = computed(() => user.value ? (user.value.email || user.value.id) : 'null')
+const routeQuery = useSafeQuery()
 
 let store: any = null
 try { 
@@ -26,7 +26,7 @@ try {
       <pre>route: {{ route.fullPath }}</pre>
       <pre>query: {{ routeQuery }}</pre>
       <pre>supabase.url set: {{ !!cfg?.supabase?.url }}</pre>
-      <pre>user: {{ user ? (user.email || user.id) : 'null' }}</pre>
+      <pre>user: {{ safeUserDisplay }}</pre>
       <pre>store available: {{ !!store }}</pre>
       <pre>store keys: {{ store ? Object.keys(store).slice(0, 5) : 'none' }}</pre>
     </div>

@@ -1,4 +1,14 @@
 <script setup lang="ts">
+import { useSlots } from 'vue'
+import { useSafeQuery } from '~/composables/useSafeQuery'
+
+const route = useRoute()
+const $q = useSafeQuery()
+onMounted(() => {
+  console.log('[SETTINGS] route.query raw:', route.query)
+  console.log('[SETTINGS] safe query:', $q.value)
+  console.log('[SETTINGS] slots on this component:', Object.keys(useSlots?.() || {}))
+})
 import { useSafeUser } from '~/composables/useSafeUser'
 import { useProfileStore } from '~/stores/profile'
 
