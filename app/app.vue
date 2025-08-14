@@ -1,21 +1,15 @@
 <template>
-  <NuxtLayout>
-    <NuxtPage />
-  </NuxtLayout>
+  <DevErrorBoundary>
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
+  </DevErrorBoundary>
 </template>
 
 <script setup lang="ts">
+import DevErrorBoundary from '~/components/DevErrorBoundary.client.vue'
 
-onMounted(async () => {
-  console.log('[app.vue] mounted')
-  try {
-    const mod = await import('~/composables/useDb')
-    const fn = (mod as any)?.useDbSafe as undefined | (() => Promise<any>)
-    if (fn) await fn()
-  } catch (e) {
-    // ignore, error boundary plugin will surface if needed
-  }
-})
+onMounted(() => console.log('[app.vue] mounted'))
 </script>
 
 <style>
