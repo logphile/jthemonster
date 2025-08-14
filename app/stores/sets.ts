@@ -5,13 +5,12 @@ const nowIso = () => new Date().toISOString()
 const newId = () => crypto.randomUUID()
 import { useSync } from '../composables/useSync'
 import { useAuth } from '../composables/useAuth'
-import { useSupabaseClientSingleton } from '../composables/useSupabaseClient'
 
 export const useSets = defineStore('sets', () => {
   const list = ref<any[]>([])
   const { queue, push } = useSync()
-  const { session, role, athleteUserId, canWrite } = useAuth()
-  const supabase = useSupabaseClientSingleton()
+  const { user } = useAuth()
+  const supabase = useSupabaseClient()
 
   async function load(sessionId?: string) {
     try {
@@ -28,12 +27,11 @@ export const useSets = defineStore('sets', () => {
     }
   }
 
-  const canEdit = computed(() => canWrite.value)
+  const canEdit = computed(() => !!user.value)
 
   async function add(row: any) {
-    if (!canEdit.value) return
-    if (!athleteUserId.value) return
-    const payload: any = { ...row, user_id: athleteUserId.value, id: newId(), created_at: nowIso(), updated_at: nowIso() }
+    if (!canEdit.value || !user.value) return
+    const payload: any = { ...row, user_id: user.value.id, id: newId(), created_at: nowIso(), updated_at: nowIso() }
     await db.sets.put(payload)
     if (canEdit.value) await queue({ table: 'sets', op: 'insert', payload })
     await push(); await load()
@@ -83,8 +81,8 @@ export const useSets = defineStore('sets', () => {
 
     // If online & authed, try server view for accuracy
     try {
-      if (session.value) {
-        const targetUser = role.value === 'coach' ? athleteUserId.value : (session.value?.user?.id ?? null)
+      if (user.value) {
+        const targetUser = user.value.id
         if (!targetUser) return localSeries
         const { data, error } = await supabase
           .from('exercise_daily')

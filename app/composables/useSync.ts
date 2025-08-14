@@ -1,11 +1,10 @@
 import { db } from '~/db/indexed'
 import { subDays } from 'date-fns'
-import { useSupabaseClientSingleton } from './useSupabaseClient'
 import { useAuth } from './useAuth'
 
 export function useSync() {
-  const supabase = useSupabaseClientSingleton()
-  const { athleteUserId, sessionReady } = useAuth()
+  const supabase = useSupabaseClient()
+  const { user } = useAuth()
 
   async function queue(item: any) {
     // outbox table may not exist in current schema; use loose typing
@@ -57,7 +56,7 @@ export function useSync() {
   }
 
   async function pull(limit = 1000) {
-    if (!sessionReady.value || !athleteUserId.value) return
+    if (!user.value) return
     const m = await (db as any).meta?.get('lastPulledAt')
     const since = (m as any)?.value ?? '1970-01-01T00:00:00Z'
     const tables = ['exercises','sessions','sets'] as const
@@ -65,7 +64,7 @@ export function useSync() {
     for (const t of tables) {
       let q = supabase.from(t).select('*').gt('updated_at', since).limit(limit)
       // filter by user scope if table has user_id (assumed for our schema)
-      q = (q as any).eq('user_id', athleteUserId.value)
+      q = (q as any).eq('user_id', user.value.id)
       const { data, error } = await q
       if (!error && data) updates.push({ t, rows: data })
     }
@@ -123,7 +122,7 @@ export function useSync() {
 // Usage: const res = await importFromSupabase(60)
 export async function importFromSupabase(days = 60) {
   // Use app's singleton Supabase client
-  const supabase = useSupabaseClientSingleton()
+  const supabase = useSupabaseClient()
 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { imported: false as const, reason: 'no-user' as const, sessions: 0, sets: 0, bodyweights: 0 }

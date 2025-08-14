@@ -2,10 +2,9 @@
 import { addDays, subDays, eachDayOfInterval, formatISO, getDay } from 'date-fns'
 import { SPLITS, getExercisesForSplit, type SplitKey } from '~/data/exercises'
 import { useRepo } from '~/composables/useRepo'
-import { useSupabaseClientSingleton } from '~/composables/useSupabaseClient'
 
 const cfg = useRuntimeConfig().public as any
-const supabase = useSupabaseClientSingleton()
+const supabase = useSupabaseClient()
 const { getOrCreateSession, addSet, logBodyweight } = useRepo()
 
 const state = reactive({ running: false, createdSessions: 0, createdSets: 0, createdBws: 0, msg: '' })
@@ -130,7 +129,7 @@ const seedSets = async (days = 30) => {
       })
     }
   }
-  const { error } = await supabase.from('sets').insert(rows)
+  const { error } = await (supabase as any).from('sets').insert(rows as any[])
   if (error) throw error
   state.msg = `Seeded ${rows.length} sets to Supabase. Go to Settings → Sync Now.`
 }

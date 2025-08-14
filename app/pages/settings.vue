@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { importFromSupabase, useSync } from '~/composables/useSync'
-import { useSupabaseClientSingleton } from '~/composables/useSupabaseClient'
 import Dexie from 'dexie'
 
 const syncing = ref(false)
 const last = ref<{ imported:boolean; sessions:number; sets:number; bodyweights:number; reason?:string }|null>(null)
 const err = ref<string|null>(null)
 
-// Auth state (use sessionReady to avoid blank flashes)
-const { user, sessionReady } = useAuth()
-const supabase = ((globalThis as any).useSupabaseClient?.() ?? useSupabaseClientSingleton()) as any
+// Auth state
+const { user } = useAuth()
+const supabase = useSupabaseClient() as any
 const email = ref('')
 const sending = ref(false)
 const sentMsg = ref('')
@@ -76,9 +75,7 @@ async function clearLocalCache() {
 
 <template>
   <main class="min-h-dvh px-4 py-6 space-y-6">
-    <!-- Avoid half-render while auth is still hydrating -->
-    <div v-if="!sessionReady" class="text-sm opacity-70">Loading…</div>
-    <template v-else>
+    <template>
       <!-- Mini header with back link -->
       <div class="flex items-center gap-3">
         <button v-if="user" @click="$router.push('/dashboard')" class="text-sm px-3 py-1 rounded-full bg-zinc-800/70 border border-zinc-700 hover:bg-zinc-700">
