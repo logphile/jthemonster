@@ -1,10 +1,11 @@
 export default defineNuxtPlugin(() => {
   if (import.meta.dev) {
     const pub = useRuntimeConfig().public as any
-    // Only log minimal info to avoid leaking keys
+    const cfg = pub?.supabase || {}
+    // Only log presence booleans to avoid leaking values
     console.debug('[dev-config-log] Supabase cfg (public):', {
-      url: pub?.supabaseUrl,
-      hasKey: !!pub?.supabaseAnonKey,
+      urlSet: !!cfg.url,
+      keySet: !!cfg.key,
     })
   }
 })

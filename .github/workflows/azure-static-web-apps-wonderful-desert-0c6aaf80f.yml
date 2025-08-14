@@ -19,6 +19,8 @@ jobs:
       - name: Install deps (include dev)
         working-directory: app
         env:
+          NPM_CONFIG_FUND: "false"
+          NPM_CONFIG_AUDIT: "false"
           NPM_CONFIG_PRODUCTION: "false"   # ensure devDependencies are installed
           NUXT_TELEMETRY_DISABLED: "1"
           # Supabase – make available to both @nuxtjs/supabase module and runtimeConfig
