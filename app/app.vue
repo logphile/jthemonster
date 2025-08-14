@@ -1,13 +1,11 @@
 <template>
   <NuxtLayout>
-    <DevErrorBoundary>
-      <NuxtPage />
-    </DevErrorBoundary>
+    <NuxtPage />
   </NuxtLayout>
 </template>
 
 <script setup lang="ts">
-import DevErrorBoundary from '~/components/DevErrorBoundary.client.vue'
+
 onMounted(async () => {
   console.log('[app.vue] mounted')
   try {
