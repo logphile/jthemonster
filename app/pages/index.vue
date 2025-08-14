@@ -1,34 +1,33 @@
 <script setup lang="ts">
-const user = useSupabaseUser()
-const go = () => navigateTo(user.value ? '/dashboard' : '/settings')
+import { useProfileStore } from '~/stores/profile'
+import { useSafeUser } from '~/composables/useSafeUser'
+import { storeToRefs } from 'pinia'
+
+const { isAuthed } = useSafeUser()
+const profileStore = useProfileStore()
+const { displayName } = storeToRefs(profileStore)
 </script>
 
 <template>
-  <div
-    class="relative min-h-dvh overflow-hidden"
-    @click="go"
-    role="button"
-    aria-label="Start session"
-  >
-    <!-- Background image -->
-    <img
-      src="/home-hero.jpg"
-      alt=""
-      class="absolute inset-0 w-full h-full object-cover"
-      decoding="async"
-      fetchpriority="high"
-    />
+  <main class="p-4">
+    <h1 class="text-2xl font-semibold">J The Monster</h1>
 
-    <!-- Dark overlay -->
-    <div class="absolute inset-0 bg-black/55"></div>
+    <ClientOnly>
+      <section class="mt-4">
+        <p class="opacity-80">
+          Welcome, {{ displayName }}
+        </p>
 
-    <!-- Foreground content (keep clicks enabled) -->
-    <div class="relative z-10 pointer-events-none flex min-h-dvh items-center justify-center text-center text-white">
-      <div class="pointer-events-none">
-        <h1 class="text-3xl font-bold tracking-tight">J The Monster</h1>
-        <p class="mt-4 text-sm opacity-80">LET’S GOOOO!</p>
-        <p class="mt-1 text-xs opacity-60">Tap to start your session</p>
-      </div>
-    </div>
-  </div>
+        <div v-if="isAuthed" class="mt-4">
+          <!-- Replace with your real dashboard component -->
+          <NuxtLink to="/dashboard" class="underline">Go to Dashboard</NuxtLink>
+        </div>
+
+        <div v-else class="mt-4">
+          <!-- Replace with your real auth panel -->
+          <NuxtLink to="/settings" class="underline">Settings / Sign In</NuxtLink>
+        </div>
+      </section>
+    </ClientOnly>
+  </main>
 </template>

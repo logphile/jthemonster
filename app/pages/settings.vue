@@ -1,147 +1,40 @@
 <script setup lang="ts">
-import { importFromSupabase, useSync } from '~/composables/useSync'
-import Dexie from 'dexie'
+import { useSafeUser } from '~/composables/useSafeUser'
+import { useProfileStore } from '~/stores/profile'
 
-const syncing = ref(false)
-const last = ref<{ imported:boolean; sessions:number; sets:number; bodyweights:number; reason?:string }|null>(null)
-const err = ref<string|null>(null)
-
-// Auth state
-const { user } = useAuth()
-const supabase = useSupabaseClient() as any
-const email = ref('')
-const sending = ref(false)
-const sentMsg = ref('')
-const clearing = ref(false)
-const { push } = useSync()
-
+const { email, isAuthed } = useSafeUser()
+const store = useProfileStore()
+const units = computed({
+  get: () => store.settings?.units ?? 'lb',
+  set: (v: 'lb' | 'kg') => store.setUnits(v),
+})
 onMounted(() => console.log('[settings] mounted'))
-
-async function onSyncNow() {
-  syncing.value = true
-  last.value = null
-  err.value = null
-  try {
-    // Always push local → cloud first, then pull cloud → local
-    await push()
-    const res = await importFromSupabase(60)
-    console.log('[settings] sync result:', res)
-    last.value = res
-    if (!res.imported && res.reason === 'no-user') {
-      err.value = 'You are not signed in. Please log in and try again.'
-    }
-  } catch (e:any) {
-    console.error('[settings] sync error', e)
-    err.value = e?.message || String(e)
-  } finally {
-    syncing.value = false
-  }
-}
-
-async function onSendMagicLink() {
-  sending.value = true
-  sentMsg.value = ''
-  err.value = null
-  try {
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email.value.trim(),
-      options: { emailRedirectTo: location.origin + '/settings' }
-    })
-    if (error) throw error
-    sentMsg.value = 'Check your email for the sign-in link.'
-  } catch (e:any) {
-    console.error('[settings] magic-link error', e)
-    err.value = e?.message || String(e)
-  } finally {
-    sending.value = false
-  }
-}
-
-async function clearLocalCache() {
-  if (!process.client) return
-  if (!confirm('Clear local cache? This keeps your account; only local IndexedDB & recent cache are reset.')) return
-  clearing.value = true
-  try {
-    await Dexie.delete('jthemonster')
-    try { localStorage.removeItem('jthemonster:recentSets') } catch {}
-    try { localStorage.removeItem('jt_sets_v1') } catch {}
-    // Add more local keys here if needed
-    location.reload()
-  } finally {
-    clearing.value = false
-  }
-}
 </script>
 
 <template>
-  <main class="min-h-dvh px-4 py-6 space-y-6">
-    <template>
-      <!-- Mini header with back link -->
-      <div class="flex items-center gap-3">
-        <button v-if="user" @click="$router.push('/dashboard')" class="text-sm px-3 py-1 rounded-full bg-zinc-800/70 border border-zinc-700 hover:bg-zinc-700">
-          ← Back
-        </button>
-        <h1 class="text-xl font-semibold">Settings</h1>
-      </div>
+  <main class="p-4">
+    <h1 class="text-xl font-semibold">Settings</h1>
 
-      <!-- When not signed in: simple magic-link panel (Option B) -->
-      <section v-if="!user" class="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-4">
-        <h2 class="text-base font-medium mb-2">Sign in</h2>
-        <p class="text-sm opacity-70 mb-4">Enter your email and we’ll send you a magic link.</p>
-        <form class="mt-3 grid gap-2 sm:grid-cols-[1fr_auto]" @submit.prevent="onSendMagicLink">
-          <input
-            v-model="email"
-            type="email"
-            inputmode="email"
-            placeholder="you@example.com"
-            class="h-11 rounded-xl bg-zinc-900/70 px-3 w-full outline-none"
-            required
-          />
-          <button
-            type="submit"
-            class="h-11 rounded-xl px-4 bg-gradient-to-br from-firepink-600 to-firepink-700 text-white whitespace-nowrap disabled:opacity-60"
-            :disabled="sending || !email"
-          >
-            {{ sending ? 'Sending…' : 'Send magic link' }}
-          </button>
-        </form>
-        <p v-if="sentMsg" class="mt-3 text-sm text-green-400">{{ sentMsg }}</p>
-        <p v-if="err" class="mt-2 text-sm text-amber-400">{{ err }}</p>
-      </section>
-
-      <!-- When signed in: show Data & Sync section -->
-      <section v-else class="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-4">
-        <h2 class="text-base font-medium mb-2">Data & Sync</h2>
-        <p class="text-sm opacity-70 mb-4">
-          Pull the last 60 days from Supabase into local storage for a fast UI.
+    <ClientOnly>
+      <div class="mt-4 space-y-3">
+        <p class="text-sm opacity-80">
+          Auth: <strong>{{ isAuthed ? 'Signed in' : 'Guest' }}</strong>
         </p>
-        <button
-          class="px-4 py-2 rounded-full bg-rose-600 text-white disabled:opacity-60"
-          :disabled="syncing"
-          @click="onSyncNow"
-        >
-          {{ syncing ? 'Syncing…' : 'Sync Now' }}
-        </button>
+        <p class="text-sm opacity-80">Email: {{ email ?? '—' }}</p>
 
-        <p v-if="last" class="mt-3 text-sm opacity-90">
-          <template v-if="last.imported">
-            Imported: {{ last.sessions }} sessions, {{ last.sets }} sets, {{ last.bodyweights }} weigh-ins.
-          </template>
-          <template v-else>
-            Sync skipped: {{ last.reason }}
-          </template>
-        </p>
-
-        <p v-if="err" class="mt-2 text-sm text-amber-400">
-          {{ err }}
-        </p>
-
-        <div class="mt-6">
-          <button class="px-4 py-2 rounded-full border border-zinc-700 text-sm disabled:opacity-60" :disabled="clearing" @click="clearLocalCache">
-            {{ clearing ? 'Clearing…' : 'Clear Local Cache' }}
-          </button>
+        <div class="flex items-center gap-3">
+          <label class="text-sm">Units</label>
+          <select v-model="units" class="border rounded px-2 py-1">
+            <option value="lb">lb</option>
+            <option value="kg">kg</option>
+          </select>
         </div>
-      </section>
-    </template>
+
+        <div v-if="!isAuthed" class="pt-3">
+          <p class="text-xs opacity-70">Sign in to sync with Supabase.</p>
+          <!-- your magic-link UI can mount here safely -->
+        </div>
+      </div>
+    </ClientOnly>
   </main>
 </template>
