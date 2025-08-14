@@ -2,7 +2,11 @@
 import { defineNuxtConfig } from 'nuxt/config'
 
 const url = process.env.NUXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || ''
-const key = process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || ''
+const key =
+  process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY ||
+  process.env.SUPABASE_ANON_KEY ||
+  process.env.SUPABASE_KEY ||
+  ''
 
 if (!url || !key) {
   // This shows in CI logs but does not expose secrets
@@ -17,7 +21,6 @@ export default defineNuxtConfig({
 
   modules: ['@nuxtjs/supabase'],
 
-  // Single source of truth exposed to client code
   runtimeConfig: {
     public: {
       supabase: {
@@ -29,13 +32,10 @@ export default defineNuxtConfig({
     },
   },
 
-  // Also feed the same values to the @nuxtjs/supabase module
   supabase: {
     url,
     key,
     redirect: false,
     useSsrCookies: false,
   },
-
-  app: { baseURL: '/' }
 })
