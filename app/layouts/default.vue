@@ -15,7 +15,7 @@
       <slot />
     </main>
     <ClientOnly>
-      <!-- <LogSetFab v-if="showFab" /> -->
+      <LogSetFab v-if="showFab" />
       <GlobalQLSheet />
     </ClientOnly>
   </div>

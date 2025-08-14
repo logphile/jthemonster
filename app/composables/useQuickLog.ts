@@ -6,10 +6,14 @@ export type QuickLogPayload = {
   sessionId?: string
 }
 
-const isOpen = ref(false)
-const payload = ref<QuickLogPayload | null>(null)
+// Use Nuxt's useState for a true, app-scoped singleton state.
+const useIsOpen = () => useState<boolean>('quicklog-is-open', () => false)
+const usePayload = () => useState<QuickLogPayload | null>('quicklog-payload', () => null)
 
 export function useQuickLog() {
+  const isOpen = useIsOpen()
+  const payload = usePayload()
+
   function open(p: QuickLogPayload) {
     payload.value = p
     isOpen.value = true
@@ -17,6 +21,7 @@ export function useQuickLog() {
       document.documentElement.classList.add('ql-no-scroll')
     }
   }
+
   function close() {
     isOpen.value = false
     payload.value = null
@@ -24,5 +29,6 @@ export function useQuickLog() {
       document.documentElement.classList.remove('ql-no-scroll')
     }
   }
+
   return { isOpen, payload, open, close }
 }
