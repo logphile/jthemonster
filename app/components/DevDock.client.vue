@@ -3,6 +3,10 @@ const show = ref(false)
 const cfg = useRuntimeConfig().public
 const route = useRoute()
 const user = useSupabaseUser()
+
+// Safe computed access to route query to prevent _s reactivity errors
+const routeQuery = computed(() => route.query || {})
+
 let store: any = null
 try { 
   // Try to get any available store - adjust store name as needed
@@ -20,7 +24,7 @@ try {
     </button>
     <div v-if="show" class="mt-2 w-[360px] max-h-[60vh] overflow-auto rounded bg-black/80 p-3 text-white text-xs">
       <pre>route: {{ route.fullPath }}</pre>
-      <pre>query: {{ route.query }}</pre>
+      <pre>query: {{ routeQuery }}</pre>
       <pre>supabase.url set: {{ !!cfg?.supabase?.url }}</pre>
       <pre>user: {{ user ? (user.email || user.id) : 'null' }}</pre>
       <pre>store available: {{ !!store }}</pre>
