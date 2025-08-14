@@ -16,9 +16,10 @@ onMounted(() => console.log('[settings] mounted'))
     <h1 class="text-xl font-semibold">Settings</h1>
 
     <ClientOnly>
-      <div class="mt-4 space-y-3">
+      <!-- Authenticated View -->
+      <div v-if="isAuthed" class="mt-4 space-y-3">
         <p class="text-sm opacity-80">
-          Auth: <strong>{{ isAuthed ? 'Signed in' : 'Guest' }}</strong>
+          Auth: <strong>Signed in</strong>
         </p>
         <p class="text-sm opacity-80">Email: {{ email ?? '—' }}</p>
 
@@ -29,12 +30,24 @@ onMounted(() => console.log('[settings] mounted'))
             <option value="kg">kg</option>
           </select>
         </div>
+      </div>
 
-        <div v-if="!isAuthed" class="pt-3">
+      <!-- Guest View -->
+      <div v-else class="mt-4 space-y-3">
+        <p class="text-sm opacity-80">Auth: <strong>Guest</strong></p>
+        <div class="pt-3">
           <p class="text-xs opacity-70">Sign in to sync with Supabase.</p>
           <!-- your magic-link UI can mount here safely -->
         </div>
       </div>
+
+      <template #fallback>
+        <!-- Loading state -->
+        <div class="mt-4 space-y-3 animate-pulse">
+          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
+          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+        </div>
+      </template>
     </ClientOnly>
   </main>
 </template>
