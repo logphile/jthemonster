@@ -14,10 +14,8 @@
     <main class="mx-auto max-w-screen-md px-4 py-4">
       <slot />
     </main>
-    <ClientOnly>
-      <LogSetFab v-if="showFab" />
-      <GlobalQLSheet />
-    </ClientOnly>
+    <LogSetFab v-if="showFab" />
+    <GlobalQLSheet />
   </div>
   
  </template>
