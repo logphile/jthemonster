@@ -21,6 +21,11 @@ jobs:
         env:
           NPM_CONFIG_PRODUCTION: "false"   # ensure devDependencies are installed
           NUXT_TELEMETRY_DISABLED: "1"
+          # Supabase – make available to both @nuxtjs/supabase module and runtimeConfig
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          NUXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          NUXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: npm ci
 
       - name: Build (Nuxt generate)
