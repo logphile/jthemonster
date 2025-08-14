@@ -1,18 +1,13 @@
 <template>
   <NuxtLayout>
-    <ClientOnly>
-      <NuxtErrorBoundary>
-        <NuxtPage :transition="{ name: 'page', mode: 'out-in' }" />
-        <template #error="{ error }">
-          <div class="p-6 text-red-300">Oops! {{ error?.message || 'Something went wrong.' }}</div>
-        </template>
-      </NuxtErrorBoundary>
-      
-    </ClientOnly>
+    <DevErrorBoundary>
+      <NuxtPage :transition="{ name: 'page', mode: 'out-in' }" />
+    </DevErrorBoundary>
   </NuxtLayout>
 </template>
 
 <script setup lang="ts">
+import DevErrorBoundary from '~/components/DevErrorBoundary.client.vue'
 onMounted(async () => {
   console.log('[app.vue] mounted')
   try {

@@ -38,4 +38,9 @@ export default defineNuxtConfig({
     redirect: false,
     useSsrCookies: false,
   },
+
+  // Temporary: enable source maps in production to debug stack traces
+  vite: {
+    build: { sourcemap: true },
+  },
 })
