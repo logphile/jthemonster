@@ -1,17 +1,34 @@
 import type { Session } from '@supabase/supabase-js'
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
+
+// Create shared, module-scoped state
+const session = ref<Session | null>(null)
+const sessionReady = ref(false)
 
 export const useAuth = () => {
-  // From @nuxtjs/supabase (auto-imported)
   const supabase = useSupabaseClient()
   const user = useSupabaseUser()
 
   const isLoggedIn = computed(() => !!user.value)
 
+  async function getSession(): Promise<Session | null> {
+    try {
+      const { data, error } = await supabase.auth.getSession()
+      if (error) {
+        session.value = null
+        throw error
+      }
+      session.value = data.session
+      return data.session
+    } finally {
+      sessionReady.value = true
+    }
+  }
+
   async function signInWithMagicLink(email: string) {
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: window.location.origin }
+      options: { emailRedirectTo: window.location.origin },
     })
     if (error) throw error
   }
@@ -21,11 +38,19 @@ export const useAuth = () => {
     if (error) throw error
   }
 
-  async function getSession(): Promise<Session | null> {
-    const { data, error } = await supabase.auth.getSession()
-    if (error) throw error
-    return data.session
-  }
+  // Ensure session is kept up-to-date
+  supabase.auth.onAuthStateChange((event, newSession) => {
+    session.value = newSession
+  })
 
-  return { supabase, user, isLoggedIn, signInWithMagicLink, signOut, getSession }
+  return {
+    supabase,
+    user,
+    isLoggedIn,
+    signInWithMagicLink,
+    signOut,
+    getSession,
+    session,
+    sessionReady,
+  }
 }
