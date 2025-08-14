@@ -1,20 +1,8 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js'
-import { useRuntimeConfig } from 'nuxt/app'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
-let _client: SupabaseClient | null = null
+// Delegate to the official @nuxtjs/supabase composable to avoid shadowing/conflicts.
+// Keep a compatibility wrapper name in case the app references this util.
+export const useSupabaseClientSingleton = () => useSupabaseClient<SupabaseClient>()
 
-export function useSupabaseClientSingleton() {
-  if (_client) return _client
-  const config = useRuntimeConfig()
-  const url = String(
-    (config.public as any).supabaseUrl || (config.public as any).NUXT_PUBLIC_SUPABASE_URL || ''
-  )
-  const key = String(
-    (config.public as any).supabaseAnonKey || (config.public as any).NUXT_PUBLIC_SUPABASE_ANON_KEY || ''
-  )
-  if (!url || !key) {
-    console.warn('Supabase URL/Key missing. Did you set .env?')
-  }
-  _client = createClient(url, key, { auth: { persistSession: true, autoRefreshToken: true } })
-  return _client
-}
+// Optional convenience alias if needed elsewhere in the app.
+export const useSbClient = () => useSupabaseClient<SupabaseClient>()
