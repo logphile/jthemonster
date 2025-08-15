@@ -21,7 +21,7 @@ onErrorCaptured((e, inst: any, i) => {
 
 <template>
   <slot />
-  <div v-if="err" class="fixed left-2 bottom-2 z-[9999] max-w-xl rounded bg-black/80 p-3 text-xs text-white">
+  <div v-if="import.meta.env.VITE_DEBUG_TOOLS === '1' && err" class="fixed left-2 bottom-2 z-[9999] max-w-xl rounded bg-black/80 p-3 text-xs text-white">
     <strong>Render error</strong>
     <div class="mt-1">component: <code>{{ comp }}</code></div>
     <div class="mt-1">tree: <code class="break-all">{{ tree }}</code></div>

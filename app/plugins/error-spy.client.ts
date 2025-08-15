@@ -1,4 +1,7 @@
 export default defineNuxtPlugin((nuxtApp) => {
+  if (import.meta.env.VITE_DEBUG_TOOLS !== '1') {
+    return
+  }
   const name = (i:any)=> i?.type?.name || i?.type?.__name || i?.type?.__file || 'Anonymous'
   const tree = (i:any)=>{const a:string[]=[];let c=i;while(c){a.push(name(c));c=c.parent}return a.reverse().join(' > ')}
   const log = (label:string, err:unknown, i?:any, info?:string) => {

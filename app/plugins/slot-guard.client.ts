@@ -1,5 +1,8 @@
 import { getCurrentInstance } from 'vue'
 export default defineNuxtPlugin((nuxtApp) => {
+  if (import.meta.env.VITE_DEBUG_TOOLS !== '1') {
+    return
+  }
   nuxtApp.vueApp.mixin({
     setup() {
       const i = getCurrentInstance() as any; if (!i) return

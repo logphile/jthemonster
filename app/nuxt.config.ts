@@ -19,7 +19,10 @@ export default defineNuxtConfig({
   ssr: false,
   nitro: { preset: 'static' },
 
-  modules: ['@nuxtjs/supabase'],
+  modules: [
+    '@nuxtjs/supabase',
+    '@pinia/nuxt',
+  ],
 
   runtimeConfig: {
     public: {
@@ -39,9 +42,13 @@ export default defineNuxtConfig({
     useSsrCookies: false,
   },
 
+  pinia: {
+    autoImports: ['defineStore'], // optional convenience
+  },
+
   vite: {
     build: {
-      sourcemap: true,
+      sourcemap: false,
     },
   },
 })
