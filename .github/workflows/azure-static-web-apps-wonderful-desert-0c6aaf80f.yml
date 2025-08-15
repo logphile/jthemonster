@@ -36,6 +36,10 @@ jobs:
           NUXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: npm ci
 
+      - name: Verify pinia/nuxt module is present
+        working-directory: app
+        run: node -e "console.log(require.resolve('@pinia/nuxt'))"
+
       - name: Env guard
         working-directory: app
         run: node scripts/check-env.cjs
