@@ -2,16 +2,13 @@
 import { onErrorCaptured, ref } from 'vue'
 
 const err = ref<unknown>(null)
-const info = ref<string>(''), comp = ref(''), tree = ref(''), props = ref<any>(null)
-const slots = ref<any>(null), keys = ref<string[]>([])
+const info = ref(''), comp = ref(''), tree = ref(''),
+      props = ref<any>(null), slots = ref<any>(null), keys = ref<string[]>([])
 
-onErrorCaptured((e, inst, i) => {
-  const name = inst?.type?.name || inst?.type?.__name || inst?.type?.__file || 'Anonymous'
-  comp.value = name
+onErrorCaptured((e, inst: any, i) => {
+  comp.value = inst?.type?.name || inst?.type?.__name || inst?.type?.__file || 'Anonymous'
   info.value = String(i || '')
-  // build component tree
-  const chain: string[] = []
-  let cur: any = inst
+  const chain:string[]=[]; let cur = inst
   while (cur) { chain.push(cur?.type?.name || cur?.type?.__file || 'Anonymous'); cur = cur?.parent }
   tree.value = chain.reverse().join(' > ')
   props.value = inst?.props ?? null

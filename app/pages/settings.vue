@@ -5,7 +5,6 @@ import { useSafeQuery } from '~/composables/useSafeQuery'
 const route = useRoute()
 const $q = useSafeQuery()
 onMounted(() => {
-  console.log('[SETTINGS] route.query raw:', route.query)
   console.log('[SETTINGS] safe query:', $q.value)
   console.log('[SETTINGS] slots on this component:', Object.keys(useSlots?.() || {}))
 })
