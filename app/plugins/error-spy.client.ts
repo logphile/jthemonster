@@ -1,8 +1,8 @@
 export default defineNuxtPlugin((nuxtApp) => {
   const name = (i:any)=> i?.type?.name || i?.type?.__name || i?.type?.__file || 'Anonymous'
   const tree = (i:any)=>{const a:string[]=[];let c=i;while(c){a.push(name(c));c=c.parent}return a.reverse().join(' > ')}
-  const print = (label:string, err:unknown, i?:any, info?:string) => {
-    const route = (nuxtApp.$router as any)?.currentRoute?.value
+  const log = (label:string, err:unknown, i?:any, info?:string) => {
+    const route = nuxtApp.$router?.currentRoute?.value
     console.group('%c[VueSpy]','color:#fff;background:#111;padding:2px 6px;border-radius:4px;',label)
     console.log('info:', info)
     console.log('route:', route?.fullPath, 'query:', route?.query)
@@ -15,7 +15,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     }
     console.error(err); console.trace('[VueSpy] stack'); console.groupEnd()
   }
-  nuxtApp.hook('vue:error', (err,i,info)=>print('nuxt hook vue:error',err,i,info))
-  nuxtApp.hook('app:error', (err)=>print('nuxt hook app:error', err as any))
-  nuxtApp.vueApp.config.errorHandler = (err,i,info)=>print('vue config.errorHandler',err,i,info)
+  nuxtApp.hook('vue:error', (err,i,info)=>log('nuxt hook vue:error',err,i,info))
+  nuxtApp.hook('app:error', (err)=>log('nuxt hook app:error', err as any))
+  nuxtApp.vueApp.config.errorHandler = (err,i,info)=>log('vue config.errorHandler',err,i,info)
 })
