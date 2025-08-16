@@ -38,7 +38,7 @@ jobs:
           NUXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           NUXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
-          npm ci --include=dev
+          npm ci --include=dev --ignore-scripts
 
       - name: Verify pinia/nuxt module is present
         working-directory: app

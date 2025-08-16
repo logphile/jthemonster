@@ -5,6 +5,9 @@ const err = ref<unknown>(null)
 const info = ref(''), comp = ref(''), tree = ref(''),
       props = ref<any>(null), slots = ref<any>(null), keys = ref<string[]>([])
 
+// Guard debug UI behind env flag; keep env access in script (templates can't use import.meta)
+const SHOW_DEBUG = import.meta.env.VITE_DEBUG_TOOLS === '1'
+
 onErrorCaptured((e, inst: any, i) => {
   comp.value = inst?.type?.name || inst?.type?.__name || inst?.type?.__file || 'Anonymous'
   info.value = String(i || '')
@@ -21,7 +24,7 @@ onErrorCaptured((e, inst: any, i) => {
 
 <template>
   <slot />
-  <div v-if="import.meta.env.VITE_DEBUG_TOOLS === '1' && err" class="fixed left-2 bottom-2 z-[9999] max-w-xl rounded bg-black/80 p-3 text-xs text-white">
+  <div v-if="SHOW_DEBUG && err" class="fixed left-2 bottom-2 z-[9999] max-w-xl rounded bg-black/80 p-3 text-xs text-white">
     <strong>Render error</strong>
     <div class="mt-1">component: <code>{{ comp }}</code></div>
     <div class="mt-1">tree: <code class="break-all">{{ tree }}</code></div>
