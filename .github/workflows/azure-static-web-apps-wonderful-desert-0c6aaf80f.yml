@@ -38,7 +38,7 @@ jobs:
           NUXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           NUXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
-          npm ci --include=dev --ignore-scripts
+          npm install --include=dev --ignore-scripts
 
       - name: Verify pinia/nuxt module is present
         working-directory: app
@@ -63,6 +63,8 @@ jobs:
         run: |
           ls -la app/.output/public/_nuxt/builds/meta
           test -n "$(ls -1 app/.output/public/_nuxt/*.js | head -n1)"
+          # look for any CSS file (Tailwind gets compiled by Vite)
+          test -n "$(ls -1 app/.output/public/_nuxt/*.css | head -n1 || true)"
 
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1

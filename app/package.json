@@ -26,6 +26,9 @@
   "devDependencies": {
     "@nuxt/kit": "^3.12.4",
     "nuxt": "^3.12.4",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "tailwindcss": "^3.4.10",
+    "postcss": "^8.4.47",
+    "autoprefixer": "^10.4.20"
   }
 }
