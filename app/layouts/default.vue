@@ -6,7 +6,7 @@ onMounted(() => console.log('[layout] default mounted'))
 </script>
 
 <template>
-  <div>
+  <div class="min-h-screen min-h-dvh bg-gradient-to-b from-neutral-950 via-neutral-950 to-neutral-900 text-text font-sans antialiased">
     <slot />
     <ClientOnly>
       <LogSetFab />

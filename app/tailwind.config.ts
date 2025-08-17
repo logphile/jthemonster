@@ -29,7 +29,12 @@ export default <Partial<Config>>{
         border: '#1F2937',
         coal: { 900:'#0b0d10', 800:'#101317', 700:'#151a1f', 600:'#1b2229' },
         rosefire: { 500:'#ef3b57', 600:'#e11d48', 700:'#be123c' },
-        firepink: { 500:'#ff4b7d', 600:'#ff2f6b', 700:'#e01f5a' }
+        // Accent palette (updated per design)
+        firepink: {
+          DEFAULT: '#f43f8f',
+          600: '#e11d74',
+          700: '#be1865'
+        }
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],

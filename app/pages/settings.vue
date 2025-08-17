@@ -49,61 +49,55 @@ onMounted(() => console.log('[settings] mounted OK'))
 </script>
 
 <template>
-  <main class="p-4 max-w-screen-sm">
-    <h1 class="text-2xl font-semibold">Settings</h1>
+  <main class="max-w-xl mx-auto space-y-6 px-4 pt-6">
+    <h1 class="text-2xl font-display font-extrabold">Settings</h1>
 
     <ClientOnly>
-      <section class="mt-5 space-y-6">
-        <!-- Auth row -->
-        <div class="border rounded p-3">
-          <h2 class="font-medium mb-2">Account</h2>
-
-          <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+      <section class="space-y-6">
+        <!-- Account -->
+        <div class="card space-y-3">
+          <h2 class="font-semibold">Account</h2>
+          <div class="grid gap-2 md:grid-cols-[1fr_auto]">
             <input
               v-model="emailInput"
               type="email"
               inputmode="email"
               autocomplete="email"
               placeholder="you@example.com"
-              class="border rounded px-2 py-1 flex-1"
+              class="input"
             />
             <button
-              class="border rounded px-3 py-1"
+              class="btn-primary w-full md:w-auto"
               :disabled="sending"
               @click="sendMagicLink"
             >
               {{ sending ? 'Sending…' : 'Send magic link' }}
             </button>
           </div>
-
-          <p class="text-xs mt-2 opacity-70">
-            Status: <strong>{{ isAuthed ? 'Signed in' : 'Guest' }}</strong>
+          <div class="text-sm text-neutral-400">
+            Status:
+            <span class="font-semibold" :class="isAuthed ? 'text-green-400' : 'text-neutral-300'">
+              {{ isAuthed ? 'Signed in' : 'Guest' }}
+            </span>
             <span v-if="isAuthed && userEmail"> • {{ userEmail }}</span>
-          </p>
-
-          <p v-if="message" class="text-xs mt-2 text-green-700">{{ message }}</p>
-          <p v-if="errorMsg" class="text-xs mt-2 text-red-700">{{ errorMsg }}</p>
+          </div>
+          <p v-if="message" class="text-xs text-green-400">{{ message }}</p>
+          <p v-if="errorMsg" class="text-xs text-red-400">{{ errorMsg }}</p>
         </div>
 
-        <!-- Units -->
-        <div class="border rounded p-3">
-          <h2 class="font-medium mb-2">Preferences</h2>
-          <div class="flex items-center gap-3">
-            <label class="text-sm">Weight units</label>
-            <select v-model="units" class="border rounded px-2 py-1">
-              <option value="lb">lb</option>
-              <option value="kg">kg</option>
-            </select>
-          </div>
-          <p class="text-xs mt-2 opacity-70">
-            (Defaults to <code>lb</code> if the store isn’t ready yet.)
-          </p>
+        <!-- Preferences -->
+        <div class="card space-y-3">
+          <h2 class="font-semibold">Preferences</h2>
+          <label class="block text-sm">Weight units</label>
+          <select v-model="units" class="select">
+            <option value="lb">lb</option>
+            <option value="kg">kg</option>
+          </select>
+          <p class="text-xs text-neutral-400">(Defaults to lb if the store isn’t ready yet.)</p>
         </div>
 
         <!-- Nav -->
-        <div>
-          <NuxtLink to="/" class="underline">← Back to Dashboard</NuxtLink>
-        </div>
+        <NuxtLink class="underline underline-offset-4" to="/">← Back to Dashboard</NuxtLink>
       </section>
     </ClientOnly>
   </main>
