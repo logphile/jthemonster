@@ -2,7 +2,7 @@
 const SHOW_DEBUG = import.meta.env.DEV || import.meta.env.VITE_DEBUG_TOOLS === '1'
 const cfg = useRuntimeConfig().public
 const route = useRoute()
-const query = useSafeQuery()
+const query = computed(() => route.query)
 const user = useSupabaseUser()
 let store: any = null; try { store = useProfileStore() } catch {}
 </script>
