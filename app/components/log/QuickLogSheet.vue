@@ -55,14 +55,27 @@ watch(() => payload.value?.exerciseId, (id) => {
 })
 
 onBeforeUnmount(() => close())
+
+// Prevent immediate close caused by the original click finishing on the new backdrop
+const recentlyOpened = ref(false)
+watch(isOpen, (v) => {
+  if (v) {
+    recentlyOpened.value = true
+    setTimeout(() => { recentlyOpened.value = false }, 220)
+  }
+})
+function onBackdropClick() {
+  if (recentlyOpened.value) return
+  close()
+}
 </script>
 
 <template>
   <Teleport to="body">
     <transition name="fade">
-      <div v-if="isOpen" class="fixed inset-0">
+      <div v-if="isOpen" class="fixed inset-0" role="dialog" aria-modal="true">
         <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-[2px] z-[55]" @click="close" />
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-[2px] z-[55]" @click="onBackdropClick" />
 
         <!-- Bottom sheet -->
         <div

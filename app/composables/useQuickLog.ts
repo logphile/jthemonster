@@ -1,3 +1,5 @@
+import { watch } from 'vue'
+
 export type QuickLogPayload = {
   category: string
   exerciseId: string
@@ -14,20 +16,23 @@ export function useQuickLog() {
   const isOpen = useIsOpen()
   const payload = usePayload()
 
+  // Keep body scroll lock in sync with the open state, regardless of who toggles it
+  if (process.client) {
+    watch(isOpen, (v) => {
+      try {
+        document.documentElement.classList.toggle('ql-no-scroll', !!v)
+      } catch {}
+    }, { immediate: true })
+  }
+
   function open(p: QuickLogPayload) {
     payload.value = p
     isOpen.value = true
-    if (typeof document !== 'undefined') {
-      document.documentElement.classList.add('ql-no-scroll')
-    }
   }
 
   function close() {
     isOpen.value = false
     payload.value = null
-    if (typeof document !== 'undefined') {
-      document.documentElement.classList.remove('ql-no-scroll')
-    }
   }
 
   return { isOpen, payload, open, close }

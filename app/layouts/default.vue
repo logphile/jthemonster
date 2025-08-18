@@ -4,14 +4,13 @@
 // to prevent hydration errors, as they may contain browser-only APIs.
 onMounted(() => console.log('[layout] default mounted'))
 
-// Wire quick log sheet to the floating action button (FAB)
-const { isOpen, payload } = useQuickLog()
+// Quick Log sheet is global and self-managed via useQuickLog()
 </script>
 
 <template>
   <div class="min-h-screen min-h-dvh bg-gradient-to-b from-neutral-950 via-neutral-950 to-neutral-900 text-text font-sans antialiased">
     <slot />
     <LogSetFab />
-    <QuickLogSheet v-model="isOpen" :session-id="payload?.sessionId ?? null" />
+    <LogQuickLogSheet />
   </div>
 </template>

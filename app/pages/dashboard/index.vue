@@ -15,7 +15,7 @@ const ExerciseSelector = defineAsyncComponent(() => import('~/components/log/Exe
 // Data and actions (Dexie-backed)
 const { dayStatsForMonth, progressPoints, allExercises, getOrCreateSession, setsForSession } = useRepo()
 import type { Session } from '~/db/indexed'
-const { session: authSession, refreshSession } = useAuth()
+const { session: authSession, getSession } = useAuth()
 const displayName = computed(() => {
   const u = (authSession.value as any)?.user
   return (
@@ -29,7 +29,7 @@ import { useQuickLog } from '~/composables/useQuickLog'
 const session = ref<Session | null>(null)
 const sessionId = computed(() => session.value?.id ?? null)
 const loading = ref(true)
-const { isOpen: isQLOpen, open: openQL } = useQuickLog()
+const { open: openQL } = useQuickLog()
 
 // Local onSave removed — global Quick Log handles persistence and emits jt:set-saved
 
@@ -46,7 +46,7 @@ onMounted(async () => {
     } catch (e) {
       // ignore if useSync or method not available
     }
-    if (!authSession.value) await refreshSession().catch(() => null)
+    if (!authSession.value) await getSession().catch(() => null)
     // Ensure today's session exists before rendering dependent widgets
     session.value = await getOrCreateSession().catch(() => null)
     await refreshRecent()
@@ -146,17 +146,7 @@ onMounted(() => {
         Loading…
       </section>
 
-      <section class="rounded-2xl p-3 bg-white/5 backdrop-blur" v-show="!isQLOpen">
-        <div class="flex items-center justify-between">
-          <h2 class="text-sm font-semibold opacity-80">Quick Log</h2>
-          <button
-            class="btn-primary"
-            @click="openQL({ category: 'chestTris', exerciseId: '' })"
-          >
-            Open
-          </button>
-        </div>
-      </section>
+      
 
       <section class="rounded-2xl p-3 bg-white/5 backdrop-blur">
         <h2 class="text-sm font-semibold opacity-80 mb-2">Recent Sets</h2>

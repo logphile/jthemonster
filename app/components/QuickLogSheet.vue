@@ -1,7 +1,8 @@
 <template>
-  <div v-if="open" class="fixed inset-0 z-40 grid place-items-end sm:place-items-center">
-    <div class="absolute inset-0 bg-black/60" @click="close"></div>
-    <div class="relative z-10 w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl bg-card border border-border/60 p-4">
+  <Teleport to="body">
+    <div v-if="open" class="fixed inset-0 z-[1000] grid place-items-end sm:place-items-center" role="dialog" aria-modal="true">
+      <div class="absolute inset-0 bg-black/60" @click="close"></div>
+      <div class="relative z-[1001] w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl bg-card border border-border/60 p-4">
       <header class="mb-2 flex items-center justify-between">
         <h3 class="font-display text-lg">Quick Log</h3>
         <button @click="close" class="text-subtext hover:text-text">Close</button>
@@ -40,14 +41,17 @@
       <div class="mt-4">
         <PrimaryButton @click="save">Add set</PrimaryButton>
       </div>
+      </div>
     </div>
-  </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
+import { watch, nextTick } from 'vue'
 import Chip from '~/components/ui/Chip.vue'
 import PrimaryButton from '~/components/ui/PrimaryButton.vue'
 const units = useUnits()
+const { payload: qlPayload } = useQuickLog()
 
 const props = defineProps<{ modelValue: boolean; sessionId: string | null }>()
 const emit = defineEmits<{ (e:'update:modelValue', v:boolean):void, (e:'save', payload:{exercise:string; weight:number; reps:number}):void }>()
@@ -58,6 +62,14 @@ const weight = ref(135)
 const reps = ref(5)
 const exInput = ref<HTMLInputElement | null>(null)
 watch(open, v => { if (v) nextTick(() => exInput.value?.focus()) })
+
+// When Quick Log is opened with a selected exercise elsewhere, prefill the input
+watch(() => qlPayload.value, (p) => {
+  if (p?.exerciseName) {
+    exercise.value = p.exerciseName
+  }
+  if (open.value) nextTick(() => exInput.value?.focus())
+}, { immediate: true })
 
 function save(){
   // If a session is required upstream, guard here just in case
