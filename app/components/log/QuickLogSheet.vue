@@ -2,12 +2,12 @@
 import Hint from '~/components/ui/Hint.vue'
 import { useQuickLog } from '~/composables/useQuickLog'
 import ExercisePicker from '~/components/ExercisePicker.vue'
-import { computed, watch } from 'vue'
+import { computed, watch, ref } from 'vue'
 import { reactive, nextTick, onBeforeUnmount } from 'vue'
-import { useWorkoutStore } from '~/stores/workout'
+import { useRepo } from '~/composables/useRepo'
 
 const { isOpen, payload, close } = useQuickLog()
-const store = useWorkoutStore()
+const { addSet } = useRepo()
 const { $toast } = useNuxtApp()
 
 const form = reactive({ reps: '', weight: '', rpe: '' })
@@ -17,12 +17,11 @@ const savedFlash = ref(false)
 async function save(next: boolean) {
   if (!payload.value || !payload.value.exerciseId) return
   saving.value = true
-  const saved = await store.logSet({
+  const saved = await addSet({
     exerciseId: payload.value.exerciseId,
     reps: Number(form.reps || 0),
-    weight: Number(form.weight || 0),
+    weightLb: Number(form.weight || 0),
     rpe: form.rpe ? Number(form.rpe) : undefined,
-    unit: 'lb',
     date: payload.value.date,
   })
   saving.value = false
@@ -75,11 +74,11 @@ function onBackdropClick() {
     <transition name="fade">
       <div v-if="isOpen" class="fixed inset-0" role="dialog" aria-modal="true">
         <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-[2px] z-[55]" @click="onBackdropClick" />
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-[2px] z-[1000]" @click="onBackdropClick" />
 
         <!-- Bottom sheet -->
         <div
-          class="fixed inset-x-0 bottom-0 z-[60]
+          class="fixed inset-x-0 bottom-0 z-[1001]
                  bg-zinc-900 border-t border-zinc-800
                  rounded-t-2xl p-4 pb-[max(1rem,env(safe-area-inset-bottom))]
                  shadow-2xl"

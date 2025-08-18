@@ -5,6 +5,7 @@
 onMounted(() => console.log('[layout] default mounted'))
 
 // Quick Log sheet is global and self-managed via useQuickLog()
+import LogQuickLogSheet from '~/components/log/QuickLogSheet.vue'
 </script>
 
 <template>
