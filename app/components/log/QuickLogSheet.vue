@@ -3,10 +3,10 @@ import Hint from '~/components/ui/Hint.vue'
 import { useQuickLog } from '~/composables/useQuickLog'
 import ExercisePicker from '~/components/ExercisePicker.vue'
 import { computed, watch, ref } from 'vue'
-import { reactive, nextTick, onBeforeUnmount } from 'vue'
+import { reactive, nextTick, onBeforeUnmount, onMounted } from 'vue'
 import { useRepo } from '~/composables/useRepo'
 
-const { isOpen, payload, close } = useQuickLog()
+const { isOpen, payload, close, mounted } = useQuickLog()
 const { addSet } = useRepo()
 const { $toast } = useNuxtApp()
 
@@ -53,7 +53,8 @@ watch(() => payload.value?.exerciseId, (id) => {
   // Name can be resolved by repo if needed; leave as-is for now
 })
 
-onBeforeUnmount(() => close())
+onMounted(() => { try { mounted.value = true; console.debug('[QuickLogSheet] mounted') } catch {} })
+onBeforeUnmount(() => { try { mounted.value = false; console.debug('[QuickLogSheet] before unmount -> closing') } catch {} ; close() })
 
 // Prevent immediate close caused by the original click finishing on the new backdrop
 const recentlyOpened = ref(false)

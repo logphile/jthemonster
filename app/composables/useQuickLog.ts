@@ -11,10 +11,13 @@ export type QuickLogPayload = {
 // Use Nuxt's useState for a true, app-scoped singleton state.
 const useIsOpen = () => useState<boolean>('quicklog-is-open', () => false)
 const usePayload = () => useState<QuickLogPayload | null>('quicklog-payload', () => null)
+// Sentinel toggled by the sheet component when it mounts/unmounts
+const useMounted = () => useState<boolean>('quicklog-mounted', () => false)
 
 export function useQuickLog() {
   const isOpen = useIsOpen()
   const payload = usePayload()
+  const mounted = useMounted()
 
   // Keep body scroll lock in sync with the open state, regardless of who toggles it
   if (process.client) {
@@ -28,6 +31,17 @@ export function useQuickLog() {
   function open(p: QuickLogPayload) {
     payload.value = p
     isOpen.value = true
+    // If the sheet fails to mount (render error, etc.), auto-unlock scroll and report
+    if (process.client) {
+      setTimeout(() => {
+        if (isOpen.value && !mounted.value) {
+          // eslint-disable-next-line no-console
+          console.warn('[QuickLog] Sheet did not mount within 500ms. Unlocking to avoid stuck scroll.')
+          isOpen.value = false
+          // payload remains set for inspection; caller may retry
+        }
+      }, 500)
+    }
   }
 
   function close() {
@@ -35,5 +49,5 @@ export function useQuickLog() {
     payload.value = null
   }
 
-  return { isOpen, payload, open, close }
+  return { isOpen, payload, open, close, mounted }
 }
