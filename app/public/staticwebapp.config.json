@@ -1,6 +1,23 @@
 {
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/_nuxt/*", "/favicon.ico", "/home-hero.webp"]
+    "exclude": [
+      "/assets/*",
+      "/*_nuxt/*",
+      "/_nuxt/*",
+      "/api/*",
+      "/favicon.ico",
+      "/robots.txt",
+      "/sitemap.xml"
+    ]
+  },
+  "responseOverrides": {
+    "404": { "rewrite": "/index.html" }
+  },
+  "globalHeaders": {
+    "Cache-Control": "no-store, max-age=0, must-revalidate"
+  },
+  "mimeTypes": {
+    ".wasm": "application/wasm"
   }
 }

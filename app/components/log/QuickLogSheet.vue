@@ -74,7 +74,11 @@ function onBackdropClick() {
     <transition name="fade">
       <div v-if="isOpen" class="fixed inset-0" role="dialog" aria-modal="true">
         <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-[2px] z-[1000]" @click="onBackdropClick" />
+        <div
+          class="absolute inset-0 bg-black/60 backdrop-blur-[2px] z-[1000]"
+          :class="{ 'pointer-events-none': recentlyOpened }"
+          @click="onBackdropClick"
+        />
 
         <!-- Bottom sheet -->
         <div
@@ -82,6 +86,9 @@ function onBackdropClick() {
                  bg-zinc-900 border-t border-zinc-800
                  rounded-t-2xl p-4 pb-[max(1rem,env(safe-area-inset-bottom))]
                  shadow-2xl"
+          @click.stop
+          @mousedown.stop
+          @touchstart.stop
         >
           <div class="flex items-center justify-between mb-2">
             <h3 class="text-base font-semibold">Log Set</h3>

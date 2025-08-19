@@ -70,6 +70,33 @@ jobs:
             exit 1
           fi
 
+      - name: Ensure SWA config included in artifact
+        run: |
+          if [ -f app/.output/public/staticwebapp.config.json ]; then
+            echo "SWA config already present in artifact (from app/public)."
+          else
+            if [ -f app/staticwebapp.config.json ]; then
+              cp app/staticwebapp.config.json app/.output/public/staticwebapp.config.json
+              echo "Copied app/staticwebapp.config.json into artifact."
+            elif [ -f staticwebapp.config.json ]; then
+              cp staticwebapp.config.json app/.output/public/staticwebapp.config.json
+              echo "Copied root staticwebapp.config.json into artifact."
+            else
+              echo "No SWA config found at repo root or app/. If this is expected, ignore."
+            fi
+          fi
+
+      - name: Stamp and inspect artifact (config + version)
+        run: |
+          echo "git-sha $GITHUB_SHA" > app/.output/public/version.txt
+          echo "built-at $(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> app/.output/public/version.txt
+          echo "----- staticwebapp.config.json -----"
+          if [ -f app/.output/public/staticwebapp.config.json ]; then
+            cat app/.output/public/staticwebapp.config.json
+          else
+            echo "(no staticwebapp.config.json in artifact)"
+          fi
+
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
