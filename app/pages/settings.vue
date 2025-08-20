@@ -82,7 +82,7 @@ onMounted(() => console.log('[settings] mounted OK'))
             <span v-if="isAuthed && userEmail"> • {{ userEmail }}</span>
           </div>
           <p v-if="message" class="text-xs text-green-400">{{ message }}</p>
-          <p v-if="errorMsg" class="text-xs text-red-400">{{ errorMsg }}</p>
+          <p v-if="errorMsg" class="text-xs text-firepink-600">{{ errorMsg }}</p>
         </div>
 
         <!-- Preferences -->

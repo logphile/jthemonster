@@ -12,7 +12,7 @@
             <p class="text-sm">{{ it.exercise }}</p>
             <p class="text-xs text-subtext">{{ it.weight }} × {{ it.reps }}</p>
           </div>
-          <button class="text-danger hover:opacity-80" @click="$emit('remove', i)">Delete</button>
+          <button class="text-textLo hover:text-firepink-600 transition" @click="$emit('remove', i)">Delete</button>
         </li>
       </ul>
     </div>

@@ -64,11 +64,8 @@ function onPick(exId: string, name: string) {
       <button
         v-for="(label, key) in categories"
         :key="key"
-        class="shrink-0 px-3 py-2 rounded-full border text-sm min-h-[44px]
-               transition-colors"
-        :class="key === selectedCat
-          ? 'bg-rose-500/15 text-rose-200 border-rose-500/30'
-          : 'bg-zinc-800/60 text-zinc-300 border-zinc-700 hover:bg-zinc-800'"
+        class="shrink-0 chip"
+        :class="key === selectedCat ? 'chip-active' : ''"
         @click="selectedCat = key as CategoryKey"
       >
         {{ label }}

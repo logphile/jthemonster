@@ -6,7 +6,7 @@
           <p class="text-subtext text-sm">Today</p>
           <h2 class="font-display text-xl">{{ prettyDate }}</h2>
         </div>
-        <span class="rounded-xl bg-primary/15 text-primary px-3 py-1 text-sm">Week {{ weekNum }}</span>
+        <span class="chip chip-active">Week {{ weekNum }}</span>
       </div>
 
       <div class="mt-4 grid grid-cols-2 gap-3">
