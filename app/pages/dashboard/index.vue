@@ -8,13 +8,13 @@ const DayDetailSheet = defineAsyncComponent(() => import('~/components/calendar/
 const SplitSelect = defineAsyncComponent(() => import('~/components/plan/SplitSelect.vue'))
 const ExerciseSelect = defineAsyncComponent(() => import('~/components/plan/ExerciseSelect.vue'))
 const WeightLogButton = defineAsyncComponent(() => import('~/components/plan/WeightLogButton.vue'))
-const ExerciseToggleChips = defineAsyncComponent(() => import('~/components/progress/ExerciseToggleChips.vue'))
 const ProgressChart = defineAsyncComponent(() => import('~/components/progress/ProgressChart.vue'))
 const ExerciseSelector = defineAsyncComponent(() => import('~/components/log/ExerciseSelector.vue'))
 
 // Data and actions (Dexie-backed)
 const { dayStatsForMonth, progressPoints, allExercises, getOrCreateSession, setsForSession, sessionByDate } = useRepo()
 import type { Session } from '~/db/indexed'
+import { useExercises as useExercisesStore } from '~/stores/exercises'
 const { session: authSession, getSession } = useAuth()
 const displayName = computed(() => {
   const u = (authSession.value as any)?.user
@@ -114,15 +114,44 @@ function onExerciseSelect(payload: { category: string; exerciseId: string }){
 }
 
 // Progress state: load top set weights per day for a given exercise (or all)
-const exerciseId = ref<string>('all')
+const exerciseId = ref<string | null>(null)
 const chartPoints = ref<Array<{ x: string; y: number; sessionId: string }>>([])
-async function refreshPoints(){ chartPoints.value = await progressPoints(exerciseId.value) }
+async function refreshPoints(){ chartPoints.value = await progressPoints(exerciseId.value ?? undefined) }
 watch(exerciseId, refreshPoints, { immediate: true })
 // refreshPoints is also called on jt events below
 
-// Exercise chips options
+// Exercise name options for other parts of the page (e.g., day detail mapping)
 const exerciseOptions = ref<Array<{ id:string; name:string }>>([])
 onMounted(async () => { exerciseOptions.value = await allExercises() })
+
+// Progress dropdowns: categories -> filtered exercises
+const exStore = useExercisesStore()
+onMounted(() => { exStore.load() })
+
+const categoryOptions = [
+  { value: 'chest', label: 'Chest' },
+  { value: 'triceps', label: 'Triceps' },
+  { value: 'back', label: 'Back' },
+  { value: 'biceps', label: 'Biceps' },
+  { value: 'legs', label: 'Legs' },
+  { value: 'shoulders', label: 'Shoulders' },
+  { value: 'abs', label: 'Abs' },
+] as const
+type CategoryKey = typeof categoryOptions[number]['value']
+const selectedCategory = ref<CategoryKey | ''>('')
+const legsParts = new Set(['quads', 'hamstrings', 'glutes', 'calves'])
+const filteredExercises = computed(() => {
+  if (!selectedCategory.value) return [] as Array<{ id:string; name:string }>
+  return (exStore.list || [])
+    .filter((e: any) => {
+      if (selectedCategory.value === 'legs') return legsParts.has(e.bodypart)
+      if (selectedCategory.value === 'abs') return e.bodypart === 'abs' || e.bodypart === 'core'
+      return e.bodypart === selectedCategory.value
+    })
+    .map((e: any) => ({ id: e.id, name: e.name }))
+    .sort((a, b) => a.name.localeCompare(b.name))
+})
+watch(selectedCategory, () => { exerciseId.value = null })
 
 // Recent sets for current session (mapped to SetList shape)
 const recent = ref<Array<{ exercise:string; weight:number; reps:number }>>([])
@@ -206,7 +235,22 @@ onMounted(() => {
       <!-- Progress -->
       <section class="rounded-2xl p-3 bg-white/5 backdrop-blur">
         <h2 class="text-sm font-semibold opacity-80 mb-2">Progress</h2>
-        <ExerciseToggleChips v-model="exerciseId" :options="exerciseOptions" />
+        <div class="grid gap-2 sm:grid-cols-2">
+          <div>
+            <label class="block mb-1 text-xs opacity-70">Category</label>
+            <select v-model="selectedCategory" class="w-full px-3 py-2 rounded bg-black/40 border border-white/10">
+              <option :value="''">All (no filter)</option>
+              <option v-for="c in categoryOptions" :key="c.value" :value="c.value">{{ c.label }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block mb-1 text-xs opacity-70">Exercise</label>
+            <select v-model="exerciseId" class="w-full px-3 py-2 rounded bg-black/40 border border-white/10" :disabled="!selectedCategory">
+              <option :value="null">All exercises</option>
+              <option v-for="e in filteredExercises" :key="e.id" :value="e.id">{{ e.name }}</option>
+            </select>
+          </div>
+        </div>
         <ClientOnly>
           <ProgressChart :points="chartPoints" label="Top Set (lb)" @point="() => {}" />
         </ClientOnly>
