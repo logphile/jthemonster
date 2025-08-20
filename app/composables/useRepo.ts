@@ -61,9 +61,11 @@ export function useRepo() {
     return map
   }
 
-  // ---- Progress: top set weight per day for a given exercise (or all)
-  const progressPoints = async (exerciseId?: string) => {
-    let rows = await db.sets.orderBy('date').toArray()
+  // ---- Progress: top set weight per day for a given exercise (or all), optional date range [start,end]
+  const progressPoints = async (exerciseId?: string, start?: string, end?: string) => {
+    let rows = start && end
+      ? await db.sets.where('date').between(start, end, true, true).toArray()
+      : await db.sets.orderBy('date').toArray()
     if (exerciseId && exerciseId !== 'all') rows = rows.filter(r => r.exerciseId === exerciseId)
 
     // group by date -> max weight and hold sessionId

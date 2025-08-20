@@ -66,6 +66,8 @@ const daySheetOpen = ref(false)
 const daySheetDate = ref<string>('')
 const daySheetSets = ref<Array<{ exercise:string; weight:number; reps:number; ts:number }>>([])
 const daySheetSessions = ref<any[]>([])
+const exerciseOptions = ref<Array<{ id:string; name:string }>>([])
+onMounted(async () => { exerciseOptions.value = await allExercises() })
 
 async function loadDayDetail(date: string) {
   try {
@@ -75,7 +77,7 @@ async function loadDayDetail(date: string) {
       const rows = await setsForSession(s.id)
       let opts = exerciseOptions.value
       if (!opts.length) opts = await allExercises()
-      const nameById = Object.fromEntries(opts.map(x => [x.id, x.name]))
+      const nameById = Object.fromEntries(opts.map((x: any) => [x.id, x.name]))
       daySheetSets.value = rows
         .map(r => ({
           exercise: nameById[r.exerciseId] ?? r.exerciseId,
@@ -116,17 +118,21 @@ function onExerciseSelect(payload: { category: string; exerciseId: string }){
 // Progress state: load top set weights per day for a given exercise (or all)
 const exerciseId = ref<string | null>(null)
 const chartPoints = ref<Array<{ x: string; y: number; sessionId: string }>>([])
-async function refreshPoints(){ chartPoints.value = await progressPoints(exerciseId.value ?? undefined) }
-watch(exerciseId, refreshPoints, { immediate: true })
+// Date range controls (default: last 30 days)
+const toISO = (d: Date) => d.toISOString().slice(0,10)
+const rangeTo = ref<string>(toISO(new Date()))
+const rangeFrom = ref<string>(toISO(new Date(Date.now() - 29 * 24 * 3600 * 1000)))
+function normalizeRange(){ if (rangeFrom.value > rangeTo.value) rangeTo.value = rangeFrom.value }
+watch([rangeFrom, rangeTo], normalizeRange)
+async function refreshPoints(){
+  chartPoints.value = await progressPoints(
+    exerciseId.value ?? undefined,
+    rangeFrom.value,
+    rangeTo.value,
+  )
+}
+watch([exerciseId, rangeFrom, rangeTo], refreshPoints, { immediate: true })
 // refreshPoints is also called on jt events below
-
-// Exercise name options for other parts of the page (e.g., day detail mapping)
-const exerciseOptions = ref<Array<{ id:string; name:string }>>([])
-onMounted(async () => { exerciseOptions.value = await allExercises() })
-
-// Progress dropdowns: categories -> filtered exercises
-const exStore = useExercisesStore()
-onMounted(() => { exStore.load() })
 
 const categoryOptions = [
   { value: 'chest', label: 'Chest' },
@@ -140,6 +146,9 @@ const categoryOptions = [
 type CategoryKey = typeof categoryOptions[number]['value']
 const selectedCategory = ref<CategoryKey | ''>('')
 const legsParts = new Set(['quads', 'hamstrings', 'glutes', 'calves'])
+// Exercises store for filtering
+const exStore = useExercisesStore()
+onMounted(() => { exStore.load() })
 const filteredExercises = computed(() => {
   if (!selectedCategory.value) return [] as Array<{ id:string; name:string }>
   return (exStore.list || [])
@@ -149,9 +158,12 @@ const filteredExercises = computed(() => {
       return e.bodypart === selectedCategory.value
     })
     .map((e: any) => ({ id: e.id, name: e.name }))
-    .sort((a, b) => a.name.localeCompare(b.name))
+    .sort((a: { id:string; name:string }, b: { id:string; name:string }) => a.name.localeCompare(b.name))
 })
 watch(selectedCategory, () => { exerciseId.value = null })
+
+// Chart type
+const chartType = ref<'line' | 'bar'>('line')
 
 // Recent sets for current session (mapped to SetList shape)
 const recent = ref<Array<{ exercise:string; weight:number; reps:number }>>([])
@@ -159,9 +171,9 @@ async function refreshRecent() {
   if (!session.value?.id) return
   const rows = await setsForSession(session.value.id)
   const ex = await allExercises()
-  const nameById = Object.fromEntries(ex.map(x => [x.id, x.name]))
+  const nameById = Object.fromEntries(ex.map((x: any) => [x.id, x.name]))
   recent.value = rows
-    .sort((a,b) => (b.date + (b.id||''))
+    .sort((a:any,b:any) => (b.date + (b.id||''))
       .localeCompare(a.date + (a.id||'')))
     .slice(0, 50)
     .map(r => ({
@@ -251,8 +263,27 @@ onMounted(() => {
             </select>
           </div>
         </div>
+
+        <div class="mt-3 grid gap-2 sm:grid-cols-3">
+          <div>
+            <label class="block mb-1 text-xs opacity-70">From</label>
+            <input type="date" v-model="rangeFrom" :max="rangeTo" class="w-full px-3 py-2 rounded bg-black/40 border border-white/10" />
+          </div>
+          <div>
+            <label class="block mb-1 text-xs opacity-70">To</label>
+            <input type="date" v-model="rangeTo" :min="rangeFrom" class="w-full px-3 py-2 rounded bg-black/40 border border-white/10" />
+          </div>
+          <div>
+            <label class="block mb-1 text-xs opacity-70">Chart Type</label>
+            <select v-model="chartType" class="w-full px-3 py-2 rounded bg-black/40 border border-white/10">
+              <option value="line">Line</option>
+              <option value="bar">Bar</option>
+            </select>
+          </div>
+        </div>
+
         <ClientOnly>
-          <ProgressChart :points="chartPoints" label="Top Set (lb)" @point="() => {}" />
+          <ProgressChart :points="chartPoints" :type="chartType" label="Top Set (lb)" @point="() => {}" />
         </ClientOnly>
       </section>
 
