@@ -81,6 +81,16 @@ export function useRepo() {
       .map(([x, v]) => ({ x, y: v.y, sessionId: v.sessionId }))
   }
 
+  // ---- Bodyweight progress: weight per day within optional date range [start,end]
+  const bodyweightPoints = async (start?: string, end?: string) => {
+    const rows = start && end
+      ? await db.bodyweights.where('date').between(start, end, true, true).toArray()
+      : await db.bodyweights.orderBy('date').toArray()
+    return rows
+      .sort((a,b) => a.date.localeCompare(b.date))
+      .map(r => ({ x: r.date, y: r.weightLb ?? 0, sessionId: '' }))
+  }
+
   // ---- Utilities for selects
   const exercisesBySplit = async (split: string) => {
     return db.exercises.where('split').equals(split).toArray()
@@ -97,6 +107,7 @@ export function useRepo() {
     getOrCreateSession, sessionById, sessionByDate, addSet, setsForSession,
     // bodyweight
     logBodyweight,
+    bodyweightPoints,
     // calendar + progress
     dayStatsForMonth, progressPoints,
     // selects

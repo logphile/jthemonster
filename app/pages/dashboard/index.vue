@@ -13,7 +13,7 @@ const ProgressChartModal = defineAsyncComponent(() => import('~/components/progr
 const ExerciseSelector = defineAsyncComponent(() => import('~/components/log/ExerciseSelector.vue'))
 
 // Data and actions (Dexie-backed)
-const { dayStatsForMonth, progressPoints, allExercises, getOrCreateSession, setsForSession, sessionByDate } = useRepo()
+const { dayStatsForMonth, progressPoints, bodyweightPoints, allExercises, getOrCreateSession, setsForSession, sessionByDate } = useRepo()
 import type { Session } from '~/db/indexed'
 import { useExercises as useExercisesStore } from '~/stores/exercises'
 const { session: authSession, getSession } = useAuth()
@@ -105,7 +105,6 @@ async function openDay(p:{date:string}){
 // Plan state
 const split = ref('chestTris')
 const selectedExercises = ref<string[]>([])
-function onWeightSaved(){ /* TODO toast */ }
 
 // Quick log handler for selector — open global Quick Log with prefill
 function startQuickLog(category: string, exerciseId: string){
@@ -126,11 +125,18 @@ const rangeFrom = ref<string>(toISO(new Date(Date.now() - 29 * 24 * 3600 * 1000)
 function normalizeRange(){ if (rangeFrom.value > rangeTo.value) rangeTo.value = rangeFrom.value }
 watch([rangeFrom, rangeTo], normalizeRange)
 async function refreshPoints(){
-  chartPoints.value = await progressPoints(
-    exerciseId.value ?? undefined,
-    rangeFrom.value,
-    rangeTo.value,
-  )
+  if (selectedCategory.value === 'weight') {
+    chartPoints.value = await bodyweightPoints(
+      rangeFrom.value,
+      rangeTo.value,
+    )
+  } else {
+    chartPoints.value = await progressPoints(
+      exerciseId.value ?? undefined,
+      rangeFrom.value,
+      rangeTo.value,
+    )
+  }
 }
 watch([exerciseId, rangeFrom, rangeTo], refreshPoints, { immediate: true })
 // refreshPoints is also called on jt events below
@@ -146,6 +152,7 @@ watch(chartPoints, (nv, ov) => {
 function openLarge() { if (chartPoints.value.length) largeChartOpen.value = true }
 
 const categoryOptions = [
+  { value: 'weight', label: 'Weight' },
   { value: 'chest', label: 'Chest' },
   { value: 'triceps', label: 'Triceps' },
   { value: 'back', label: 'Back' },
@@ -156,12 +163,13 @@ const categoryOptions = [
 ] as const
 type CategoryKey = typeof categoryOptions[number]['value']
 const selectedCategory = ref<CategoryKey | ''>('')
+const isWeight = computed(() => selectedCategory.value === 'weight')
 const legsParts = new Set(['quads', 'hamstrings', 'glutes', 'calves'])
 // Exercises store for filtering
 const exStore = useExercisesStore()
 onMounted(() => { exStore.load() })
 const filteredExercises = computed(() => {
-  if (!selectedCategory.value) return [] as Array<{ id:string; name:string }>
+  if (!selectedCategory.value || isWeight.value) return [] as Array<{ id:string; name:string }>
   return (exStore.list || [])
     .filter((e: any) => {
       if (selectedCategory.value === 'legs') return legsParts.has(e.bodypart)
@@ -171,10 +179,16 @@ const filteredExercises = computed(() => {
     .map((e: any) => ({ id: e.id, name: e.name }))
     .sort((a: { id:string; name:string }, b: { id:string; name:string }) => a.name.localeCompare(b.name))
 })
-watch(selectedCategory, () => { exerciseId.value = null })
+watch(selectedCategory, () => { exerciseId.value = null; refreshPoints() })
+
+// Refresh chart after logging weight when in Weight mode
+function onWeightSaved(){
+  if (selectedCategory.value === 'weight') refreshPoints()
+}
 
 // Chart type
 const chartType = ref<'line' | 'bar'>('line')
+const chartLabel = computed(() => isWeight.value ? 'Bodyweight (lb)' : 'Top Set (lb)')
 
 // Recent sets for current session (mapped to SetList shape)
 const recent = ref<Array<{ exercise:string; weight:number; reps:number }>>([])
@@ -255,6 +269,14 @@ onMounted(() => {
         <ExerciseSelector @select="onExerciseSelect" />
       </section>
 
+      <!-- Log Weight -->
+      <section class="rounded-2xl p-3 bg-white/5 backdrop-blur">
+        <h2 class="text-sm font-semibold opacity-80 mb-2">Log Weight</h2>
+        <ClientOnly>
+          <WeightLogButton @saved="onWeightSaved" />
+        </ClientOnly>
+      </section>
+
       <!-- Progress -->
       <section class="rounded-2xl p-3 bg-white/5 backdrop-blur">
         <h2 class="text-sm font-semibold opacity-80 mb-2">Progress</h2>
@@ -266,9 +288,9 @@ onMounted(() => {
               <option v-for="c in categoryOptions" :key="c.value" :value="c.value">{{ c.label }}</option>
             </select>
           </div>
-          <div>
+          <div v-if="!isWeight">
             <label class="block mb-1 text-xs opacity-70">Exercise</label>
-            <select v-model="exerciseId" class="w-full px-3 py-2 rounded bg-black/40 border border-white/10" :disabled="!selectedCategory">
+            <select v-model="exerciseId" class="w-full px-3 py-2 rounded bg-black/40 border border-white/10" :disabled="!selectedCategory || isWeight">
               <option :value="null">All exercises</option>
               <option v-for="e in filteredExercises" :key="e.id" :value="e.id">{{ e.name }}</option>
             </select>
@@ -296,7 +318,7 @@ onMounted(() => {
         <div class="mt-2">
           <div class="h-56 w-full">
             <ClientOnly>
-              <ProgressChart :points="chartPoints" :type="chartType" label="Top Set (lb)" @point="() => {}" />
+              <ProgressChart :points="chartPoints" :type="chartType" :label="chartLabel" @point="() => {}" />
             </ClientOnly>
           </div>
           <div class="mt-2 flex items-center justify-between">
@@ -316,7 +338,7 @@ onMounted(() => {
     <DayDetailSheet v-if="daySheetOpen" :date="daySheetDate" :sessions="daySheetSessions" :sets="daySheetSets" @close="daySheetOpen=false" />
   </ClientOnly>
   <ClientOnly>
-    <ProgressChartModal :open="largeChartOpen" :points="chartPoints" :type="chartType" label="Top Set (lb)" @close="largeChartOpen=false" />
+    <ProgressChartModal :open="largeChartOpen" :points="chartPoints" :type="chartType" :label="chartLabel" @close="largeChartOpen=false" />
   </ClientOnly>
   
 </template>

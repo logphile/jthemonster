@@ -11,6 +11,7 @@ const props = withDefaults(defineProps<{
   type?: 'line' | 'bar'
 }>(), { type: 'line' })
 const emit = defineEmits<{ (e:'point', payload:{ sessionId:string, date:string }): void }>()
+const baseChart = ref<any>(null)
 const options:any = {
   responsive: true,
   maintainAspectRatio: false,
@@ -60,8 +61,13 @@ const chartData = computed<any>(()=>({
     barThickness: props.type === 'bar' ? 14 : undefined,
   }]
 }))
+
+function resetZoom(){
+  try { (baseChart as any)?.value?.chart?.resetZoom?.() } catch {}
+}
+defineExpose({ resetZoom })
 </script>
 <template>
-  <component :is="props.type === 'bar' ? Bar : Line" :data="chartData" :options="options" class="w-full h-full" />
+  <component ref="baseChart" :is="props.type === 'bar' ? Bar : Line" :data="chartData" :options="options" class="w-full h-full" />
   
 </template>
