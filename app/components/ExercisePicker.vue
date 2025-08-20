@@ -46,7 +46,7 @@ onMounted(() => { exercises.load() })
   <div class="grid gap-3">
     <div>
       <label class="block mb-1 text-sm text-gray-400">Category</label>
-      <select v-model="selectedCategory" class="w-full p-3 rounded bg-gray-800 border border-white/10">
+      <select v-model="selectedCategory" class="select">
         <option :value="''">Select category…</option>
         <option v-for="c in categories" :key="c.value" :value="c.value">{{ c.label }}</option>
       </select>
@@ -54,7 +54,7 @@ onMounted(() => { exercises.load() })
 
     <div>
       <label class="block mb-1 text-sm text-gray-400">Exercise</label>
-      <select v-model="model" class="w-full p-3 rounded bg-gray-800 border border-white/10" :disabled="!selectedCategory">
+      <select v-model="model" class="select" :disabled="!selectedCategory">
         <option :value="null">Select exercise…</option>
         <option v-for="e in filteredExercises" :key="e.id" :value="e.id">{{ e.name }}</option>
       </select>
