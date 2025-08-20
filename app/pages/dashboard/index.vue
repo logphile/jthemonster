@@ -32,6 +32,18 @@ const sessionId = computed(() => session.value?.id ?? null)
 const loading = ref(true)
 const { open: openQL } = useQuickLog()
 
+// Utility: titleize fallback slugs like 'bench-press' -> 'Bench Press'
+function titleFromSlug(s: string) {
+  if (!s) return s
+  // If already a display label (spaces or uppercase), leave as-is
+  if (s.includes(' ') || /[A-Z]/.test(s)) return s
+  return s
+    .split(/[-_]+/g)
+    .filter(Boolean)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ')
+}
+
 // Local onSave removed — global Quick Log handles persistence and emits jt:set-saved
 
 onMounted(async () => {
@@ -81,7 +93,7 @@ async function loadDayDetail(date: string) {
       const nameById = Object.fromEntries(opts.map((x: any) => [x.id, x.name]))
       daySheetSets.value = rows
         .map(r => ({
-          exercise: nameById[r.exerciseId] ?? r.exerciseId,
+          exercise: titleFromSlug(nameById[r.exerciseId] ?? r.exerciseId),
           weight: r.weightLb ?? 0,
           reps: r.reps ?? 0,
           ts: Date.parse(r.date + 'T00:00:00Z'),
@@ -202,7 +214,7 @@ async function refreshRecent() {
       .localeCompare(a.date + (a.id||'')))
     .slice(0, 50)
     .map(r => ({
-      exercise: nameById[r.exerciseId] ?? r.exerciseId,
+      exercise: titleFromSlug(nameById[r.exerciseId] ?? r.exerciseId),
       weight: r.weightLb ?? 0,
       reps: r.reps ?? 0,
     }))
@@ -235,7 +247,7 @@ onMounted(() => {
   <main class="min-h-dvh pb-28">
     <div class="mx-auto max-w-md p-4 space-y-4">
       <section class="card">
-        <p class="text-sm opacity-90 font-hud tracking-wide">Welcome, {{ displayName }}! Let’s get it 💪</p>
+        <p class="text-sm opacity-90 font-hud tracking-wide">LOCK IN! LET'S GET IT! 💪</p>
       </section>
       <TodayCard :session-id="sessionId" />
 
@@ -279,7 +291,12 @@ onMounted(() => {
 
       <!-- Progress -->
       <section class="card">
-        <h2 class="text-sm font-semibold opacity-90 font-hud mb-2">Progress</h2>
+        <h2 class="text-sm font-semibold opacity-90 font-hud mb-2 flex items-center gap-2">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="w-4 h-4 text-yellow-400">
+            <path d="M6 2a1 1 0 011 1v1h10V3a1 1 0 112 0v1h1a1 1 0 011 1v15a2 2 0 01-2 2H5a2 2 0 01-2-2V5a1 1 0 011-1h1V3a1 1 0 112 0v1zm13 6H5v11a1 1 0 001 1h12a1 1 0 001-1V8z" />
+          </svg>
+          Progress
+        </h2>
         <div class="space-y-2">
           <div>
             <label class="block mb-1 text-xs opacity-70">Category</label>

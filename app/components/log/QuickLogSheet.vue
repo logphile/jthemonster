@@ -68,6 +68,19 @@ function onBackdropClick() {
   if (recentlyOpened.value) return
   close()
 }
+
+// Title-case a slug like "bench-press" -> "Bench Press" for fallback display
+function titleFromSlug(s?: string | null) {
+  const v = s || ''
+  if (!v) return ''
+  if (v.includes(' ') || /[A-Z]/.test(v)) return v
+  return v.split(/[-_]+/g).filter(Boolean).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+}
+const displayExerciseName = computed(() => {
+  const name = payload.value?.exerciseName
+  if (name && name.trim()) return name
+  return titleFromSlug(payload.value?.exerciseId)
+})
 </script>
 
 <template>
@@ -100,7 +113,7 @@ function onBackdropClick() {
           </p>
 
           <p class="text-xs opacity-70 mb-3" v-if="!needsExercise">
-            {{ payload?.category }} • {{ payload?.exerciseName ?? payload?.exerciseId }}
+            {{ payload?.category }} • {{ displayExerciseName }}
           </p>
 
           <!-- If no exercise yet, show the compact picker INSIDE the sheet -->
