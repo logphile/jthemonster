@@ -2,7 +2,6 @@
 // Lazy import heavy bits
 const TodayCard = defineAsyncComponent(() => import('~/components/TodayCard.vue'))
 const SetList = defineAsyncComponent(() => import('~/components/SetList.vue'))
-const MiniVolumeChart = defineAsyncComponent(() => import('~/components/MiniVolumeChart.vue'))
 const MonthGrid = defineAsyncComponent(() => import('~/components/calendar/MonthGrid.vue'))
 const DayDetailSheet = defineAsyncComponent(() => import('~/components/calendar/DayDetailSheet.vue'))
 const SplitSelect = defineAsyncComponent(() => import('~/components/plan/SplitSelect.vue'))
@@ -328,9 +327,7 @@ onMounted(() => {
         </div>
       </section>
 
-      <ClientOnly>
-        <MiniVolumeChart />
-      </ClientOnly>
+      
     </div>
   </main>
   
