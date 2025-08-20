@@ -9,15 +9,16 @@ const intensity = (n:number)=> n===0? 'opacity-0' : n<6? 'opacity-40' : n<12? 'o
 
 <template>
   <div class="grid grid-cols-7 gap-1 text-xs">
-    <div v-for="d in days" :key="d.toISOString()"
-      class="aspect-square rounded-xl bg-white/5 relative overflow-hidden"
+    <button v-for="d in days" :key="d.toISOString()"
+      type="button"
+      class="aspect-square rounded-xl relative overflow-hidden flex items-start justify-start p-1 text-left transition"
+      :class="(props.dayStats[key(d)]?.sets ?? 0) > 0
+        ? 'bg-firepink-600/20 ring-1 ring-firepink-600 text-white'
+        : 'bg-white/5 hover:bg-white/7'
+      "
       @click="emit('select', { date: key(d) })"
     >
-      <span class="absolute top-1 left-1 opacity-70">{{ d.getDate() }}</span>
-      <span
-        class="absolute inset-0 m-2 rounded-lg transition"
-        :class="(props.dayStats[key(d)]?.sets ?? 0) > 0 ? 'bg-firepink-600/25 ring-1 ring-firepink-600' : ''"
-      />
-    </div>
+      <span class="opacity-80">{{ d.getDate() }}</span>
+    </button>
   </div>
 </template>

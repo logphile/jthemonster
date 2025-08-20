@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import { openQuickLog } from '~/utils/bus'
+import { useQuickLog } from '~/composables/useQuickLog'
 const props = defineProps<{ date: string; sessions: Array<any>; sets: Array<{exercise:string; weight:number; reps:number; ts:number}> }>()
 const emit = defineEmits<{ (e:'close'):void; (e:'addSet'):void; (e:'editSession'):void }>()
-function onAddSet(){ openQuickLog({ date: props.date }) }
+const { open } = useQuickLog()
+function onAddSet(){
+  // Open the global quick log with the selected date; exercise will be chosen in-sheet
+  open({ category: 'chestTris', exerciseId: '', date: props.date })
+}
 </script>
 
 <template>

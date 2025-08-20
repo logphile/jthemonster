@@ -13,7 +13,7 @@ const ProgressChart = defineAsyncComponent(() => import('~/components/progress/P
 const ExerciseSelector = defineAsyncComponent(() => import('~/components/log/ExerciseSelector.vue'))
 
 // Data and actions (Dexie-backed)
-const { dayStatsForMonth, progressPoints, allExercises, getOrCreateSession, setsForSession } = useRepo()
+const { dayStatsForMonth, progressPoints, allExercises, getOrCreateSession, setsForSession, sessionByDate } = useRepo()
 import type { Session } from '~/db/indexed'
 const { session: authSession, getSession } = useAuth()
 const displayName = computed(() => {
@@ -64,7 +64,40 @@ async function refreshMonth(){ dayStats.value = await dayStatsForMonth(month.val
 watch(month, refreshMonth, { immediate: true })
 const daySheetOpen = ref(false)
 const daySheetDate = ref<string>('')
-function openDay(p:{date:string}){ daySheetDate.value = p.date; daySheetOpen.value = true }
+const daySheetSets = ref<Array<{ exercise:string; weight:number; reps:number; ts:number }>>([])
+const daySheetSessions = ref<any[]>([])
+
+async function loadDayDetail(date: string) {
+  try {
+    const s = await sessionByDate(date).catch(() => null)
+    daySheetSessions.value = s ? [s] : []
+    if (s?.id) {
+      const rows = await setsForSession(s.id)
+      let opts = exerciseOptions.value
+      if (!opts.length) opts = await allExercises()
+      const nameById = Object.fromEntries(opts.map(x => [x.id, x.name]))
+      daySheetSets.value = rows
+        .map(r => ({
+          exercise: nameById[r.exerciseId] ?? r.exerciseId,
+          weight: r.weightLb ?? 0,
+          reps: r.reps ?? 0,
+          ts: Date.parse(r.date + 'T00:00:00Z'),
+        }))
+        .sort((a,b) => b.ts - a.ts)
+    } else {
+      daySheetSets.value = []
+    }
+  } catch {
+    daySheetSets.value = []
+    daySheetSessions.value = []
+  }
+}
+
+async function openDay(p:{date:string}){
+  daySheetDate.value = p.date
+  await loadDayDetail(p.date)
+  daySheetOpen.value = true
+}
 
 // Plan state
 const split = ref('chestTris')
@@ -111,7 +144,15 @@ async function refreshRecent() {
 
 // Update UI when sets are saved or sync finishes
 onMounted(() => {
-  const onSaved = async () => { await refreshRecent(); await refreshMonth(); await refreshPoints() }
+  const onSaved = async (ev: any) => {
+    await refreshRecent(); await refreshMonth(); await refreshPoints()
+    try {
+      const saved = (ev as CustomEvent)?.detail as any
+      if (daySheetOpen.value && saved?.date === daySheetDate.value) {
+        await loadDayDetail(daySheetDate.value)
+      }
+    } catch {}
+  }
   window.addEventListener('jt:set-saved', onSaved as any)
   onBeforeUnmount(() => window.removeEventListener('jt:set-saved', onSaved as any))
 })
@@ -178,7 +219,7 @@ onMounted(() => {
   </main>
   
   <ClientOnly>
-    <DayDetailSheet v-if="daySheetOpen" :date="daySheetDate" :sessions="[]" :sets="[]" @close="daySheetOpen=false" />
+    <DayDetailSheet v-if="daySheetOpen" :date="daySheetDate" :sessions="daySheetSessions" :sets="daySheetSets" @close="daySheetOpen=false" />
   </ClientOnly>
   
 </template>
