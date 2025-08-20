@@ -14,7 +14,7 @@ const emit = defineEmits<{ (e:'point', payload:{ sessionId:string, date:string }
 const options:any = {
   responsive: true,
   maintainAspectRatio: false,
-  parsing: false,
+  parsing: { xAxisKey: 'x', yAxisKey: 'y' },
   scales: {
     x: {
       type: 'time', time: { unit: 'day' },
