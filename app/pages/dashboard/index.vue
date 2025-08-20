@@ -9,6 +9,7 @@ const SplitSelect = defineAsyncComponent(() => import('~/components/plan/SplitSe
 const ExerciseSelect = defineAsyncComponent(() => import('~/components/plan/ExerciseSelect.vue'))
 const WeightLogButton = defineAsyncComponent(() => import('~/components/plan/WeightLogButton.vue'))
 const ProgressChart = defineAsyncComponent(() => import('~/components/progress/ProgressChart.vue'))
+const ProgressChartModal = defineAsyncComponent(() => import('~/components/progress/ProgressChartModal.vue'))
 const ExerciseSelector = defineAsyncComponent(() => import('~/components/log/ExerciseSelector.vue'))
 
 // Data and actions (Dexie-backed)
@@ -133,6 +134,16 @@ async function refreshPoints(){
 }
 watch([exerciseId, rangeFrom, rangeTo], refreshPoints, { immediate: true })
 // refreshPoints is also called on jt events below
+
+// Fullscreen chart modal
+const largeChartOpen = ref(false)
+watch(chartPoints, (nv, ov) => {
+  if ((nv?.length || 0) > 0 && (!ov || ov.length === 0)) {
+    // Auto-open when the first results arrive
+    largeChartOpen.value = true
+  }
+})
+function openLarge() { if (chartPoints.value.length) largeChartOpen.value = true }
 
 const categoryOptions = [
   { value: 'chest', label: 'Chest' },
@@ -282,9 +293,17 @@ onMounted(() => {
           </div>
         </div>
 
-        <ClientOnly>
-          <ProgressChart :points="chartPoints" :type="chartType" label="Top Set (lb)" @point="() => {}" />
-        </ClientOnly>
+        <div class="mt-2">
+          <div class="h-56 w-full">
+            <ClientOnly>
+              <ProgressChart :points="chartPoints" :type="chartType" label="Top Set (lb)" @point="() => {}" />
+            </ClientOnly>
+          </div>
+          <div class="mt-2 flex items-center justify-between">
+            <p class="text-xs opacity-70" v-if="!chartPoints.length">No data for the selected filters and date range.</p>
+            <button class="ml-auto px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 text-xs disabled:opacity-40" :disabled="!chartPoints.length" @click="openLarge">View Large Chart</button>
+          </div>
+        </div>
       </section>
 
       <ClientOnly>
@@ -295,6 +314,9 @@ onMounted(() => {
   
   <ClientOnly>
     <DayDetailSheet v-if="daySheetOpen" :date="daySheetDate" :sessions="daySheetSessions" :sets="daySheetSets" @close="daySheetOpen=false" />
+  </ClientOnly>
+  <ClientOnly>
+    <ProgressChartModal :open="largeChartOpen" :points="chartPoints" :type="chartType" label="Top Set (lb)" @close="largeChartOpen=false" />
   </ClientOnly>
   
 </template>
