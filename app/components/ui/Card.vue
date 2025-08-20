@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div class="card holo-border surface">
     <slot />
   </div>
 </template>

@@ -5,7 +5,7 @@ const props = defineProps<{ active?: boolean }>()
 <template>
   <button
     v-bind="$attrs"
-    :class="['chip', props.active ? 'chip-active' : '']">
+    :class="['chip press', props.active ? 'chip-active' : '']">
     <slot />
   </button>
 </template>

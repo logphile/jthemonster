@@ -3,19 +3,19 @@
     <div class="p-4">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-subtext text-sm">Today</p>
-          <h2 class="font-display text-xl">{{ prettyDate }}</h2>
+          <p class="eyebrow">Today</p>
+          <h2>{{ prettyDate }}</h2>
         </div>
         <span class="chip chip-active">Week {{ weekNum }}</span>
       </div>
 
       <div class="mt-4 grid grid-cols-2 gap-3">
-        <div class="rounded-xl border border-border/60 p-3">
-          <p class="text-subtext text-xs">Last Set</p>
+        <div class="holo-border surface rounded-xl p-3">
+          <p class="eyebrow">Last Set</p>
           <p class="mt-1 text-base">{{ lastSetLabel }}</p>
         </div>
-        <div class="rounded-xl border border-border/60 p-3">
-          <p class="text-subtext text-xs">Volume (7d, lb)</p>
+        <div class="holo-border surface rounded-xl p-3">
+          <p class="eyebrow">Volume (7d, lb)</p>
           <p class="mt-1 text-base">{{ weekVolume }} lb</p>
         </div>
       </div>

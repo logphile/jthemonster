@@ -1,9 +1,13 @@
 <template>
   <DevErrorBoundary>
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
-    <DevDock />
+    <div class="relative min-h-dvh bg-ambient grid-overlay vignette grain">
+      <NuxtLayout>
+        <div class="relative z-[1]">
+          <NuxtPage />
+        </div>
+      </NuxtLayout>
+      <DevDock />
+    </div>
   </DevErrorBoundary>
 </template>
 <script setup lang="ts">
