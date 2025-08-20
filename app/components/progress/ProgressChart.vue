@@ -19,17 +19,17 @@ const options:any = {
   scales: {
     x: {
       type: 'time', time: { unit: 'day' },
-      grid: { color: 'rgba(255,255,255,0.06)' },
-      ticks: { color: 'rgba(255,255,255,0.65)' },
+      grid: { color: 'rgba(255,255,255,0.08)' },
+      ticks: { color: 'rgba(229,229,229,0.75)' },
     },
     y: {
       beginAtZero: false,
-      grid: { color: 'rgba(255,255,255,0.06)' },
-      ticks: { color: 'rgba(255,255,255,0.65)' },
+      grid: { color: 'rgba(255,255,255,0.08)' },
+      ticks: { color: 'rgba(229,229,229,0.75)' },
     }
   },
   plugins: {
-    legend: { labels: { color: 'rgba(255,255,255,0.8)' } },
+    legend: { labels: { color: 'rgba(229,229,229,0.9)' } },
     zoom: {
       pan: { enabled: true, mode: 'xy' },
       zoom: {
@@ -54,10 +54,14 @@ const chartData = computed<any>(()=>({
     fill: false,
     borderRadius: props.type === 'bar' ? 3 : undefined,
     borderWidth: 2,
-    borderColor: 'rgba(59,130,246,0.9)',
-    backgroundColor: props.type === 'bar' ? 'rgba(59,130,246,0.5)' : 'rgba(59,130,246,0.3)',
+    // Neon palette
+    borderColor: props.type === 'bar' ? '#8B5CF6' : '#FF007A',
+    backgroundColor: props.type === 'bar' ? 'rgba(139,92,246,0.45)' : 'rgba(255,0,122,0.28)',
     pointRadius: props.type === 'line' ? 3 : 0,
     pointHoverRadius: props.type === 'line' ? 4 : 0,
+    pointBackgroundColor: props.type === 'line' ? '#FFD600' : undefined,
+    pointBorderColor: props.type === 'line' ? '#FFD600' : undefined,
+    pointHoverBackgroundColor: props.type === 'line' ? '#8B5CF6' : undefined,
     barThickness: props.type === 'bar' ? 14 : undefined,
   }]
 }))

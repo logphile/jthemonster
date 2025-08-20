@@ -1,7 +1,11 @@
+<script setup lang="ts">
+const props = defineProps<{ active?: boolean }>()
+</script>
+
 <template>
   <button
     v-bind="$attrs"
-    class="rounded-full bg-card px-3 py-1 text-sm text-subtext border border-border/60 hover:text-text">
-    <slot/>
+    :class="['chip', props.active ? 'chip-active' : '']">
+    <slot />
   </button>
 </template>

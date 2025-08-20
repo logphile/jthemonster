@@ -10,6 +10,7 @@ const WeightLogButton = defineAsyncComponent(() => import('~/components/plan/Wei
 const ProgressChart = defineAsyncComponent(() => import('~/components/progress/ProgressChart.vue'))
 const ProgressChartModal = defineAsyncComponent(() => import('~/components/progress/ProgressChartModal.vue'))
 const ExerciseSelector = defineAsyncComponent(() => import('~/components/log/ExerciseSelector.vue'))
+import UiChip from '~/components/ui/Chip.vue'
 
 // Data and actions (Dexie-backed)
 const { dayStatsForMonth, progressPoints, bodyweightPoints, allExercises, getOrCreateSession, setsForSession, sessionByDate } = useRepo()
@@ -233,29 +234,29 @@ onMounted(() => {
 <template>
   <main class="min-h-dvh pb-28">
     <div class="mx-auto max-w-md p-4 space-y-4">
-      <section class="rounded-2xl p-3 bg-white/5 backdrop-blur mb-3">
-        <p class="text-sm opacity-80">Welcome, {{ displayName }}! Let’s get it 💪</p>
+      <section class="card">
+        <p class="text-sm opacity-90 font-hud tracking-wide">Welcome, {{ displayName }}! Let’s get it 💪</p>
       </section>
       <TodayCard :session-id="sessionId" />
 
       <!-- Calendar -->
-      <section class="rounded-2xl p-3 bg-white/5 backdrop-blur">
+      <section class="card">
         <div class="mb-2 flex items-center justify-between">
-          <h2 class="text-sm font-semibold opacity-80">This Month</h2>
+          <h2 class="text-sm font-semibold opacity-90 font-hud">This Month</h2>
         </div>
         <ClientOnly>
           <MonthGrid :month="month" :day-stats="dayStats" @select="openDay" />
         </ClientOnly>
       </section>
 
-      <section v-if="loading" class="rounded-2xl p-3 bg-white/5 backdrop-blur text-sm opacity-70">
+      <section v-if="loading" class="card text-sm opacity-80">
         Loading…
       </section>
 
       
 
-      <section class="rounded-2xl p-3 bg-white/5 backdrop-blur">
-        <h2 class="text-sm font-semibold opacity-80 mb-2">Recent Sets</h2>
+      <section class="card">
+        <h2 class="text-sm font-semibold opacity-90 font-hud mb-2">Recent Sets</h2>
         <ClientOnly>
           <SetList v-if="sessionId" :session-id="sessionId" :items="recent" />
           <div v-else class="animate-pulse text-sm opacity-60">Loading session…</div>
@@ -263,33 +264,35 @@ onMounted(() => {
       </section>
 
       <!-- Log Exercise -->
-      <section class="rounded-2xl p-3 bg-white/5 backdrop-blur">
-        <h2 class="text-sm font-semibold opacity-80 mb-2">Log Exercise</h2>
+      <section class="card">
+        <h2 class="text-sm font-semibold opacity-90 font-hud mb-2">Log Exercise</h2>
         <ExerciseSelector @select="onExerciseSelect" />
       </section>
 
       <!-- Log Weight -->
-      <section class="rounded-2xl p-3 bg-white/5 backdrop-blur">
-        <h2 class="text-sm font-semibold opacity-80 mb-2">Log Weight</h2>
+      <section class="card">
+        <h2 class="text-sm font-semibold opacity-90 font-hud mb-2">Log Weight</h2>
         <ClientOnly>
           <WeightLogButton @saved="onWeightSaved" />
         </ClientOnly>
       </section>
 
       <!-- Progress -->
-      <section class="rounded-2xl p-3 bg-white/5 backdrop-blur">
-        <h2 class="text-sm font-semibold opacity-80 mb-2">Progress</h2>
-        <div class="grid gap-2 sm:grid-cols-2">
+      <section class="card">
+        <h2 class="text-sm font-semibold opacity-90 font-hud mb-2">Progress</h2>
+        <div class="space-y-2">
           <div>
             <label class="block mb-1 text-xs opacity-70">Category</label>
-            <select v-model="selectedCategory" class="w-full px-3 py-2 rounded bg-black/40 border border-white/10">
-              <option :value="''">All (no filter)</option>
-              <option v-for="c in categoryOptions" :key="c.value" :value="c.value">{{ c.label }}</option>
-            </select>
+            <div class="flex flex-wrap gap-2">
+              <UiChip :active="selectedCategory === ''" @click="selectedCategory = ''">All</UiChip>
+              <UiChip v-for="c in categoryOptions" :key="c.value" :active="selectedCategory === c.value" @click="selectedCategory = c.value">
+                {{ c.label }}
+              </UiChip>
+            </div>
           </div>
           <div v-if="!isWeight">
             <label class="block mb-1 text-xs opacity-70">Exercise</label>
-            <select v-model="exerciseId" class="w-full px-3 py-2 rounded bg-black/40 border border-white/10" :disabled="!selectedCategory || isWeight">
+            <select v-model="exerciseId" class="select w-full" :disabled="!selectedCategory || isWeight">
               <option :value="null">All exercises</option>
               <option v-for="e in filteredExercises" :key="e.id" :value="e.id">{{ e.name }}</option>
             </select>
@@ -299,15 +302,15 @@ onMounted(() => {
         <div class="mt-3 grid gap-2 sm:grid-cols-3">
           <div>
             <label class="block mb-1 text-xs opacity-70">From</label>
-            <input type="date" v-model="rangeFrom" :max="rangeTo" class="w-full px-3 py-2 rounded bg-black/40 border border-white/10" />
+            <input type="date" v-model="rangeFrom" :max="rangeTo" class="input" />
           </div>
           <div>
             <label class="block mb-1 text-xs opacity-70">To</label>
-            <input type="date" v-model="rangeTo" :min="rangeFrom" class="w-full px-3 py-2 rounded bg-black/40 border border-white/10" />
+            <input type="date" v-model="rangeTo" :min="rangeFrom" class="input" />
           </div>
           <div>
             <label class="block mb-1 text-xs opacity-70">Chart Type</label>
-            <select v-model="chartType" class="w-full px-3 py-2 rounded bg-black/40 border border-white/10">
+            <select v-model="chartType" class="select w-full">
               <option value="line">Line</option>
               <option value="bar">Bar</option>
             </select>
@@ -322,7 +325,7 @@ onMounted(() => {
           </div>
           <div class="mt-2 flex items-center justify-between">
             <p class="text-xs opacity-70" v-if="!chartPoints.length">No data for the selected filters and date range.</p>
-            <button class="ml-auto px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 text-xs disabled:opacity-40" :disabled="!chartPoints.length" @click="openLarge">View Large Chart</button>
+            <button class="ml-auto btn-secondary text-xs disabled:opacity-40" :disabled="!chartPoints.length" @click="openLarge">View Large Chart</button>
           </div>
         </div>
       </section>

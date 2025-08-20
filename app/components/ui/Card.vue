@@ -1,5 +1,5 @@
 <template>
-  <div class="rounded-2xl bg-card/90 border border-border/60 shadow-sm">
+  <div class="card">
     <slot />
   </div>
 </template>

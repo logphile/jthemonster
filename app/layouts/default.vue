@@ -9,7 +9,7 @@ import LogQuickLogSheet from '~/components/log/QuickLogSheet.vue'
 </script>
 
 <template>
-  <div class="min-h-screen min-h-dvh bg-gradient-to-b from-neutral-950 via-neutral-950 to-neutral-900 text-text font-sans antialiased">
+  <div class="min-h-screen min-h-dvh bg-bgDeep text-textHi font-sans antialiased">
     <slot />
     <LogSetFab />
     <LogQuickLogSheet />

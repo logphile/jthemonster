@@ -76,29 +76,23 @@ function onBackdropClick() {
       <div v-if="isOpen" class="fixed inset-0" role="dialog" aria-modal="true">
         <!-- Backdrop -->
         <div
-          class="absolute inset-0 bg-black/60 backdrop-blur-[2px] z-[1000]"
+          class="sheet-overlay"
           :class="{ 'pointer-events-none': recentlyOpened }"
           @click="onBackdropClick"
         />
 
         <!-- Bottom sheet -->
         <div
-          class="fixed inset-x-0 bottom-0 z-[1001]
-                 bg-zinc-900 border-t border-zinc-800
-                 rounded-t-2xl p-4 pb-[max(1rem,env(safe-area-inset-bottom))]
-                 shadow-2xl"
+          class="fixed inset-x-0 bottom-0 z-[60]
+                 bg-card/90 border border-border/60 ring-1 ring-firepink-600/40 shadow-neonPink
+                 rounded-t-2xl p-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur"
           @click.stop
           @mousedown.stop
           @touchstart.stop
         >
           <div class="flex items-center justify-between mb-2">
-            <h3 class="text-base font-semibold">Log Set</h3>
-            <button
-              class="text-sm px-3 py-1 rounded-full bg-zinc-800 border border-zinc-700"
-              @click="close"
-            >
-              Close
-            </button>
+            <h3 class="text-base font-semibold font-hud">Log Set</h3>
+            <button class="btn-secondary text-sm h-8" @click="close">Close</button>
           </div>
 
           <p v-if="payload?.date" class="text-xs opacity-70 mb-2">
@@ -123,7 +117,7 @@ function onBackdropClick() {
                 type="number" min="1"
                 id="repsInput"
                 v-model="form.reps"
-                class="w-full px-3 py-2 rounded-lg bg-black/40 border border-zinc-800"
+                class="input"
                 placeholder="Reps"
               >
             </div>
@@ -133,7 +127,7 @@ function onBackdropClick() {
               <input
                 type="number" step="0.5"
                 v-model="form.weight"
-                class="w-full px-3 py-2 rounded-lg bg-black/40 border border-zinc-800"
+                class="input"
                 placeholder="Weight"
               >
             </div>
@@ -149,7 +143,7 @@ function onBackdropClick() {
               <input
                 type="number" step="0.5" min="6" max="10"
                 v-model="form.rpe"
-                class="w-full px-3 py-2 rounded-lg bg-black/40 border border-zinc-800"
+                class="input"
                 placeholder="e.g. 8"
               >
             </div>
@@ -157,9 +151,9 @@ function onBackdropClick() {
 
           <!-- Actions -->
           <div v-if="!needsExercise" class="flex gap-2 mt-4">
-            <button class="flex-1 h-10 rounded-xl bg-zinc-800 border border-zinc-700" @click="close" :disabled="saving">Cancel</button>
+            <button class="flex-1 btn-secondary h-10" @click="close" :disabled="saving">Cancel</button>
             <button
-              class="flex-1 h-10 rounded-xl bg-gradient-to-br from-firepink-600 to-firepink-700 text-white whitespace-nowrap disabled:opacity-60"
+              class="flex-1 btn-primary h-10 whitespace-nowrap disabled:opacity-60"
               :disabled="saving"
               @click="save(true)"
             >
@@ -168,7 +162,7 @@ function onBackdropClick() {
               <span v-else>Save & Add</span>
             </button>
             <button
-              class="flex-1 h-10 rounded-xl bg-gradient-to-br from-firepink-600 to-firepink-700 text-white whitespace-nowrap disabled:opacity-60"
+              class="flex-1 btn-primary h-10 whitespace-nowrap disabled:opacity-60"
               :disabled="saving"
               @click="save(false)"
             >

@@ -28,7 +28,7 @@ onBeforeUnmount(() => {
     <button
       v-show="!isOpen && !weightOpen"
       @click="onClick"
-      class="fab rounded-full p-0 w-12 h-12 text-xl font-bold grid place-items-center active:scale-[0.98] transition"
+      class="fab rounded-full p-0 w-12 h-12 text-xl font-bold grid place-items-center active:scale-[0.98] transition motion-reduce:animate-none"
     >
       <span class="sr-only">Log Set</span>
       <span aria-hidden="true">＋</span>

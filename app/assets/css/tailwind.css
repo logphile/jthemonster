@@ -4,17 +4,22 @@
 
 /* Base theme */
 @layer base {
-  html, body { @apply bg-neutral-950 text-neutral-100 antialiased; }
-  h1,h2,h3,h4 { @apply font-display; }
+  html, body { @apply bg-bgDeep text-textHi antialiased font-sans; }
+  h1,h2,h3,h4 { @apply font-hud tracking-wide; }
   a { @apply text-firepink underline-offset-4 hover:underline; }
 }
 
 /* Reusable components */
 @layer components {
-  .card { @apply bg-neutral-900/70 border border-neutral-800 rounded-2xl p-4 md:p-6 shadow-sm; }
-  .btn-primary { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-semibold bg-firepink text-white hover:bg-firepink-600 active:scale-[.99] transition; }
-  .input { @apply w-full rounded-xl bg-neutral-800 border border-neutral-700 px-3 py-2 text-neutral-100 placeholder-neutral-400; }
-  .select { @apply rounded-xl bg-neutral-800 border border-neutral-700 px-3 py-2; }
+  .card { @apply bg-card/90 border border-border/60 rounded-2xl p-4 md:p-6 shadow-card; }
+  .card-neon { @apply card ring-1 ring-firepink-600/40 shadow-neonPink; }
+  .btn { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-semibold transition active:scale-[.99]; }
+  .btn-primary { @apply btn text-white bg-gradient-to-br from-firepink-600 to-neonPurple shadow-neonPink hover:brightness-110; }
+  .btn-secondary { @apply btn bg-white/10 text-textHi border border-white/15 hover:bg-white/15; }
+  .input { @apply w-full rounded-xl bg-black/40 border border-white/10 px-3 py-2 text-textHi placeholder-textLo; }
+  .select { @apply rounded-xl bg-black/40 border border-white/10 px-3 py-2 text-textHi; }
+  .chip { @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs sm:text-sm bg-white/5 border-white/10 text-textHi hover:bg-white/10 transition; }
+  .chip-active { @apply bg-firepink-600/20 border-firepink-600/40 text-white ring-1 ring-firepink-600 shadow-neonPink; }
 }
 
 /* Background pan; keeps to a gradient */
@@ -36,6 +41,14 @@
   animation: slow-zoom 20s ease-in-out infinite alternate;
 }
 
+/* Neon pulse for FAB and accents */
+@keyframes neon-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(255,0,122,0.35), 0 0 12px rgba(255,0,122,0.35); }
+  50% { box-shadow: 0 0 0 2px rgba(255,214,0,0.35), 0 0 20px rgba(255,214,0,0.45); }
+}
+.animate-neon-pulse { animation: neon-pulse 2.2s ease-in-out infinite; }
+.motion-reduce\:animate-none { @apply motion-reduce:animate-none; }
+
 /* Mobile polish */
 :where(html, body, #__nuxt) {
   -webkit-tap-highlight-color: transparent;
@@ -51,4 +64,9 @@
 /* Global utility buttons */
 .btn-ghost   { @apply h-11 rounded-xl px-4 bg-zinc-800 border border-zinc-700 text-zinc-100; }
 .pill-active { @apply bg-zinc-800 ring-2 ring-firepink-600; }
-.fab         { @apply fixed bottom-6 right-5 z-[50] btn-primary shadow-xl; }
+.fab         { @apply fixed bottom-6 right-5 z-[50] grid place-items-center rounded-full w-14 h-14 text-xl font-bold text-white bg-gradient-to-br from-firepink-600 to-neonPurple shadow-neonPink animate-neon-pulse; }
+
+/* Neon glows */
+.glow-pink { @apply shadow-neonPink; }
+.glow-yellow { @apply shadow-neonYellow; }
+.glow-purple { @apply shadow-neonPurple; }

@@ -13,8 +13,8 @@ const intensity = (n:number)=> n===0? 'opacity-0' : n<6? 'opacity-40' : n<12? 'o
       type="button"
       class="aspect-square rounded-xl relative overflow-hidden flex items-start justify-start p-1 text-left transition"
       :class="(props.dayStats[key(d)]?.sets ?? 0) > 0
-        ? 'bg-firepink-600/20 ring-1 ring-firepink-600 text-white'
-        : 'bg-white/5 hover:bg-white/7'
+        ? 'bg-firepink-600/15 ring-1 ring-firepink-600/50 text-white shadow-neonPink'
+        : 'bg-white/5 hover:bg-white/10 text-textHi'
       "
       @click="emit('select', { date: key(d) })"
     >
