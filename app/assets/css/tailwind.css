@@ -47,7 +47,7 @@
   50% { box-shadow: 0 0 0 2px rgba(255,214,0,0.35), 0 0 20px rgba(255,214,0,0.45); }
 }
 .animate-neon-pulse { animation: neon-pulse 2.2s ease-in-out infinite; }
-.motion-reduce\:animate-none { @apply motion-reduce:animate-none; }
+
 
 /* Mobile polish */
 :where(html, body, #__nuxt) {
