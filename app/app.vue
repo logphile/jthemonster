@@ -1,6 +1,8 @@
 <template>
   <DevErrorBoundary>
-    <NuxtPage />
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
     <DevDock />
   </DevErrorBoundary>
 </template>
