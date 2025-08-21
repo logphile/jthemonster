@@ -66,7 +66,7 @@
 
 /* ***** Tooltip & overlay bases ***** */
 .tooltip-solid { @apply bg-coal-800 text-gray-100 shadow-card rounded-xl px-3 py-2; }
-.sheet-overlay { @apply fixed inset-0 bg-black/60 z-[55]; }
+.sheet-overlay { @apply fixed inset-0 bg-black/60 z-[10040]; }
 
 /* Global utility buttons */
 .btn-ghost   { @apply h-11 rounded-xl px-4 bg-zinc-800 border border-zinc-700 text-zinc-100; }

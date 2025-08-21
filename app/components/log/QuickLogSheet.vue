@@ -86,7 +86,7 @@ const displayExerciseName = computed(() => {
 <template>
   <Teleport to="body">
     <transition name="fade">
-      <div v-if="isOpen" class="fixed inset-0" role="dialog" aria-modal="true">
+      <div v-if="isOpen" class="fixed inset-0 z-[10030]" role="dialog" aria-modal="true">
         <!-- Backdrop -->
         <div
           class="sheet-overlay"
@@ -96,9 +96,10 @@ const displayExerciseName = computed(() => {
 
         <!-- Bottom sheet -->
         <div
-          class="fixed inset-x-0 bottom-0 z-[60]
+          class="fixed inset-x-0 bottom-0 z-[10060]
                  bg-card/90 border border-border/60 ring-1 ring-firepink-600/40 shadow-neonPink
-                 rounded-t-2xl p-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur"
+                 rounded-t-2xl p-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur
+                 max-h-[85vh] overflow-y-auto overscroll-contain"
           @click.stop
           @mousedown.stop
           @touchstart.stop

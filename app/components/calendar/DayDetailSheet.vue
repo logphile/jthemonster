@@ -10,9 +10,10 @@ function onAddSet(){
 </script>
 
 <template>
-  <div class="fixed inset-0 z-[60] grid place-items-end sm:place-items-center">
-    <div class="sheet-overlay" @click="emit('close')"></div>
-    <div class="relative z-[60] w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl bg-card/90 border border-border/60 p-4 backdrop-blur ring-1 ring-firepink-600/40 shadow-neonPink">
+  <Teleport to="body">
+    <div class="fixed inset-0 z-[10020] grid place-items-end sm:place-items-center">
+      <div class="sheet-overlay" @click="emit('close')"></div>
+      <div class="relative z-[10050] w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl bg-card/90 border border-border/60 p-4 backdrop-blur ring-1 ring-firepink-600/40 shadow-neonPink">
       <div class="mx-auto h-1 w-10 rounded-full bg-white/20 mb-3" />
       <header class="mb-3">
         <h3 class="font-hud text-lg">{{ new Date(props.date).toDateString() }}</h3>
@@ -31,6 +32,7 @@ function onAddSet(){
         <button class="btn-secondary text-sm" @click="emit('editSession')">Edit session</button>
       </div>
     </div>
-  </div>
+    </div>
+  </Teleport>
   
 </template>
