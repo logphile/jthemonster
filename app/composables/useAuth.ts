@@ -11,6 +11,13 @@ export const useAuth = () => {
 
   const isLoggedIn = computed(() => !!user.value)
 
+  // Prime session once so consumers watching sessionReady can proceed
+  if (process.client && !sessionReady.value) {
+    supabase.auth.getSession()
+      .then(({ data }) => { session.value = data.session })
+      .finally(() => { sessionReady.value = true })
+  }
+
   async function getSession(): Promise<Session | null> {
     try {
       const { data, error } = await supabase.auth.getSession()
@@ -39,8 +46,9 @@ export const useAuth = () => {
   }
 
   // Ensure session is kept up-to-date
-  supabase.auth.onAuthStateChange((event, newSession) => {
+  supabase.auth.onAuthStateChange((_event, newSession) => {
     session.value = newSession
+    sessionReady.value = true
   })
 
   return {
