@@ -5,7 +5,7 @@ export default defineNuxtRouteMiddleware((to) => {
   const isLoggedIn = computed(() => !!user.value)
 
   // Public-only routes
-  const PUBLIC = new Set<string>(['/settings', '/login'])
+  const PUBLIC = new Set<string>(['/', '/welcome', '/settings', '/login'])
 
   // Block everything except PUBLIC until signed in
   if (!isLoggedIn.value && !PUBLIC.has(to.path)) {

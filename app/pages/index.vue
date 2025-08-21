@@ -1,33 +1,17 @@
-<script setup lang="ts">
-import { useProfileStore } from '~/stores/profile'
-import { useSafeUser } from '~/composables/useSafeUser'
-import { storeToRefs } from 'pinia'
-
-const { isAuthed } = useSafeUser()
-const profileStore = useProfileStore()
-const { displayName } = storeToRefs(profileStore)
-</script>
-
 <template>
-  <main class="p-4">
-    <h1 class="text-2xl font-semibold">J The Monster</h1>
-
-    <ClientOnly>
-      <section class="mt-4">
-        <p class="opacity-80">
-          Welcome, {{ displayName }}
-        </p>
-
-        <div v-if="isAuthed" class="mt-4">
-          <!-- Replace with your real dashboard component -->
-          <NuxtLink to="/dashboard" class="underline">Go to Dashboard</NuxtLink>
-        </div>
-
-        <div v-else class="mt-4">
-          <!-- Replace with your real auth panel -->
-          <NuxtLink to="/settings" class="underline">Settings / Sign In</NuxtLink>
-        </div>
-      </section>
-    </ClientOnly>
+  <main class="bg-ambient grid-overlay vignette min-h-screen relative">
+    <div class="max-w-[920px] mx-auto px-6 sm:px-8 min-h-screen grid place-items-center">
+      <h1
+        class="font-hud uppercase tracking-[0.25em] text-center
+               text-[40px] sm:text-[68px] md:text-[88px] leading-[0.95]
+               bg-gradient-to-r from-firePink via-neonYellow to-neonPurple
+               bg-clip-text text-transparent text-outline text-glow select-none">
+        J THE MONSTER
+      </h1>
+    </div>
   </main>
 </template>
+
+<script setup lang="ts">
+useHead({ title: 'J THE MONSTER' })
+</script>

@@ -166,4 +166,13 @@
   .halo:hover::after { opacity:1; }
   .press { transition: transform .12s ease; }
   .press:active { transform: translateY(1px) scale(.98); }
+  .text-glow {
+    filter:
+      drop-shadow(0 0 10px rgba(255,0,122,.35))
+      drop-shadow(0 0 22px rgba(139,92,246,.25));
+  }
+  .text-outline {
+    -webkit-text-stroke: 1px rgba(255,255,255,0.06);
+    text-shadow: 0 1px 0 rgba(0,0,0,.3);
+  }
 }
