@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, watch } from 'vue'
 import { useRepo } from '~/composables/useRepo'
 const open = ref(false)
 const val = ref('')
@@ -20,17 +21,17 @@ async function save(){
 </script>
 <template>
   <div>
-    <button class="px-3 py-2 rounded-xl text-white bg-gradient-to-br from-firepink-600 to-firepink-700 text-sm font-semibold" @click="open=true">Log Weight</button>
+    <button class="px-3 py-2 rounded-xl text-white bg-gradient-to-br from-firepink-600 to-firepink-700 text-sm font-semibold" @click="open=true">Log Body Weight</button>
     <Teleport to="body">
-      <div v-if="open" class="fixed inset-0 z-[1100] grid place-items-end sm:place-items-center" role="dialog" aria-modal="true">
-        <div class="absolute inset-0 bg-black/60" @click="open=false"></div>
-        <div class="relative z-10 w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl bg-card border border-border/60 p-4 backdrop-blur">
-          <div class="mx-auto h-1 w-10 rounded-full bg-white/20 mb-3" />
-          <h3 class="font-display text-lg mb-3">Log Bodyweight</h3>
+      <div v-if="open" class="fixed inset-0 z-[10070]" role="dialog" aria-modal="true">
+        <div class="sheet-overlay" @click="open=false"></div>
+        <div class="fixed inset-x-0 bottom-0 z-[10080] w-full sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-[28rem] rounded-t-2xl sm:rounded-2xl bg-card/90 border border-border/60 p-4 backdrop-blur ring-1 ring-firepink-600/40 shadow-neonPink">
+          <div class="mx-auto h-1 w-10 rounded-full bg-white/20 mb-3 sm:hidden" />
+          <h3 class="font-hud text-lg mb-3">Log Body Weight</h3>
           <input v-model="val" inputmode="decimal" placeholder="e.g. 172" class="w-full rounded-xl bg-bg border border-border/60 px-3 py-2" />
           <div class="mt-3 flex justify-end gap-2">
-            <button class="px-3 py-2 rounded-xl bg-white/10" @click="open=false">Cancel</button>
-            <button class="px-3 py-2 rounded-xl text-white bg-gradient-to-br from-firepink-600 to-firepink-700" @click="save">Save</button>
+            <button class="btn-secondary" @click="open=false">Cancel</button>
+            <button class="btn-primary" @click="save">Save</button>
           </div>
         </div>
       </div>

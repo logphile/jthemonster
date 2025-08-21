@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { useExercises as useExercisesStore } from '~/stores/exercises'
 
 type CategoryKey = 'chest' | 'triceps' | 'back' | 'biceps' | 'legs' | 'shoulders' | 'abs'
@@ -39,7 +39,17 @@ watch(filteredExercises, (opts) => {
   if (!opts.find(o => o.id === model.value)) model.value = null
 })
 
-onMounted(() => { exercises.load() })
+// Inline list dropdown state for exercises
+const listOpen = ref(false)
+const nameById = computed(() => Object.fromEntries(filteredExercises.value.map(e => [e.id, e.name])))
+const currentExerciseLabel = computed(() => model.value ? (nameById.value[model.value] ?? 'Select exercise…') : 'Select exercise…')
+function toggleList(){ if (!selectedCategory.value) return; listOpen.value = !listOpen.value }
+function chooseExercise(id: string){ model.value = id; listOpen.value = false }
+function onDocClick(){ listOpen.value = false }
+watch(selectedCategory, () => { listOpen.value = false })
+
+onMounted(() => { exercises.load(); document.addEventListener('click', onDocClick) })
+onBeforeUnmount(() => { document.removeEventListener('click', onDocClick) })
 </script>
 
 <template>
@@ -52,12 +62,23 @@ onMounted(() => { exercises.load() })
       </select>
     </div>
 
-    <div>
+    <div @click.stop>
       <label class="block mb-1 text-sm text-gray-400">Exercise</label>
-      <select v-model="model" class="select" :disabled="!selectedCategory">
-        <option :value="null">Select exercise…</option>
-        <option v-for="e in filteredExercises" :key="e.id" :value="e.id">{{ e.name }}</option>
-      </select>
+      <button type="button" class="select w-full flex items-center justify-between" :disabled="!selectedCategory" @click="toggleList">
+        <span>{{ currentExerciseLabel }}</span>
+        <span class="ml-2 opacity-70" aria-hidden="true">▾</span>
+      </button>
+      <div v-if="listOpen && selectedCategory" class="mt-2 rounded-xl bg-bg border border-border/60 max-h-60 overflow-auto">
+        <button
+          v-for="e in filteredExercises"
+          :key="e.id"
+          type="button"
+          class="w-full text-left px-3 py-2 hover:bg-white/10 active:bg-white/20"
+          @click="chooseExercise(e.id)"
+        >
+          {{ e.name }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
