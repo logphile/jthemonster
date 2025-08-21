@@ -7,6 +7,8 @@
  * - Works when user is null on first paint
  */
 
+import { useSync } from '~/composables/useSync'
+import { importFromSupabase } from '~/composables/useSync'
 const supabase = useSupabaseClient()
 const userRef = useSupabaseUser()
 
@@ -46,6 +48,30 @@ async function sendMagicLink () {
 }
 
 onMounted(() => console.log('[settings] mounted OK'))
+
+// Sync Now
+const { push, pull } = useSync()
+const syncing = ref(false)
+const syncMsg = ref<string | null>(null)
+const syncErr = ref<string | null>(null)
+async function syncNow() {
+  const { $toast } = useNuxtApp()
+  syncing.value = true
+  syncMsg.value = null
+  syncErr.value = null
+  try {
+    await push()
+    const res = await importFromSupabase(60)
+    await pull()
+    syncMsg.value = `Imported ${res.sessions} sessions, ${res.sets} sets${res.bodyweights ? `, ${res.bodyweights} bodyweights` : ''}.`
+    $toast?.('Sync complete')
+  } catch (e: any) {
+    syncErr.value = e?.message ?? 'Sync failed.'
+    $toast?.('Sync failed')
+  } finally {
+    syncing.value = false
+  }
+}
 </script>
 
 <template>
@@ -96,8 +122,19 @@ onMounted(() => console.log('[settings] mounted OK'))
           <p class="text-xs text-neutral-400">(Defaults to lb if the store isn’t ready yet.)</p>
         </div>
 
+        <!-- Data sync -->
+        <div class="card space-y-3">
+          <h2 class="font-semibold">Data</h2>
+          <button class="btn-primary w-full md:w-auto" :disabled="syncing || !isAuthed" @click="syncNow">
+            {{ syncing ? 'Syncing…' : 'Sync Now' }}
+          </button>
+          <p v-if="!isAuthed" class="text-xs text-neutral-400">Sign in to sync your cloud data into this device.</p>
+          <p v-if="syncMsg" class="text-xs text-green-400">{{ syncMsg }}</p>
+          <p v-if="syncErr" class="text-xs text-firepink-600">{{ syncErr }}</p>
+        </div>
+
         <!-- Nav -->
-        <NuxtLink class="underline underline-offset-4" to="/">← Back to Dashboard</NuxtLink>
+        <NuxtLink class="underline underline-offset-4" to="/dashboard">← Back to Dashboard</NuxtLink>
       </section>
     </ClientOnly>
   </main>

@@ -62,10 +62,21 @@ export function useSync() {
     const tables = ['exercises','sessions','sets'] as const
     const updates: any[] = []
     for (const t of tables) {
-      let q = supabase.from(t).select('*').gt('updated_at', since).limit(limit)
-      // filter by user scope if table has user_id (assumed for our schema)
-      q = (q as any).eq('user_id', user.value.id)
-      const { data, error } = await q
+      const base = supabase.from(t).select('*').gt('updated_at', since).limit(limit)
+      // Try to scope by user_id if present; otherwise fall back to unscoped (RLS should still apply)
+      let data: any = null; let error: any = null
+      try {
+        const res = await (base as any).eq('user_id', user.value.id)
+        data = res.data; error = res.error
+        // Column missing -> retry without filter
+        if (error && String(error.message || '').toLowerCase().includes('user_id')) {
+          const res2 = await base
+          data = res2.data; error = res2.error
+        }
+      } catch {
+        const res2 = await base
+        data = res2.data; error = res2.error
+      }
       if (!error && data) updates.push({ t, rows: data })
     }
     let maxTs = since
