@@ -209,7 +209,22 @@ const filteredExercises = computed(() => {
     .map((e: any) => ({ id: e.id, name: e.name }))
     .sort((a: { id:string; name:string }, b: { id:string; name:string }) => a.name.localeCompare(b.name))
 })
-watch(selectedCategory, () => { exerciseId.value = null; refreshPoints() })
+
+// Inline dropdowns for Exercise and Chart Type (match Quick Log style)
+const exListOpen = ref(false)
+const typeOpen = ref(false)
+const exNameById = computed(() => Object.fromEntries(filteredExercises.value.map(e => [e.id, e.name])))
+const currentExerciseLabel = computed(() => exerciseId.value ? (exNameById.value[exerciseId.value] ?? 'Select exercise…') : 'All exercises')
+function toggleExList(){ if (!selectedCategory.value || isWeight.value) return; exListOpen.value = !exListOpen.value; if (exListOpen.value) typeOpen.value = false }
+function chooseExercise(id: string | null){ exerciseId.value = id; exListOpen.value = false }
+function onDocClick(){ exListOpen.value = false; typeOpen.value = false }
+onMounted(() => { document.addEventListener('click', onDocClick) })
+onBeforeUnmount(() => { document.removeEventListener('click', onDocClick) })
+
+watch(selectedCategory, () => { exListOpen.value = false; exerciseId.value = null; refreshPoints() })
+watch(filteredExercises, (opts) => {
+  if (exerciseId.value && !opts.find(o => o.id === exerciseId.value)) exerciseId.value = null
+})
 
 // Refresh chart after logging weight when in Weight mode
 function onWeightSaved(){
@@ -219,6 +234,9 @@ function onWeightSaved(){
 // Chart type
 const chartType = ref<'line' | 'bar'>('line')
 const chartLabel = computed(() => isWeight.value ? 'Bodyweight (lb)' : 'Top Set (lb)')
+const currentChartTypeLabel = computed(() => chartType.value === 'bar' ? 'Bar' : 'Line')
+function toggleType(){ typeOpen.value = !typeOpen.value; if (typeOpen.value) exListOpen.value = false }
+function chooseChartType(t: 'line' | 'bar'){ chartType.value = t; typeOpen.value = false }
 
 // Recent sets for current session (mapped to SetList shape)
 const recent = ref<Array<{ exercise:string; weight:number; reps:number }>>([])
@@ -228,10 +246,9 @@ async function refreshRecent() {
   const ex = await allExercises()
   const nameById = Object.fromEntries(ex.map((x: any) => [x.id, x.name]))
   recent.value = rows
-    .sort((a:any,b:any) => (b.date + (b.id||''))
-      .localeCompare(a.date + (a.id||'')))
+    .sort((a:any,b:any) => (b.date + (b.id||'')).localeCompare(a.date + (a.id||'')))
     .slice(0, 50)
-    .map(r => ({
+    .map((r:any) => ({
       exercise: titleFromSlug(nameById[r.exerciseId] ?? r.exerciseId),
       weight: r.weightLb ?? 0,
       reps: r.reps ?? 0,
@@ -350,12 +367,26 @@ onMounted(() => {
               </UiChip>
             </div>
           </div>
-          <div v-if="!isWeight">
+          <div v-if="!isWeight" @click.stop>
             <label class="block mb-1 text-xs opacity-70 eyebrow">Exercise</label>
-            <select v-model="exerciseId" class="select w-full" :disabled="!selectedCategory || isWeight">
-              <option :value="null">All exercises</option>
-              <option v-for="e in filteredExercises" :key="e.id" :value="e.id">{{ e.name }}</option>
-            </select>
+            <button type="button" class="select w-full flex items-center justify-between disabled:opacity-60" :disabled="!selectedCategory || isWeight" @click="toggleExList">
+              <span>{{ currentExerciseLabel }}</span>
+              <span class="ml-2 opacity-70" aria-hidden="true">▾</span>
+            </button>
+            <div v-if="exListOpen && selectedCategory && !isWeight" class="mt-2 rounded-xl bg-bg border border-border/60 max-h-60 overflow-auto">
+              <button type="button" class="w-full text-left px-3 py-2 hover:bg-white/10 active:bg-white/20" @click="chooseExercise(null)">
+                All exercises
+              </button>
+              <button
+                v-for="e in filteredExercises"
+                :key="e.id"
+                type="button"
+                class="w-full text-left px-3 py-2 hover:bg-white/10 active:bg-white/20"
+                @click="chooseExercise(e.id)"
+              >
+                {{ e.name }}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -368,12 +399,16 @@ onMounted(() => {
             <label class="block mb-1 text-xs opacity-70 eyebrow">To</label>
             <input type="date" v-model="rangeTo" :min="rangeFrom" class="input" />
           </div>
-          <div>
+          <div @click.stop>
             <label class="block mb-1 text-xs opacity-70 eyebrow">Chart Type</label>
-            <select v-model="chartType" class="select w-full">
-              <option value="line">Line</option>
-              <option value="bar">Bar</option>
-            </select>
+            <button type="button" class="select w-full flex items-center justify-between" @click="toggleType">
+              <span>{{ currentChartTypeLabel }}</span>
+              <span class="ml-2 opacity-70" aria-hidden="true">▾</span>
+            </button>
+            <div v-if="typeOpen" class="mt-2 rounded-xl bg-bg border border-border/60 max-h-60 overflow-auto">
+              <button type="button" class="w-full text-left px-3 py-2 hover:bg-white/10 active:bg-white/20" @click="chooseChartType('line')">Line</button>
+              <button type="button" class="w-full text-left px-3 py-2 hover:bg-white/10 active:bg-white/20" @click="chooseChartType('bar')">Bar</button>
+            </div>
           </div>
         </div>
 
