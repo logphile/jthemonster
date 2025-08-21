@@ -34,19 +34,25 @@ const filteredExercises = computed(() => {
 })
 
 // Reset exercise when category changes or option disappears
-watch(selectedCategory, () => { model.value = null })
+watch(selectedCategory, () => { model.value = null; listOpen.value = false; catOpen.value = false })
 watch(filteredExercises, (opts) => {
   if (!opts.find(o => o.id === model.value)) model.value = null
 })
 
 // Inline list dropdown state for exercises
 const listOpen = ref(false)
+const catOpen = ref(false)
 const nameById = computed(() => Object.fromEntries(filteredExercises.value.map(e => [e.id, e.name])))
 const currentExerciseLabel = computed(() => model.value ? (nameById.value[model.value] ?? 'Select exercise…') : 'Select exercise…')
-function toggleList(){ if (!selectedCategory.value) return; listOpen.value = !listOpen.value }
+const currentCategoryLabel = computed(() => {
+  const found = categories.find(c => c.value === selectedCategory.value)
+  return found ? found.label : 'Select category…'
+})
+function toggleList(){ if (!selectedCategory.value) return; listOpen.value = !listOpen.value; if (listOpen.value) catOpen.value = false }
+function toggleCat(){ catOpen.value = !catOpen.value; if (catOpen.value) listOpen.value = false }
 function chooseExercise(id: string){ model.value = id; listOpen.value = false }
-function onDocClick(){ listOpen.value = false }
-watch(selectedCategory, () => { listOpen.value = false })
+function chooseCategory(val: CategoryKey){ selectedCategory.value = val; catOpen.value = false }
+function onDocClick(){ listOpen.value = false; catOpen.value = false }
 
 onMounted(() => { exercises.load(); document.addEventListener('click', onDocClick) })
 onBeforeUnmount(() => { document.removeEventListener('click', onDocClick) })
@@ -54,12 +60,23 @@ onBeforeUnmount(() => { document.removeEventListener('click', onDocClick) })
 
 <template>
   <div class="grid gap-3">
-    <div>
+    <div @click.stop>
       <label class="block mb-1 text-sm text-gray-400">Category</label>
-      <select v-model="selectedCategory" class="select">
-        <option :value="''">Select category…</option>
-        <option v-for="c in categories" :key="c.value" :value="c.value">{{ c.label }}</option>
-      </select>
+      <button type="button" class="select w-full flex items-center justify-between" @click="toggleCat">
+        <span>{{ currentCategoryLabel }}</span>
+        <span class="ml-2 opacity-70" aria-hidden="true">▾</span>
+      </button>
+      <div v-if="catOpen" class="mt-2 rounded-xl bg-bg border border-border/60 max-h-60 overflow-auto">
+        <button
+          v-for="c in categories"
+          :key="c.value"
+          type="button"
+          class="w-full text-left px-3 py-2 hover:bg-white/10 active:bg-white/20"
+          @click="chooseCategory(c.value)"
+        >
+          {{ c.label }}
+        </button>
+      </div>
     </div>
 
     <div @click.stop>
