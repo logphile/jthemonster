@@ -173,6 +173,27 @@ export async function importFromSupabase(days = 60) {
       rpe: r.rpe ?? null
     })))
     setsCount = (sets?.length ?? 0)
+  } else {
+    // Fallback: if we couldn't read sessions (e.g., RLS blocks sessions), try joining from sets -> sessions
+    try {
+      const { data: sets2, error: e2 } = await supabase
+        .from('sets')
+        .select('id, session_id, exercise_id, reps, weight_lb, weight, rpe, sessions!inner(date)')
+        .gte('sessions.date', startISO).lte('sessions.date', endISO)
+      if (e2) throw e2
+      await db.sets.bulkPut((sets2 ?? []).map((r: any) => ({
+        id: r.id,
+        sessionId: r.session_id,
+        date: (r as any)?.sessions?.date ?? endISO,
+        exerciseId: r.exercise_id,
+        reps: r.reps ?? 0,
+        weightLb: Number((r.weight_lb ?? r.weight) ?? 0),
+        rpe: r.rpe ?? null
+      })))
+      setsCount = (sets2?.length ?? 0)
+    } catch {
+      // ignore fallback failure
+    }
   }
 
   // bodyweights

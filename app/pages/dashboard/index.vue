@@ -15,6 +15,7 @@ import CyberDivider from '~/components/ui/CyberDivider.vue'
 
 // Data and actions (Dexie-backed)
 const { dayStatsForMonth, progressPoints, bodyweightPoints, allExercises, getOrCreateSession, setsForSession, sessionByDate } = useRepo()
+import { openDB, db } from '~/db/indexed'
 import type { Session } from '~/db/indexed'
 import { useExercises as useExercisesStore } from '~/stores/exercises'
 const { session: authSession, getSession } = useAuth()
@@ -50,6 +51,8 @@ function titleFromSlug(s: string) {
 onMounted(async () => {
   // user might be null in guest mode — that's fine
   try {
+    // Ensure Dexie is open before any reads/writes
+    try { await openDB() } catch {}
     // Optional: pull recent cloud data into local Dexie before creating today's session
     try {
       const mod = await import('~/composables/useSync')
@@ -63,6 +66,11 @@ onMounted(async () => {
     if (!authSession.value) await getSession().catch(() => null)
     // Ensure today's session exists before rendering dependent widgets
     session.value = await getOrCreateSession().catch(() => null)
+    // Jump calendar to the most recent month that has any sets
+    try {
+      const last = await db.sets.orderBy('date').last()
+      if (last?.date) month.value = new Date(last.date)
+    } catch {}
     await refreshRecent()
     await refreshMonth()
   } finally {
@@ -149,6 +157,15 @@ async function refreshPoints(){
       rangeFrom.value,
       rangeTo.value,
     )
+    // If nothing in the last 30 days, auto-expand to 1 year and try again
+    if (!chartPoints.value.length) {
+      rangeFrom.value = toISO(new Date(Date.now() - 364 * 24 * 3600 * 1000))
+      chartPoints.value = await progressPoints(
+        exerciseId.value ?? undefined,
+        rangeFrom.value,
+        rangeTo.value,
+      )
+    }
   }
 }
 watch([exerciseId, rangeFrom, rangeTo], refreshPoints, { immediate: true })
@@ -245,7 +262,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="min-h-dvh pb-28">
+  <main class="min-h-dvh pb-28 pt-12 sm:pt-0">
     <div class="mx-auto max-w-md p-4 sm:p-5 space-y-5">
       <section class="card holo-border surface">
         <p class="text-sm opacity-90 font-hud tracking-wide">LOCK IN! LET'S GET IT! 💪</p>

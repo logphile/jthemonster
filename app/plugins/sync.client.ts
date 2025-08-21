@@ -25,7 +25,7 @@ export default defineNuxtPlugin(() => {
           const meta = await (db as any).meta?.get('lastPulledAt')
           const setsCount = await (db as any).sets?.count()
           if (!meta && (!setsCount || setsCount === 0)) {
-            const res = await importFromSupabase(365)
+            const res = await importFromSupabase(730)
             // mark a baseline so incremental pulls switch to updated_at mode
             await (db as any).meta?.put({ key: 'lastPulledAt', value: new Date().toISOString() })
             if (process.dev) console.log('[sync] initial import complete', res)
