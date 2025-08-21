@@ -55,7 +55,7 @@ onMounted(async () => {
       const mod = await import('~/composables/useSync')
       const fn = (mod as any)?.importFromSupabase as undefined | ((days: number) => Promise<void>)
       if (typeof fn === 'function') {
-        await fn(60).catch(() => null)
+        await fn(365).catch(() => null)
       }
     } catch (e) {
       // ignore if useSync or method not available

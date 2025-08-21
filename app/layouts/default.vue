@@ -10,7 +10,14 @@ import LogQuickLogSheet from '~/components/log/QuickLogSheet.vue'
 
 <template>
   <div class="min-h-screen min-h-dvh bg-bgDeep text-textHi font-sans antialiased">
-    <NuxtLink to="/settings" class="fixed top-3 right-3 z-[10000] chip chip-active">Settings</NuxtLink>
+    <Teleport to="body">
+      <NuxtLink
+        to="/settings"
+        class="fixed z-[10000] right-3 sm:right-6 chip chip-active top-[max(0.75rem,env(safe-area-inset-top,0px))]"
+      >
+        Settings
+      </NuxtLink>
+    </Teleport>
     <slot />
     <LogSetFab />
     <LogQuickLogSheet />

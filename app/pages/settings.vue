@@ -61,7 +61,7 @@ async function syncNow() {
   syncErr.value = null
   try {
     await push()
-    const res = await importFromSupabase(60)
+    const res = await importFromSupabase(365)
     await pull()
     syncMsg.value = `Imported ${res.sessions} sessions, ${res.sets} sets${res.bodyweights ? `, ${res.bodyweights} bodyweights` : ''}.`
     $toast?.('Sync complete')
