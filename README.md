@@ -148,7 +148,7 @@ merge + keep in memory
 ```mermaid
 flowchart LR
   A[UI] -->|choose part| B[Store]
-  B -->|loadAll()| C[(Supabase)]
+  B -->|loadAll()| C[Supabase]
   C -->|catalog (user_id IS NULL)| B
   C -->|mine (user_id = auth.uid)| B
   B -->|byPart/search| A
