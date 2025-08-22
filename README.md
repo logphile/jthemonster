@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/banner.svg" alt="J THE MONSTER — Minimal Workout Logger" width="100%" />
+  <img src="app/assets/banner.svg" alt="J THE MONSTER — Minimal Workout Logger" width="100%" />
 </p>
 
 ## Table of Contents
