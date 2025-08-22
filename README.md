@@ -80,28 +80,21 @@ ESLint + Prettier
 pnpm (or npm/yarn)
 
 Quickstart
-bash
-Copy
-Edit
+
 pnpm install                # or npm i / yarn
 cp .env.example .env.local  # set Supabase URL + anon key
 pnpm dev                    # http://localhost:3000
 pnpm build && pnpm preview
 Environment
 
-bash
-Copy
-Edit
 NUXT_PUBLIC_SUPABASE_URL=https://<project-id>.supabase.co
 NUXT_PUBLIC_SUPABASE_ANON_KEY=<anon>
+
 Database
 <u>Current layout (simple)</u>: single table public.exercises with catalog rows (user_id = NULL) and user rows (user_id = auth.uid()).
 
 Schema (essential)
 
-sql
-Copy
-Edit
 id uuid pk default gen_random_uuid(),
 user_id uuid null default auth.uid(),
 name text not null,
@@ -110,16 +103,10 @@ equipment text null,
 created_at timestamptz not null default now()
 Uniqueness
 
-sql
-Copy
-Edit
 create unique index if not exists uniq_exercises_name_body_part
   on public.exercises (lower(name), body_part);
 RLS
 
-sql
-Copy
-Edit
 alter table public.exercises enable row level security;
 
 -- read catalog + user rows
@@ -167,9 +154,6 @@ insert (RLS default fills user_id)
 
 server uniqueness enforced by index
 
-mermaid
-Copy
-Edit
 flowchart LR
   A[UI] -->|choose part| B[Store]
   B -->|loadAll()| C[(Supabase)]
@@ -187,9 +171,6 @@ Gemini 2.5 Pro — test data, edge-case checks
 Notes: prompts/diffs were iterated inline; no runtime LLM dependency.
 
 Testing (manual)
-sql
-Copy
-Edit
 -- catalog totals (expect ~15 each body_part)
 select body_part, count(*) from public.exercises
 where user_id is null group by 1 order by 1;
