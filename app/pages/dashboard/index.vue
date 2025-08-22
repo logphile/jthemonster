@@ -281,14 +281,14 @@ onMounted(() => {
   <main class="min-h-dvh pb-28 pt-12 sm:pt-0">
     <div class="mx-auto max-w-md p-4 sm:p-5 space-y-5">
       <section class="card">
-        <p class="text-sm opacity-90 font-hud tracking-wide">LOCK IN! LET'S GET IT! 💪</p>
+        <p class="greeting">LOCK IN! LET'S GET IT! 💪</p>
       </section>
       <TodayCard :session-id="sessionId" />
 
       <!-- Calendar -->
       <section class="card">
         <div class="mb-2 flex items-center justify-between">
-          <h2 class="text-sm font-semibold opacity-90 font-hud flex items-center gap-2">
+          <h2 class="heading-white flex items-center gap-2">
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="w-4 h-4 text-sun">
               <path d="M6 2a1 1 0 011 1v1h10V3a1 1 0 112 0v1h1a1 1 0 011 1v15a2 2 0 01-2 2H5a2 2 0 01-2-2V5a1 1 0 011-1h1V3a1 1 0 112 0v1zm13 6H5v11a1 1 0 001 1h12a1 1 0 001-1V8z" />
             </svg>
@@ -307,7 +307,7 @@ onMounted(() => {
       
 
       <section class="card">
-        <h2 class="text-sm font-semibold opacity-90 font-hud mb-2 flex items-center gap-2">
+        <h2 class="heading-white mb-2 flex items-center gap-2">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="w-4 h-4 text-firepink-600">
             <path d="M4 5h16v2H4V5zm0 6h16v2H4v-2zm0 6h10v2H4v-2z" />
           </svg>
@@ -324,7 +324,7 @@ onMounted(() => {
 
       <!-- Log Weight -->
       <section class="card">
-        <h2 class="text-sm font-semibold opacity-90 font-hud mb-2 flex items-center gap-2">
+        <h2 class="heading-white mb-2 flex items-center gap-2">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="w-4 h-4 text-sun">
             <path d="M5 4h14a2 2 0 012 2v10a4 4 0 01-4 4H7a4 4 0 01-4-4V6a2 2 0 012-2zm1 2v5a6 6 0 0012 0V6H6z" />
           </svg>
@@ -337,7 +337,7 @@ onMounted(() => {
 
       <!-- Progress -->
       <section class="card">
-        <h2 class="text-sm font-semibold opacity-90 font-hud mb-2 flex items-center gap-2">
+        <h2 class="heading-white mb-2 flex items-center gap-2">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="w-4 h-4 text-sun">
             <path d="M6 2a1 1 0 011 1v1h10V3a1 1 0 112 0v1h1a1 1 0 011 1v15a2 2 0 01-2 2H5a2 2 0 01-2-2V5a1 1 0 011-1h1V3a1 1 0 112 0v1zm13 6H5v11a1 1 0 001 1h12a1 1 0 001-1V8z" />
           </svg>

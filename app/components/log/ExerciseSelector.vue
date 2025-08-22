@@ -56,7 +56,7 @@ function onPick(exId: string, name: string) {
 <template>
   <section class="card">
     <header class="flex items-center justify-between mb-3">
-      <h3 class="text-sm font-medium opacity-80">Log Exercise</h3>
+      <h3 class="heading-white">Log Exercise</h3>
     </header>
 
     <!-- Category chips -->

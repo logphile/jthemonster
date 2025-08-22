@@ -68,3 +68,38 @@
   .press { transition: transform .12s ease; }
   .press:active { transform: translateY(1px) scale(.98); }
 }
+
+/* Headings, greeting, dropdowns, and link/button helpers */
+@layer utilities {
+  /* Headings + labels on dark surfaces */
+  .heading-white { @apply text-white font-semibold; }
+  .title-large   { @apply font-display text-white text-2xl md:text-3xl font-extrabold; }
+  .title-small   { @apply font-display text-white text-lg md:text-xl font-bold; }
+
+  /* Greeting chip */
+  .greeting {
+    @apply font-display text-white text-xl md:text-2xl tracking-wide text-center;
+  }
+
+  /* Dropdowns (trigger + menu) – reuse Progress styles everywhere */
+  .select {
+    @apply rounded-xl bg-plum600 text-white placeholder-white/70 px-3 py-2
+           border border-white/10 pr-10 appearance-none
+           hover:border-firepink-600/60
+           focus:outline-none focus:ring-2 focus:ring-firepink-600/60 focus:border-transparent;
+    background-image: url("data:image/svg+xml,%3Csvg fill='none' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M6 8l4 4 4-4' stroke='%23FFFFFF' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right .6rem center;
+    color-scheme: dark; /* ensures dark popover in Chrome/Edge */
+  }
+  /* Options inside the open menu */
+  .select option, .select optgroup { color:#fff; background-color:#3A2A76; }
+  .select option:checked { background-color:#FF007A; color:#fff; }
+
+  /* Buttons/links: force white on dark when active/focused */
+  .btn-ghost, .link-ghost {
+    @apply text-white hover:text-white focus:text-white active:text-white;
+  }
+}
+
+/* Ensure active router links that use link-ghost remain white */
+.router-link-active.link-ghost { color:#fff !important; }

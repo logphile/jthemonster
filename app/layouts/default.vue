@@ -13,7 +13,7 @@ import LogQuickLogSheet from '~/components/log/QuickLogSheet.vue'
     <Teleport to="body">
       <NuxtLink
         to="/settings"
-        class="fixed z-[10000] right-3 sm:right-6 chip chip-active top-[max(0.75rem,env(safe-area-inset-top,0px))]"
+        class="fixed z-[10000] right-3 sm:right-6 chip chip-active link-ghost top-[max(0.75rem,env(safe-area-inset-top,0px))]"
       >
         Settings
       </NuxtLink>

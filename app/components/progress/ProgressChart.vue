@@ -19,17 +19,37 @@ const options:any = {
   scales: {
     x: {
       type: 'time', time: { unit: 'day' },
-      grid: { color: 'rgba(255,255,255,0.06)' },
-      ticks: { color: 'rgba(229,229,229,0.82)' },
+      grid: { color: 'rgba(255,255,255,0.12)' },
+      ticks: {
+        color: '#ffffff',
+        font: { family: 'Sora, Inter, system-ui, sans-serif', size: 12 }
+      },
     },
     y: {
       beginAtZero: false,
-      grid: { color: 'rgba(255,255,255,0.06)' },
-      ticks: { color: 'rgba(229,229,229,0.82)' },
+      grid: { color: 'rgba(255,255,255,0.12)' },
+      ticks: {
+        color: '#ffffff',
+        font: { family: 'Sora, Inter, system-ui, sans-serif', size: 12 }
+      },
     }
   },
   plugins: {
-    legend: { labels: { color: 'rgba(229,229,229,0.9)' } },
+    legend: {
+      labels: {
+        color: '#ffffff',
+        font: { family: 'Sora, Inter, system-ui, sans-serif', weight: '600' }
+      }
+    },
+    tooltip: {
+      backgroundColor: 'rgba(17,17,17,0.92)',
+      titleColor: '#ffffff',
+      bodyColor: '#ffffff',
+      borderColor: 'rgba(255,255,255,0.15)',
+      borderWidth: 1,
+      displayColors: false,
+      padding: 10
+    },
     zoom: {
       pan: { enabled: true, mode: 'xy' },
       zoom: {

@@ -115,7 +115,7 @@ async function syncNow() {
         <div class="card space-y-3">
           <h2 class="font-semibold">Preferences</h2>
           <label class="block text-sm">Weight units</label>
-          <select v-model="units" class="select">
+          <select v-model="units" class="select w-full">
             <option value="lb">lb</option>
             <option value="kg">kg</option>
           </select>

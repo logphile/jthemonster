@@ -4,7 +4,7 @@
       <div class="flex items-center justify-between">
         <div>
           <p class="eyebrow">Today</p>
-          <h2>{{ prettyDate }}</h2>
+          <h2 class="title-large">{{ prettyDate }}</h2>
         </div>
         <span class="chip chip-active">Week {{ weekNum }}</span>
       </div>
@@ -22,7 +22,7 @@
 
       <div class="mt-4">
         <PrimaryButton @click="$emit('start')">
-          {{ hasSession ? 'Resume Session' : 'Start Session' }}
+          <span class="title-small">{{ hasSession ? 'Resume Session' : 'Start Session' }}</span>
         </PrimaryButton>
         <p v-if="!hasSession" class="mt-2 text-xs text-white/70">Preparing session…</p>
       </div>
