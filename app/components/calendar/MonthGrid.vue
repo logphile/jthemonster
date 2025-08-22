@@ -22,9 +22,9 @@ const todayIso = computed(() => {
       class="aspect-square rounded-xl relative overflow-hidden flex items-start justify-start p-1 text-left transition"
       :class="[
         (props.dayStats[key(d)]?.sets ?? 0) > 0
-          ? 'bg-firepink-600/15 ring-1 ring-firepink-600/50 text-white shadow-neonPink'
-          : 'bg-white/5 hover:bg-white/10 text-textLo',
-        key(d) === todayIso ? 'ring-2 ring-yellow-400/80 text-white' : ''
+          ? 'bg-plum600 text-white ring-1 ring-firepink-600/60 hover:bg-plum800'
+          : 'bg-plum800 hover:bg-plum600/60 text-white/70',
+        key(d) === todayIso ? 'ring-2 ring-sun text-white' : ''
       ]"
       @click="emit('select', { date: key(d) })"
     >

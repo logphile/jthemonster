@@ -51,18 +51,17 @@ const chartData = computed<any>(()=>({
     label: props.label,
     data: props.points,
     tension: props.type === 'line' ? 0.25 : undefined,
-    // Neon fill for line chart
+    // Flat theme palette
     fill: props.type === 'line' ? 'origin' : false,
     borderRadius: props.type === 'bar' ? 3 : undefined,
     borderWidth: 2,
-    // Neon palette
-    borderColor: props.type === 'bar' ? '#8B5CF6' : '#FF007A',
-    backgroundColor: props.type === 'bar' ? 'rgba(139,92,246,0.45)' : 'rgba(255,0,122,0.22)',
+    borderColor: props.type === 'bar' ? '#3A2A76' : '#e11d74',
+    backgroundColor: props.type === 'bar' ? 'rgba(58,42,118,0.55)' : 'rgba(225,29,116,0.22)',
     pointRadius: props.type === 'line' ? 3 : 0,
     pointHoverRadius: props.type === 'line' ? 4 : 0,
-    pointBackgroundColor: props.type === 'line' ? '#FFD600' : undefined,
-    pointBorderColor: props.type === 'line' ? '#FFD600' : undefined,
-    pointHoverBackgroundColor: props.type === 'line' ? '#8B5CF6' : undefined,
+    pointBackgroundColor: props.type === 'line' ? '#FFD84D' : undefined,
+    pointBorderColor: props.type === 'line' ? '#FFD84D' : undefined,
+    pointHoverBackgroundColor: props.type === 'line' ? '#3A2A76' : undefined,
     barThickness: props.type === 'bar' ? 14 : undefined,
   }]
 }))

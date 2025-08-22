@@ -54,7 +54,7 @@ function onPick(exId: string, name: string) {
 </script>
 
 <template>
-  <section class="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-4">
+  <section class="card">
     <header class="flex items-center justify-between mb-3">
       <h3 class="text-sm font-medium opacity-80">Log Exercise</h3>
     </header>
@@ -73,15 +73,14 @@ function onPick(exId: string, name: string) {
     </div>
 
     <!-- Divider between categories and exercise list -->
-    <div class="mt-3 border-t border-zinc-800/80"></div>
+    <div class="mt-3 border-t border-white/10"></div>
 
     <!-- Exercise list for selected category -->
     <div class="mt-3 grid grid-cols-1 gap-2">
       <button
         v-for="ex in byCategory[selectedCat]"
         :key="ex.id"
-        class="w-full text-left px-3 py-2 rounded-xl bg-black/30 border border-zinc-800
-               hover:bg-black/40 active:scale-[0.99] transition transform min-h-[44px]"
+        class="w-full text-left px-3 py-2 rounded-xl bg-plum800 border border-white/10 hover:bg-white/10 text-white active:scale-[0.99] transition transform min-h-[44px]"
         @click="onPick(ex.id, ex.name)"
       >
         <span class="text-[15px]">{{ ex.name }}</span>

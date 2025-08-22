@@ -10,11 +10,11 @@
       </div>
 
       <div class="mt-4 grid grid-cols-2 gap-3">
-        <div class="holo-border surface rounded-xl p-3">
+        <div class="rounded-xl bg-plum800 border border-white/10 p-3">
           <p class="eyebrow">Last Set</p>
           <p class="mt-1 text-base">{{ lastSetLabel }}</p>
         </div>
-        <div class="holo-border surface rounded-xl p-3">
+        <div class="rounded-xl bg-plum800 border border-white/10 p-3">
           <p class="eyebrow">Volume (7d, lb)</p>
           <p class="mt-1 text-base">{{ weekVolume }} lb</p>
         </div>
@@ -24,7 +24,7 @@
         <PrimaryButton @click="$emit('start')">
           {{ hasSession ? 'Resume Session' : 'Start Session' }}
         </PrimaryButton>
-        <p v-if="!hasSession" class="mt-2 text-xs text-subtext">Preparing session…</p>
+        <p v-if="!hasSession" class="mt-2 text-xs text-white/70">Preparing session…</p>
       </div>
     </div>
   </Card>

@@ -11,7 +11,6 @@ const ProgressChart = defineAsyncComponent(() => import('~/components/progress/P
 const ProgressChartModal = defineAsyncComponent(() => import('~/components/progress/ProgressChartModal.vue'))
 const ExerciseSelector = defineAsyncComponent(() => import('~/components/log/ExerciseSelector.vue'))
 import UiChip from '~/components/ui/Chip.vue'
-import CyberDivider from '~/components/ui/CyberDivider.vue'
 
 // Data and actions (Dexie-backed)
 const { dayStatsForMonth, progressPoints, bodyweightPoints, allExercises, getOrCreateSession, setsForSession, sessionByDate } = useRepo()
@@ -281,17 +280,16 @@ onMounted(() => {
 <template>
   <main class="min-h-dvh pb-28 pt-12 sm:pt-0">
     <div class="mx-auto max-w-md p-4 sm:p-5 space-y-5">
-      <section class="card holo-border surface">
+      <section class="card">
         <p class="text-sm opacity-90 font-hud tracking-wide">LOCK IN! LET'S GET IT! 💪</p>
       </section>
       <TodayCard :session-id="sessionId" />
-      <CyberDivider />
 
       <!-- Calendar -->
-      <section class="card holo-border surface">
+      <section class="card">
         <div class="mb-2 flex items-center justify-between">
           <h2 class="text-sm font-semibold opacity-90 font-hud flex items-center gap-2">
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="w-4 h-4 text-yellow-400">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="w-4 h-4 text-sun">
               <path d="M6 2a1 1 0 011 1v1h10V3a1 1 0 112 0v1h1a1 1 0 011 1v15a2 2 0 01-2 2H5a2 2 0 01-2-2V5a1 1 0 011-1h1V3a1 1 0 112 0v1zm13 6H5v11a1 1 0 001 1h12a1 1 0 001-1V8z" />
             </svg>
             This Month
@@ -301,17 +299,16 @@ onMounted(() => {
           <MonthGrid :month="month" :day-stats="dayStats" @select="openDay" />
         </ClientOnly>
       </section>
-      <CyberDivider />
 
-      <section v-if="loading" class="card holo-border surface text-sm opacity-80">
+      <section v-if="loading" class="card text-sm opacity-80">
         Loading…
       </section>
 
       
 
-      <section class="card holo-border surface">
+      <section class="card">
         <h2 class="text-sm font-semibold opacity-90 font-hud mb-2 flex items-center gap-2">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="w-4 h-4 text-firepink-400">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="w-4 h-4 text-firepink-600">
             <path d="M4 5h16v2H4V5zm0 6h16v2H4v-2zm0 6h10v2H4v-2z" />
           </svg>
           Recent Sets
@@ -321,38 +318,27 @@ onMounted(() => {
           <div v-else class="animate-pulse text-sm opacity-60">Loading session…</div>
         </ClientOnly>
       </section>
-      <CyberDivider />
 
       <!-- Log Exercise -->
-      <section class="card holo-border surface">
-        <h2 class="text-sm font-semibold opacity-90 font-hud mb-2 flex items-center gap-2">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="w-4 h-4 text-purple-400">
-            <path d="M3 11h4V9H3V7h4V5h2v2h6V5h2v2h4v2h-4v2h4v2h-4v2h-2v-2H9v2H7v-2H3v-2zm6 0h6V9H9v2z" />
-          </svg>
-          Log Exercise
-        </h2>
-        <ExerciseSelector @select="onExerciseSelect" />
-      </section>
-      <CyberDivider />
+      <ExerciseSelector @select="onExerciseSelect" />
 
       <!-- Log Weight -->
-      <section class="card holo-border surface">
+      <section class="card">
         <h2 class="text-sm font-semibold opacity-90 font-hud mb-2 flex items-center gap-2">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="w-4 h-4 text-yellow-400">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="w-4 h-4 text-sun">
             <path d="M5 4h14a2 2 0 012 2v10a4 4 0 01-4 4H7a4 4 0 01-4-4V6a2 2 0 012-2zm1 2v5a6 6 0 0012 0V6H6z" />
           </svg>
-          Log Weight
+          Log Body Weight
         </h2>
         <ClientOnly>
           <WeightLogButton @saved="onWeightSaved" />
         </ClientOnly>
       </section>
-      <CyberDivider />
 
       <!-- Progress -->
-      <section class="card holo-border surface">
+      <section class="card">
         <h2 class="text-sm font-semibold opacity-90 font-hud mb-2 flex items-center gap-2">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="w-4 h-4 text-yellow-400">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="w-4 h-4 text-sun">
             <path d="M6 2a1 1 0 011 1v1h10V3a1 1 0 112 0v1h1a1 1 0 011 1v15a2 2 0 01-2 2H5a2 2 0 01-2-2V5a1 1 0 011-1h1V3a1 1 0 112 0v1zm13 6H5v11a1 1 0 001 1h12a1 1 0 001-1V8z" />
           </svg>
           Progress
@@ -373,7 +359,7 @@ onMounted(() => {
               <span>{{ currentExerciseLabel }}</span>
               <span class="ml-2 opacity-70" aria-hidden="true">▾</span>
             </button>
-            <div v-if="exListOpen && selectedCategory && !isWeight" class="mt-2 rounded-xl bg-bg border border-border/60 max-h-60 overflow-auto">
+            <div v-if="exListOpen && selectedCategory && !isWeight" class="mt-2 rounded-xl bg-plum800 border border-white/10 max-h-60 overflow-auto">
               <button type="button" class="w-full text-left px-3 py-2 hover:bg-white/10 active:bg-white/20" @click="chooseExercise(null)">
                 All exercises
               </button>
@@ -405,7 +391,7 @@ onMounted(() => {
               <span>{{ currentChartTypeLabel }}</span>
               <span class="ml-2 opacity-70" aria-hidden="true">▾</span>
             </button>
-            <div v-if="typeOpen" class="mt-2 rounded-xl bg-bg border border-border/60 max-h-60 overflow-auto">
+            <div v-if="typeOpen" class="mt-2 rounded-xl bg-plum800 border border-white/10 max-h-60 overflow-auto">
               <button type="button" class="w-full text-left px-3 py-2 hover:bg-white/10 active:bg-white/20" @click="chooseChartType('line')">Line</button>
               <button type="button" class="w-full text-left px-3 py-2 hover:bg-white/10 active:bg-white/20" @click="chooseChartType('bar')">Bar</button>
             </div>

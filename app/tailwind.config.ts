@@ -35,11 +35,17 @@ export default {
         neonPurple: '#8B5CF6',
         textHi: '#E5E5E5',
         textLo: '#7D7D7D',
+        // New flat theme palette
+        sun: '#FFD84D',
+        plum: '#2B1E55',
+        plum600: '#3A2A76',
+        plum800: '#20143E',
+        ink: '#1C1530',
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        display: ['Rajdhani', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        hud: ['Rajdhani', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['Sora', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        hud: ['Sora', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
         soft: '0 10px 25px -12px rgba(244,63,94,0.25)',
@@ -47,7 +53,10 @@ export default {
         glow: '0 0 0 2px rgba(255,75,125,.35)',
         neonPink: '0 0 0 1px rgba(255,0,122,0.35), 0 0 12px rgba(255,0,122,0.35)',
         neonYellow: '0 0 0 1px rgba(255,214,0,0.35), 0 0 12px rgba(255,214,0,0.35)',
-        neonPurple: '0 0 0 1px rgba(139,92,246,0.35), 0 0 12px rgba(139,92,246,0.35)'
+        neonPurple: '0 0 0 1px rgba(139,92,246,0.35), 0 0 12px rgba(139,92,246,0.35)',
+        // New soft shadows
+        sunSoft: '0 8px 20px rgba(203, 141, 0, .25)',
+        insetSoft: 'inset 0 0 0 1px rgba(255,255,255,0.06)'
       },
       borderRadius: {
         xl: '16px',
