@@ -5,7 +5,14 @@ const emit = defineEmits<{ (e:'select', payload:{ date: string }): void }>()
 const days = computed(() => eachDayOfInterval({ start: startOfMonth(props.month), end: endOfMonth(props.month) }))
 const key = (d:Date)=> d.toISOString().slice(0,10)
 const intensity = (n:number)=> n===0? 'opacity-0' : n<6? 'opacity-40' : n<12? 'opacity-70':'opacity-100'
-const todayIso = computed(()=> key(new Date()))
+// Compute today's date in LOCAL time to avoid UTC day rollover (e.g., US evenings showing next day)
+const todayIso = computed(() => {
+  const d = new Date()
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+})
 </script>
 
 <template>
