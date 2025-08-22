@@ -1,0 +1,47 @@
+<!-- /assets/banner.svg -->
+<svg width="1200" height="320" viewBox="0 0 1200 320" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">J THE MONSTER — Minimal Workout Logger</title>
+  <desc id="desc">Flat, high-contrast banner using sun yellow, deep purple, and fire pink accents.</desc>
+
+  <!-- Colors -->
+  <!-- sun: #FFD84D, plum: #2B1E55, firePink: #FF007A -->
+
+  <!-- Background -->
+  <rect width="1200" height="320" fill="#FFD84D"/>
+
+  <!-- Central plate -->
+  <rect x="40" y="60" width="1120" height="200" rx="24" fill="#2B1E55"/>
+
+  <!-- Accents (fire pink bars) -->
+  <rect x="60"  y="80"  width="80" height="6"  rx="3" fill="#FF007A" opacity="0.9"/>
+  <rect x="1060" y="234" width="80" height="6"  rx="3" fill="#FF007A" opacity="0.9"/>
+
+  <!-- Left dots -->
+  <circle cx="60" cy="240" r="3.5" fill="#FF007A" />
+  <circle cx="74" cy="240" r="3.5" fill="#FF007A" />
+  <circle cx="88" cy="240" r="3.5" fill="#FF007A" />
+
+  <!-- Title -->
+  <g aria-label="J THE MONSTER">
+    <text x="600" y="150"
+          text-anchor="middle"
+          font-family="Sora, Inter, system-ui, -apple-system, Segoe UI, Arial, sans-serif"
+          font-size="62"
+          font-weight="800"
+          letter-spacing="6"
+          fill="#FFFFFF">
+      J THE MONSTER
+    </text>
+  </g>
+
+  <!-- Tagline -->
+  <text x="600" y="205"
+        text-anchor="middle"
+        font-family="Inter, system-ui, -apple-system, Segoe UI, Arial, sans-serif"
+        font-size="18"
+        font-weight="600"
+        letter-spacing="1"
+        fill="#FFD84D">
+    minimal workout logger • nuxt + supabase • set logging • progress charts
+  </text>
+</svg>

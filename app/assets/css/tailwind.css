@@ -99,6 +99,16 @@
   .btn-ghost, .link-ghost {
     @apply text-white hover:text-white focus:text-white active:text-white;
   }
+
+  /* Typeahead popover utilities */
+  .popover {
+    @apply absolute z-50 w-full mt-1 rounded-xl bg-plum600 text-white shadow-sunSoft border border-white/10;
+    max-height: 260px; overflow-y: auto;
+  }
+  .opt { @apply px-3 py-2 cursor-pointer flex items-center justify-between; }
+  .opt:hover, .opt-active { @apply bg-plum text-white; }
+  .opt-note { @apply text-xs text-white/70 ml-2; }
+  .mark { @apply text-firepink-600 font-semibold; }
 }
 
 /* Ensure active router links that use link-ghost remain white */
