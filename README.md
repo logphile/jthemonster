@@ -145,20 +145,20 @@ merge + keep in memory
   - insert (RLS default fills user_id)
   - server uniqueness enforced by index
 
-```mermaid
 flowchart LR
-  A[UI] -->|choose part| B[Store]
-  B -->|loadAll()| C[Supabase]
-  C -->|catalog (user_id IS NULL)| B
-  C -->|mine (user_id = auth.uid)| B
-  B -->|byPart/search| A
-  A -->|createCustom()| C
-```
+  A[UI] -->|"choose part"| B[Store]
+  B -->|"loadAll()"| C((Supabase))
+  C -->|"catalog (user_id IS NULL)"| B
+  C -->|"mine (user_id = auth.uid)"| B
+  B -->|"byPart/search"| A
+  A -->|"createCustom()"| C
 
+```mermaid
 LLM-Assisted Development
 - ChatGPT-5 (Thinking) — architecture, schema, UI polish
 - Claude Sonnet 4 — component scaffolds, copyedits
 - Gemini 2.5 Pro — test data, edge-case checks
+```
 
 Notes: prompts/diffs were iterated inline; no runtime LLM dependency.
 
