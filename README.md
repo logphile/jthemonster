@@ -144,7 +144,9 @@ merge + keep in memory
   - local duplicate guard (case-insensitive within body part)
   - insert (RLS default fills user_id)
   - server uniqueness enforced by index
+ 
 
+```mermaid
 flowchart LR
   A[UI] -->|"choose part"| B[Store]
   B -->|"loadAll()"| C((Supabase))
@@ -152,13 +154,13 @@ flowchart LR
   C -->|"mine (user_id = auth.uid)"| B
   B -->|"byPart/search"| A
   A -->|"createCustom()"| C
+```
 
-```mermaid
 LLM-Assisted Development
 - ChatGPT-5 (Thinking) — architecture, schema, UI polish
 - Claude Sonnet 4 — component scaffolds, copyedits
 - Gemini 2.5 Pro — test data, edge-case checks
-```
+
 
 Notes: prompts/diffs were iterated inline; no runtime LLM dependency.
 
