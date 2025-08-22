@@ -15,7 +15,7 @@
   .btn { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-semibold transition active:scale-[.99] focus:outline-none focus:ring-2 focus:ring-firepink-600/40; }
   .btn-primary { @apply btn bg-firepink-600 text-white hover:brightness-105; }
   .btn-secondary { @apply btn bg-plum600 text-white border border-white/10 hover:bg-plum800; }
-  .input { @apply w-full rounded-xl bg-plum800 border border-white/10 px-3 py-2 text-white placeholder-white/50 focus:ring-2 focus:ring-firepink-600/50 focus:border-firepink-600/60; }
+  .input { @apply w-full rounded-xl bg-plum800 border border-white/10 px-3 py-2 text-white placeholder-white/50 focus:ring-2 focus:ring-firepink-600/50 focus:border-firepink-600/60; color-scheme: dark; }
   .select {
     @apply w-full rounded-xl bg-plum800 border border-white/10 px-3 py-2 pr-10 text-white appearance-none hover:border-firepink-600/60 focus:outline-none focus:ring-2 focus:ring-firepink-600/60 focus:border-firepink-600/60;
     /* caret icon (ink) */
@@ -109,6 +109,16 @@
   .opt:hover, .opt-active { @apply bg-plum text-white; }
   .opt-note { @apply text-xs text-white/70 ml-2; }
   .mark { @apply text-firepink-600 font-semibold; }
+}
+
+@layer utilities {
+  /* Date input calendar icon: tint to sun yellow */
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    /* Approximate #FFD84D */
+    filter: invert(84%) sepia(67%) saturate(482%) hue-rotate(2deg) brightness(105%) contrast(104%);
+  }
+  /* Ensure dark-themed picker popovers */
+  input[type="date"] { color-scheme: dark; }
 }
 
 /* Ensure active router links that use link-ghost remain white */
