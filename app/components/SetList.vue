@@ -2,7 +2,7 @@
   <Card>
     <div v-if="sessionId" class="p-4">
       <header class="mb-2 flex items-center justify-between">
-        <h3 class="font-display text-lg">Recent Sets</h3>
+        <h3 class="heading-white">Recent Sets</h3>
         <span class="text-xs text-subtext">{{ items.length }} total</span>
       </header>
 

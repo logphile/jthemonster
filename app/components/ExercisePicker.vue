@@ -21,16 +21,34 @@ const categories: Array<{ value: CategoryKey; label: string }> = [
 const selectedCategory = ref<CategoryKey | ''>('')
 const legsParts = new Set(['quads', 'hamstrings', 'glutes', 'calves'])
 
+function humanizeName(v: string) {
+  return v
+    .replace(/[-_]+/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ')
+}
+function fmtName(name?: string | null, id?: string | null) {
+  const n = (name || '').trim()
+  if (n) {
+    const looksSlug = /[-_]/.test(n) || n === n.toLowerCase()
+    return looksSlug ? humanizeName(n) : n
+  }
+  const slug = (id || '').split('/').pop() || ''
+  return humanizeName(slug)
+}
+
 const filteredExercises = computed(() => {
-  if (!selectedCategory.value) return [] as Array<{ id:string; name:string }>
+  if (!selectedCategory.value) return [] as Array<{ id:string; name:string; display:string }>
   return (exercises.list || [])
     .filter((e: any) => {
       if (selectedCategory.value === 'legs') return legsParts.has(e.bodypart)
       if (selectedCategory.value === 'abs') return e.bodypart === 'abs' || e.bodypart === 'core'
       return e.bodypart === selectedCategory.value
     })
-    .map((e: any) => ({ id: e.id, name: e.name }))
-    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((e: any) => ({ id: e.id, name: e.name, display: fmtName(e.name, e.id) }))
+    .sort((a, b) => a.display.localeCompare(b.display))
 })
 
 // Reset exercise when category changes or option disappears
@@ -42,7 +60,7 @@ watch(filteredExercises, (opts) => {
 // Inline list dropdown state for exercises
 const listOpen = ref(false)
 const catOpen = ref(false)
-const nameById = computed(() => Object.fromEntries(filteredExercises.value.map(e => [e.id, e.name])))
+const nameById = computed(() => Object.fromEntries(filteredExercises.value.map(e => [e.id, e.display])))
 const currentExerciseLabel = computed(() => model.value ? (nameById.value[model.value] ?? 'Select exercise…') : 'Select exercise…')
 const currentCategoryLabel = computed(() => {
   const found = categories.find(c => c.value === selectedCategory.value)

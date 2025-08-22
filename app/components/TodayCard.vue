@@ -22,7 +22,7 @@
 
       <div class="mt-4">
         <PrimaryButton @click="$emit('start')">
-          <span class="title-small">{{ hasSession ? 'Resume Session' : 'Start Session' }}</span>
+          <span class="title-small">Start Session</span>
         </PrimaryButton>
         <p v-if="!hasSession" class="mt-2 text-xs text-white/70">Preparing session…</p>
       </div>
