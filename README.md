@@ -1,19 +1,60 @@
+<p align="center">
+  <img src="assets/banner.svg" alt="J THE MONSTER — Minimal Workout Logger" width="100%" />
+</p>
+
+## Table of Contents
+
+- [Why](#why)
+- [Features](#features-snapshot)
+- [Tech Stack](#tech-stack)
+- [Quickstart](#quickstart)
+- [Database](#database)
+- [Data Flow (store)](#data-flow-store)
+- [LLM-Assisted Development](#llm-assisted-development)
+- [Testing](#testing-manual)
+- [Roadmap](#roadmap)
+- [Acknowledgements](#acknowledgements)
+- [License](#license)
+
+<p align="center">
+  <a href="https://nuxt.com"><img alt="Nuxt 3" src="https://img.shields.io/badge/Nuxt-3-00DC82?logo=nuxt.js&logoColor=white"></a>
+  <a href="https://vuejs.org/"><img alt="Vue 3" src="https://img.shields.io/badge/Vue-3-42b883?logo=vue.js&logoColor=white"></a>
+  <a href="https://tailwindcss.com"><img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind-CSS-38B2AC?logo=tailwind-css&logoColor=white"></a>
+  <a href="https://supabase.com"><img alt="Supabase" src="https://img.shields.io/badge/Supabase-Postgres-3ECF8E?logo=supabase&logoColor=white"></a>
+  <a href="https://www.chartjs.org/"><img alt="Chart.js" src="https://img.shields.io/badge/Charts-Chart.js-F5788D?logo=chart.js&logoColor=white"></a>
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-black.svg"></a>
+</p>
+
+---
+
 J THE MONSTER
-A small, single-user–friendly workout logger I “vibe-coded” for my nephew to track gym progress.
-The app focuses on fast set logging, exercise discovery, and simple progress charts.
+<u>A minimal, single-user workout logger</u> I “vibe-coded” for my nephew to track sets, exercises, and progress without bloat.
 
-This README is intentionally technical and minimal.
 
-LLM-Assisted Development
-I used multiple LLMs for pair-programming and refactors:
 
-ChatGPT-5 (Thinking) — architecture, schema, UI polish
 
-Claude Sonnet 4 — component scaffolds, copyedits
 
-Gemini 2.5 Pro — test data generators, edge-case checks
 
-Prompts and diffs were iterated inline; there is no toolchain dependency at runtime.
+
+Why
+Fast set logging (two taps) so a beginner actually uses it.
+
+Opinionated catalog of mass-builder exercises to avoid choice paralysis.
+
+Simple visuals for adherence: “Am I trending up?”
+
+Features (snapshot)
+Exercise Catalog: ~105 popular movements across chest / triceps / back / biceps / legs / shoulders / abs.
+
+Log Sets Quickly: pick body part → exercise → enter set; minimal friction.
+
+Typeahead Add Modal: add custom exercises with duplicate guard and keyboard nav.
+
+Progress Chart: top-set with soft fill; legible on dark surfaces.
+
+Flat, high-contrast UI: purple surfaces, sun-yellow accents, fire-pink CTAs.
+
+Supabase RLS: reads open for catalog; writes scoped to user.
 
 Tech Stack
 Frontend
@@ -24,13 +65,13 @@ Pinia (state)
 
 Tailwind CSS (utility styling)
 
-Chart.js via vue-chartjs (progress charts)
+Chart.js via vue-chartjs
 
 Backend / Data
 
-Supabase (Postgres, Auth, RLS, SQL migrations)
+Supabase (Postgres, Auth, RLS)
 
-Row Level Security policies (read-mostly; user-scoped writes)
+SQL seeds + lightweight policies
 
 Tooling
 
@@ -38,66 +79,42 @@ ESLint + Prettier
 
 pnpm (or npm/yarn)
 
-Features
-Exercise catalog (≈105 seeded mass-builder/popular movements across 7 body parts)
-
-Log sets quickly by body part → exercise
-
-Auto-suggest/typeahead when adding custom exercises (duplicate guard)
-
-Simple progress visualization (top-set line/fill)
-
-Flat, high-contrast UI (purple surfaces, sun-yellow accents, fire-pink CTAs)
-
-Directory (high-level)
-pgsql
+Quickstart
+bash
 Copy
 Edit
-.
-├─ app.vue
-├─ pages/
-│  └─ index.vue                # landing / dashboard
-├─ components/
-│  └─ exercises/
-│     └─ AddExerciseModal.vue  # modal + typeahead
-├─ stores/
-│  └─ exercises.ts             # catalog + user rows, filters, create action
-├─ assets/
-│  └─ css/tailwind.css         # utilities (.select, .input-shell, etc.)
-├─ supabase/
-│  └─ sql/seed_exercises.sql   # optional: SQL seed used in setup
-└─ tailwind.config.ts
+pnpm install                # or npm i / yarn
+cp .env.example .env.local  # set Supabase URL + anon key
+pnpm dev                    # http://localhost:3000
+pnpm build && pnpm preview
 Environment
-Create .env or .env.local:
 
 bash
 Copy
 Edit
 NUXT_PUBLIC_SUPABASE_URL=https://<project-id>.supabase.co
-NUXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
+NUXT_PUBLIC_SUPABASE_ANON_KEY=<anon>
 Database
-The app expects a single table. There are two supported layouts.
+<u>Current layout (simple)</u>: single table public.exercises with catalog rows (user_id = NULL) and user rows (user_id = auth.uid()).
 
-Option A (current app) — single table public.exercises
-Columns
+Schema (essential)
 
-id uuid primary key default gen_random_uuid()
-
-user_id uuid null default auth.uid() ← catalog rows use NULL
-
-name text not null
-
-body_part text not null (expected values: chest|triceps|back|biceps|legs|shoulders|abs)
-
-equipment text null
-
+sql
+Copy
+Edit
+id uuid pk default gen_random_uuid(),
+user_id uuid null default auth.uid(),
+name text not null,
+body_part text not null,     -- 'chest'|'triceps'|'back'|'biceps'|'legs'|'shoulders'|'abs'
+equipment text null,
 created_at timestamptz not null default now()
-
 Uniqueness
 
-Case-insensitive per body part
-create unique index uniq_exercises_name_body_part on public.exercises (lower(name), body_part);
-
+sql
+Copy
+Edit
+create unique index if not exists uniq_exercises_name_body_part
+  on public.exercises (lower(name), body_part);
 RLS
 
 sql
@@ -105,108 +122,83 @@ Copy
 Edit
 alter table public.exercises enable row level security;
 
--- read for everyone
-drop policy if exists exercises_select_all on public.exercises;
-create policy exercises_select_all on public.exercises for select using (true);
+-- read catalog + user rows
+create policy if not exists exercises_select_all on public.exercises
+for select using (true);
 
--- insert/update only own rows; catalog (NULL user_id) allowed only via SQL/seed
-drop policy if exists exercises_insert_own on public.exercises;
-drop policy if exists exercises_update_own on public.exercises;
+-- user-scoped writes; catalog (NULL user_id) seeded via SQL
+create policy if not exists exercises_insert_own on public.exercises
+for insert with check (auth.uid() = user_id or user_id is null);
 
-create policy exercises_insert_own on public.exercises
-  for insert with check (auth.uid() = user_id or user_id is null);
+create policy if not exists exercises_update_own on public.exercises
+for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+Seed
 
-create policy exercises_update_own on public.exercises
-  for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
-Seed (catalog)
+supabase/sql/seed_exercises.sql (creates/patches + upserts ~105 rows), or
 
-Either run supabase/sql/seed_exercises.sql (creates/patches + upserts), or import the CSV.
+Import supabase/sql/exercises_seed.csv via Supabase Table Editor.
 
-Catalog rows are inserted with user_id = NULL.
+<details> <summary><strong>Alternative</strong>: split catalog into <code>exercise_catalog</code> (no user_id) + <code>exercises</code> (user rows)</summary>
+Seed goes into exercise_catalog with the same unique index.
 
-Option B (alternative) — split catalog
-If you prefer isolation:
+Client merges catalog ∪ mine in the store.
 
-public.exercise_catalog (no user_id) for seeded rows + index (lower(name), body_part).
+Cleaner isolation if you expect many user-added exercises.
 
-public.exercises for user-added rows (scoped by user_id).
-
-Client merges catalog ∪ mine in the store. (Store already supports Option A; switching is trivial.)
-
-Store (data flow)
+</details>
+Data Flow (store)
 stores/exercises.ts
 
 loadAll():
 
-Catalog: SELECT … FROM exercises WHERE user_id IS NULL
+catalog: SELECT … FROM exercises WHERE user_id IS NULL
 
-Mine: SELECT … FROM exercises WHERE user_id = auth.uid()
+mine: SELECT … FROM exercises WHERE user_id = auth.uid()
 
-Merge + keep in memory
+merge + keep in memory
 
 byPart(part) and search(q, part?) getters
 
 createCustom({ name, body_part, equipment }):
 
-Local duplicate guard (case-insensitive within body_part)
+local duplicate guard (case-insensitive within body part)
 
-Insert via Supabase (RLS default sets user_id)
+insert (RLS default fills user_id)
 
-Push into store on success
+server uniqueness enforced by index
 
-Server-side uniqueness enforced by index
-
-UI Notes
-Dropdowns use .select utility (custom arrow, white text, purple surface).
-
-Inputs use .input-shell.
-
-Section headings use .heading-white; date uses .title-large; greeting uses .greeting.
-
-AddExerciseModal.vue includes a dependency-free typeahead:
-
-Scoring: prefix > word-start > contains (+0.5 if same body part)
-
-Keyboard: ↑/↓/Enter/Esc
-
-Highlights matched substring via <span class="mark">…</span>
-
-Dev
-bash
+mermaid
 Copy
 Edit
-pnpm install         # or npm i / yarn
-pnpm dev             # http://localhost:3000
-pnpm build && pnpm preview
-Lint/format:
+flowchart LR
+  A[UI] -->|choose part| B[Store]
+  B -->|loadAll()| C[(Supabase)]
+  C -->|catalog (user_id IS NULL)| B
+  C -->|mine (user_id = auth.uid)| B
+  B -->|byPart/search| A
+  A -->|createCustom()| C
+LLM-Assisted Development
+ChatGPT-5 (Thinking) — architecture, schema, UI polish
 
-bash
+Claude Sonnet 4 — component scaffolds, copyedits
+
+Gemini 2.5 Pro — test data, edge-case checks
+
+Notes: prompts/diffs were iterated inline; no runtime LLM dependency.
+
+Testing (manual)
+sql
 Copy
 Edit
-pnpm lint
-pnpm format
-Testing (lightweight)
-There is no formal test suite yet. Manual checks:
+-- catalog totals (expect ~15 each body_part)
+select body_part, count(*) from public.exercises
+where user_id is null group by 1 order by 1;
 
-Seed present: SELECT body_part, count(*) FROM public.exercises WHERE user_id IS NULL GROUP BY 1 ORDER BY 1;
-
-Store smoke:
-
-await useExercises().loadAll()
-
-useExercises().byPart('back')
-
-useExercises().search('row','back')
-
-Security
-Reads are public (catalog), writes require authenticated user via RLS.
-
-Unique index prevents catalog duplication by case (e.g., “Bench press” vs “bench Press”).
-
-For multi-tenant deployments, move catalog to exercise_catalog and restrict writes on that table to service-role only.
-
+-- smoke check
+select id, name, body_part, equipment, user_id
+from public.exercises order by body_part, name limit 12;
 Roadmap
-Set/rep logging from the list row (inline)
+Inline set/rep logging from the list row
 
 Session templates (push/pull/legs)
 
@@ -216,8 +208,6 @@ Per-exercise PR tracking
 
 PWA offline cache
 
-License
-MIT. See LICENSE.
-
 Acknowledgements
-Thanks to my nephew for the motivation and to LLMs for the late-night pairing.
+For my nephew. Thanks for the motivation.
+And thanks to the LLMs for late-night pairing.
