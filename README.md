@@ -117,9 +117,8 @@ for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 Seed
 
-supabase/sql/seed_exercises.sql (creates/patches + upserts ~105 rows), or
-
-import supabase/sql/exercises_seed.csv via Supabase Table Editor.
+- supabase/sql/seed_exercises.sql (creates/patches + upserts ~105 rows), or
+- import supabase/sql/exercises_seed.csv via Supabase Table Editor.
 
 <details> <summary><strong>Alternative</strong>: split catalog into <code>exercise_catalog</code> (no user_id) + <code>exercises</code> (user rows)</summary>
 Seed goes into <code>exercise_catalog</code> with the same unique index.
@@ -127,10 +126,12 @@ Client merges <em>catalog ∪ mine</em> in the store.
 Cleaner isolation if you expect many user-added exercises.
 
 </details>
+
 Data Flow (store)
+
 stores/exercises.ts
 
-loadAll()
+- loadAll()
 
 catalog: SELECT … FROM exercises WHERE user_id IS NULL
 
@@ -138,15 +139,11 @@ mine: SELECT … FROM exercises WHERE user_id = auth.uid()
 
 merge + keep in memory
 
-byPart(part) and search(q, part?) getters
-
-createCustom({ name, body_part, equipment })
-
-local duplicate guard (case-insensitive within body part)
-
-insert (RLS default fills user_id)
-
-server uniqueness enforced by index
+- byPart(part) and search(q, part?) getters
+- createCustom({ name, body_part, equipment })
+-- local duplicate guard (case-insensitive within body part)
+-- insert (RLS default fills user_id)
+-- server uniqueness enforced by index
 
 ```mermaid
 flowchart LR
@@ -159,11 +156,9 @@ flowchart LR
 ```
 
 LLM-Assisted Development
-ChatGPT-5 (Thinking) — architecture, schema, UI polish
-
-Claude Sonnet 4 — component scaffolds, copyedits
-
-Gemini 2.5 Pro — test data, edge-case checks
+- ChatGPT-5 (Thinking) — architecture, schema, UI polish
+- Claude Sonnet 4 — component scaffolds, copyedits
+- Gemini 2.5 Pro — test data, edge-case checks
 
 Notes: prompts/diffs were iterated inline; no runtime LLM dependency.
 
@@ -180,15 +175,11 @@ from public.exercises order by body_part, name limit 12;
 ```
 
 Roadmap
-Inline set/rep logging from the list row
-
-Session templates (push/pull/legs)
-
-Export CSV
-
-Per-exercise PR tracking
-
-PWA offline cache
+- Inline set/rep logging from the list row
+- Session templates (push/pull/legs)
+- Export CSV
+- Per-exercise PR tracking
+- PWA offline cache
 
 Acknowledgements
 For my nephew. Thanks for the motivation.
