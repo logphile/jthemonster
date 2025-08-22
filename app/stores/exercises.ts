@@ -9,7 +9,7 @@ import { useAuth } from '../composables/useAuth'
 export const useExercises = defineStore('exercises', () => {
   const list = ref<any[]>([])
   const { queue, push } = useSync()
-  const { athleteUserId, canWrite } = useAuth()
+  const { user } = useAuth()
 
   async function load() {
     try {
@@ -26,16 +26,59 @@ export const useExercises = defineStore('exercises', () => {
     }
   }
 
-  const canEdit = computed(() => canWrite.value)
+  const canEdit = computed(() => !!user.value)
 
   async function add(name: string, category?: string) {
-    if (!canEdit.value) return
-    if (!athleteUserId.value) return
-    const row: any = { id: newId(), user_id: athleteUserId.value, name, category, created_at: nowIso(), updated_at: nowIso() }
+    if (!canEdit.value || !user.value) return
+    const row: any = { id: newId(), user_id: user.value.id, name, category, created_at: nowIso(), updated_at: nowIso() }
     await db.exercises.put(row)
     if (canEdit.value) await queue({ table: 'exercises', op: 'insert', payload: row })
     await push()
     await load()
+  }
+
+  // Map a bodypart to an approximate split key used elsewhere in the app
+  function splitFor(bp: string): string {
+    if (bp === 'chest' || bp === 'triceps') return 'chestTris'
+    if (bp === 'back' || bp === 'biceps') return 'backBis'
+    if (bp === 'quads' || bp === 'hamstrings' || bp === 'glutes' || bp === 'calves' || bp === 'legs') return 'legs'
+    if (bp === 'shoulders' || bp === 'abs' || bp === 'core') return 'shouldersAbs'
+    return ''
+  }
+
+  // Create a custom exercise (duplicate guard + offline-first insert + sync queue)
+  async function createCustom(payload: { name: string; bodypart: string; equipment?: string | null }) {
+    if (!canEdit.value) throw new Error('Not allowed')
+    if (!user.value) throw new Error('Missing user')
+    const name = (payload.name || '').trim()
+    if (name.length < 3) throw new Error('Please enter a longer name.')
+    const bp = (payload.bodypart || '').trim()
+
+    // Local duplicate guard (case-insensitive, same bodypart)
+    const exists = (list.value || []).some((e: any) =>
+      (e?.bodypart || '').trim() === bp && String(e?.name || '').trim().toLowerCase() === name.toLowerCase()
+    )
+    if (exists) throw new Error('An exercise with that name already exists for this body part.')
+
+    const row: any = {
+      id: newId(),
+      user_id: user.value.id,
+      name,
+      bodypart: bp,
+      split: splitFor(bp),
+      equipment: payload.equipment ?? null,
+      created_at: nowIso(),
+      updated_at: nowIso(),
+    }
+
+    // Write locally for instant UX
+    await db.exercises.put(row)
+    list.value.push(row)
+
+    // Queue for server sync (RLS may set user_id automatically if default exists)
+    await queue({ table: 'exercises', op: 'insert', payload: row })
+    await push()
+    return row
   }
 
   async function update(id: string, patch: any) {
@@ -55,5 +98,5 @@ export const useExercises = defineStore('exercises', () => {
     await push(); await load()
   }
 
-  return { list, load, add, update, remove }
+  return { list, load, add, update, remove, createCustom }
 })

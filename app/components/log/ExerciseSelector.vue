@@ -2,11 +2,14 @@
 import { ref, computed, onMounted } from 'vue'
 import { useQuickLog } from '~/composables/useQuickLog'
 import { useExercises as useExercisesStore } from '~/stores/exercises'
+import AddExerciseModal from '~/components/exercises/AddExerciseModal.vue'
 
 type CategoryKey = '' | 'chest' | 'triceps' | 'back' | 'biceps' | 'legs' | 'shoulders' | 'abs'
 
 const { open } = useQuickLog()
 const exercises = useExercisesStore()
+
+const showAdd = ref(false)
 
 // Body-part chips (All + primary groups)
 const categories: Array<{ value: CategoryKey; label: string }> = [
@@ -22,7 +25,7 @@ const categories: Array<{ value: CategoryKey; label: string }> = [
 
 const selectedCat = ref<CategoryKey>('')
 const search = ref('')
-const legsParts = new Set(['quads', 'hamstrings', 'glutes', 'calves'])
+const legsParts = new Set(['legs', 'quads', 'hamstrings', 'glutes', 'calves'])
 
 const filteredExercises = computed(() => {
   const term = search.value.trim().toLowerCase()
@@ -69,6 +72,7 @@ onMounted(() => { if (!Array.isArray(exercises.list) || !(exercises.list as any[
   <section class="card">
     <header class="flex items-center justify-between mb-3">
       <h2 class="heading-white">Log Exercise</h2>
+      <button class="btn-primary" @click="showAdd = true">Add Exercise</button>
     </header>
 
     <!-- Category chips -->
@@ -107,4 +111,5 @@ onMounted(() => { if (!Array.isArray(exercises.list) || !(exercises.list as any[
       <p v-if="!filteredExercises.length" class="text-sm opacity-60">No exercises match your filters.</p>
     </div>
   </section>
+  <AddExerciseModal v-if="showAdd" @close="showAdd = false" />
 </template>
