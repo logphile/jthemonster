@@ -141,9 +141,9 @@ merge + keep in memory
 
 - byPart(part) and search(q, part?) getters
 - createCustom({ name, body_part, equipment })
--- local duplicate guard (case-insensitive within body part)
--- insert (RLS default fills user_id)
--- server uniqueness enforced by index
+  - local duplicate guard (case-insensitive within body part)
+  - insert (RLS default fills user_id)
+  - server uniqueness enforced by index
 
 ```mermaid
 flowchart LR
