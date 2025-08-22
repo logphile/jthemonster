@@ -17,10 +17,10 @@ const chartRef = ref<any>(null)
         <div class="absolute inset-0 bg-black/70" @click="emit('close')" />
         <div class="absolute inset-x-2 sm:inset-x-6 md:inset-x-12 top-8 bottom-8 rounded-2xl bg-neutral-900 border border-white/10 shadow-2xl overflow-hidden flex flex-col">
           <header class="flex items-center justify-between px-4 py-3 border-b border-white/10 gap-2">
-            <h3 class="text-sm font-semibold opacity-90">Progress</h3>
+            <h3 class="heading-white">Progress</h3>
             <div class="ml-auto flex items-center gap-2">
-              <button class="px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 text-sm" @click="chartRef?.resetZoom?.()">Reset Zoom</button>
-              <button class="px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 text-sm" @click="emit('close')">Close</button>
+              <button class="px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 text-sm link-ghost" @click="chartRef?.resetZoom?.()">Reset Zoom</button>
+              <button class="px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 text-sm link-ghost" @click="emit('close')">Close</button>
             </div>
           </header>
           <div class="flex-1 p-2 sm:p-4">
